@@ -59,10 +59,10 @@ async function runIngestionCycle() {
   const shuffledQueries = shuffleArray(QUERIES);
   
   try {
-    // Load all existing titles case-insensitively once at startup of the cycle
+    // Load all existing titles and URLs once at startup of the cycle
     const { data: allExisting, error: fetchErr } = await supabase
       .from('registry')
-      .select('title');
+      .select('title, source_url');
       
     if (fetchErr) {
       console.error('❌ Failed to load existing registry for duplicate checking:', fetchErr);
@@ -71,6 +71,10 @@ async function runIngestionCycle() {
 
     const existingNormalizedTitles = new Set(
       allExisting?.map(r => r.title.toLowerCase().trim().replace(/\s+/g, ' ')) ?? []
+    );
+
+    const existingUrls = new Set(
+      allExisting?.map(r => r.source_url ? r.source_url.toLowerCase().trim() : '').filter(Boolean) ?? []
     );
 
     for (const query of shuffledQueries) {
@@ -84,9 +88,17 @@ async function runIngestionCycle() {
       
       if (rawPapers.length === 0) continue;
 
-      // De-duplicate in memory using our 100% case-insensitive and space-insensitive cache
+      // De-duplicate in memory using both 100% unique Source URL and normalized Title matching
       const newPapers = rawPapers.filter(p => {
         if (!p.title || !p.abstract) return false;
+        
+        // 1. Check by Source URL (DOI or landing page link)
+        if (p.sourceUrl) {
+          const normUrl = p.sourceUrl.toLowerCase().trim();
+          if (existingUrls.has(normUrl)) return false;
+        }
+
+        // 2. Check by Title case-insensitively
         const normalized = p.title.toLowerCase().trim().replace(/\s+/g, ' ');
         return !existingNormalizedTitles.has(normalized);
       });
@@ -156,6 +168,10 @@ async function runIngestionCycle() {
           // Cache this title case-insensitively so we don't insert it again in subsequent query loops
           const normalized = item.title.toLowerCase().trim().replace(/\s+/g, ' ');
           existingNormalizedTitles.add(normalized);
+
+          if (item.original.sourceUrl) {
+            existingUrls.add(item.original.sourceUrl.toLowerCase().trim());
+          }
         }
       }
     }
