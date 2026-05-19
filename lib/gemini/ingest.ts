@@ -24,15 +24,36 @@ export async function ingestPapersBatch(
     
   const prompt = `${INGESTION_SYSTEM_PROMPT}\n\nProcess these ${papers.length} papers. Return a JSON array of results matching the order and count of the provided papers. If a paper is not relevant, return { "isRelevant": false } for that index.\n\n${context}`;
   
+  let result;
+  let retries = 3;
+  let delay = 2000;
+  
+  while (retries > 0) {
+    try {
+      result = await model.generateContent({
+        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        generationConfig: {
+          responseMimeType: 'application/json',
+          temperature: 0.1,
+        },
+      });
+      break;
+    } catch (error: any) {
+      retries--;
+      if (retries === 0) {
+        console.error('Failed to ingest papers batch via Gemini after retries:', error);
+        throw error;
+      }
+      console.warn(`⚠️ Gemini API returned error: ${error.message}. Retrying in ${delay}ms... (${retries} retries left)`);
+      await new Promise(resolve => setTimeout(resolve, delay));
+      delay *= 2;
+    }
+  }
+  if (!result) {
+    throw new Error('Gemini API returned no result.');
+  }
+
   try {
-    const result = await model.generateContent({
-      contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      generationConfig: {
-        responseMimeType: 'application/json',
-        temperature: 0.1,
-      },
-    });
-    
     const text = result.response.text();
     
     // Quick sanitize to handle potential markdown backticks in output

@@ -43,8 +43,13 @@ export function reconstructAbstract(invertedIndex: Record<string, number[]> | un
 
 export async function fetchPapersFromOpenAlex(query: string, limit = 50): Promise<any[]> {
   const mailto = process.env.OPENALEX_MAILTO || 'team@thesignoftimes.com';
-  // Standard API format with has_abstract filter
-  const url = `https://api.openalex.org/works?search=${encodeURIComponent(query)}&filter=has_abstract:true&limit=${limit}&select=id,title,abstract_inverted_index,publication_year,authorships,doi,primary_location&mailto=${encodeURIComponent(mailto)}`;
+  const apiKey = process.env.OPENALEX_API_KEY;
+  
+  let url = `https://api.openalex.org/works?search=${encodeURIComponent(query)}&filter=has_abstract:true&per_page=${limit}&select=id,title,abstract_inverted_index,publication_year,authorships,doi,primary_location&mailto=${encodeURIComponent(mailto)}`;
+  
+  if (apiKey) {
+    url += `&api_key=${encodeURIComponent(apiKey)}`;
+  }
   
   const res = await fetch(url, {
     headers: {
@@ -53,7 +58,8 @@ export async function fetchPapersFromOpenAlex(query: string, limit = 50): Promis
   });
   
   if (!res.ok) {
-    throw new Error(`OpenAlex error: ${res.status} ${res.statusText}`);
+    const errText = await res.text().catch(() => '');
+    throw new Error(`OpenAlex error: ${res.status} ${res.statusText} - Details: ${errText}`);
   }
   
   const data = await res.json();

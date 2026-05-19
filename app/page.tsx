@@ -19,7 +19,7 @@ const SEED_RECORDS: RegistryRecord[] = [
     paper_year: 2026,
     authors: 'Monopoli, V., & Lora, A.',
     is_premium: false,
-    created_at: new Date().toISOString(),
+    created_at: '2026-05-19T00:00:00.000Z',
   },
   {
     id: 2,
@@ -35,7 +35,7 @@ const SEED_RECORDS: RegistryRecord[] = [
     paper_year: 2026,
     authors: 'Gartner, E., et al.',
     is_premium: false,
-    created_at: new Date().toISOString(),
+    created_at: '2026-05-19T00:00:00.000Z',
   },
   {
     id: 3,
@@ -51,7 +51,7 @@ const SEED_RECORDS: RegistryRecord[] = [
     paper_year: 2025,
     authors: 'Chen, H., & Muller, S.',
     is_premium: false,
-    created_at: new Date().toISOString(),
+    created_at: '2026-05-19T00:00:00.000Z',
   },
   {
     id: 4,
@@ -67,7 +67,7 @@ const SEED_RECORDS: RegistryRecord[] = [
     paper_year: 2026,
     authors: 'Watanabe, Y., & Schmidt, M.',
     is_premium: false,
-    created_at: new Date().toISOString(),
+    created_at: '2026-05-19T00:00:00.000Z',
   },
   {
     id: 5,
@@ -83,7 +83,7 @@ const SEED_RECORDS: RegistryRecord[] = [
     paper_year: 2026,
     authors: 'Boudreau, T., et al.',
     is_premium: false,
-    created_at: new Date().toISOString(),
+    created_at: '2026-05-19T00:00:00.000Z',
   },
   {
     id: 6,
@@ -99,7 +99,7 @@ const SEED_RECORDS: RegistryRecord[] = [
     paper_year: 2026,
     authors: 'Vargas, L., & Kim, J.',
     is_premium: false,
-    created_at: new Date().toISOString(),
+    created_at: '2026-05-19T00:00:00.000Z',
   }
 ];
 

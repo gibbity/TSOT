@@ -28,16 +28,16 @@ export default function Masthead() {
 
       {/* Masthead Title */}
       <div className="max-w-[1200px] mx-auto px-6 py-5 border-t border-b border-border">
-        <Link href="/">
-          <h1 className="font-gambarino text-[48px] md:text-[60px] leading-[1] tracking-[-0.03em] text-carbon text-center select-none font-bold">
+        <h1 className="font-gambarino text-[32px] sm:text-[48px] md:text-[60px] leading-[1.1] tracking-[-0.03em] text-carbon text-center select-none font-bold break-words">
+          <Link href="/" className="hover:text-mid-concrete transition-colors">
             The Sign of Times
-          </h1>
-        </Link>
+          </Link>
+        </h1>
       </div>
 
       {/* Navigation */}
       <nav className="max-w-[1200px] mx-auto px-6">
-        <ul className="flex items-center gap-8 py-3">
+        <ul className="flex flex-wrap items-center gap-x-4 gap-y-2 sm:gap-x-8 py-3">
           {NAV.map(item => {
             const isActive = path === item.href || (item.href !== '/' && path.startsWith(item.href));
             return (
@@ -55,10 +55,10 @@ export default function Masthead() {
               </li>
             );
           })}
-          <li className="ml-auto">
+          <li className="ml-auto sm:ml-auto">
             <Link
               href="/auditor"
-              className="font-sans text-[11px] font-bold uppercase tracking-[0.08em] border border-premium text-premium px-4 py-1.5 hover:bg-premium hover:text-white transition-colors"
+              className="font-sans text-[11px] font-bold uppercase tracking-[0.08em] border border-premium text-premium px-3 sm:px-4 py-1.5 hover:bg-premium hover:text-white transition-colors whitespace-nowrap"
             >
               Premium Auditor
             </Link>

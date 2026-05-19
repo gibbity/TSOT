@@ -2,7 +2,7 @@
 -- Execute this directly in your Supabase SQL Editor.
 
 -- Enable pgvector extension (if not already enabled)
-create extension if exists vector;
+create extension if not exists vector;
 
 -- 1. Main registry table
 create table if not exists public.registry (
@@ -25,12 +25,14 @@ create table if not exists public.registry (
   authors text,
   is_premium boolean default false,
   embedding vector(768),
+  fts tsvector generated always as (
+    to_tsvector('english', coalesce(title, '') || ' ' || coalesce(human_summary, '') || ' ' || coalesce(verdict, ''))
+  ) stored,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
 -- 2. Full text search index (for keyword-based search engine fallback)
-create index if not exists registry_fts_idx on public.registry 
-using gin(to_tsvector('english', title || ' ' || human_summary || ' ' || verdict));
+create index if not exists registry_fts_idx on public.registry using gin(fts);
 
 -- 3. Vector similarity index (for semantic search, lists set to 100 as base)
 create index if not exists registry_embedding_idx on public.registry 

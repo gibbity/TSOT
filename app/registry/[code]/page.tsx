@@ -20,7 +20,7 @@ const SEED_RECORDS: RegistryRecord[] = [
     paper_year: 2026,
     authors: 'Monopoli, V., & Lora, A.',
     is_premium: false,
-    created_at: new Date().toISOString(),
+    created_at: '2026-05-19T00:00:00.000Z',
   },
   {
     id: 2,
@@ -36,7 +36,7 @@ const SEED_RECORDS: RegistryRecord[] = [
     paper_year: 2026,
     authors: 'Gartner, E., et al.',
     is_premium: false,
-    created_at: new Date().toISOString(),
+    created_at: '2026-05-19T00:00:00.000Z',
   },
   {
     id: 3,
@@ -52,7 +52,7 @@ const SEED_RECORDS: RegistryRecord[] = [
     paper_year: 2025,
     authors: 'Chen, H., & Muller, S.',
     is_premium: false,
-    created_at: new Date().toISOString(),
+    created_at: '2026-05-19T00:00:00.000Z',
   },
   {
     id: 4,
@@ -68,7 +68,7 @@ const SEED_RECORDS: RegistryRecord[] = [
     paper_year: 2026,
     authors: 'Watanabe, Y., & Schmidt, M.',
     is_premium: false,
-    created_at: new Date().toISOString(),
+    created_at: '2026-05-19T00:00:00.000Z',
   },
   {
     id: 5,
@@ -84,7 +84,7 @@ const SEED_RECORDS: RegistryRecord[] = [
     paper_year: 2026,
     authors: 'Boudreau, T., et al.',
     is_premium: false,
-    created_at: new Date().toISOString(),
+    created_at: '2026-05-19T00:00:00.000Z',
   },
   {
     id: 6,
@@ -100,7 +100,7 @@ const SEED_RECORDS: RegistryRecord[] = [
     paper_year: 2026,
     authors: 'Vargas, L., & Kim, J.',
     is_premium: false,
-    created_at: new Date().toISOString(),
+    created_at: '2026-05-19T00:00:00.000Z',
   }
 ];
 
@@ -133,25 +133,27 @@ export default async function RecordPage({ params }: PageProps) {
   
   let record: RegistryRecord | null = null;
 
-  // 1. Search fallback seeds first
-  const seed = SEED_RECORDS.find((r) => r.code.toUpperCase() === code.toUpperCase());
-  if (seed) {
-    record = seed;
-  } else {
-    // 2. Fetch from Supabase
-    try {
-      const supabase = await createClient();
-      const { data } = await supabase
-        .from('registry')
-        .select('*')
-        .eq('code', code)
-        .single();
-        
-      if (data) {
-        record = data as RegistryRecord;
-      }
-    } catch (e) {
-      console.warn('Failed to query record from Supabase', e);
+  // 1. Fetch from Supabase first
+  try {
+    const supabase = await createClient();
+    const { data } = await supabase
+      .from('registry')
+      .select('*')
+      .eq('code', code)
+      .single();
+      
+    if (data) {
+      record = data as RegistryRecord;
+    }
+  } catch (e) {
+    console.warn('Failed to query record from Supabase, attempting fallback seeds.', e);
+  }
+
+  // 2. Fallback to local seeds
+  if (!record) {
+    const seed = SEED_RECORDS.find((r) => r.code.toUpperCase() === code.toUpperCase());
+    if (seed) {
+      record = seed;
     }
   }
 
@@ -176,7 +178,7 @@ export default async function RecordPage({ params }: PageProps) {
 
       <article className="border border-border bg-white select-text">
         {/* Top Header Panel Info */}
-        <div className="border-b border-border px-8 py-5 flex flex-wrap justify-between items-center bg-concrete/10 gap-4">
+        <div className="border-b border-border px-6 sm:px-8 py-5 flex flex-wrap justify-between items-center bg-concrete/10 gap-4">
           <div className="flex items-center gap-4">
             <span className="font-mono text-[13px] font-bold text-carbon">
               #{record.code}
@@ -196,7 +198,7 @@ export default async function RecordPage({ params }: PageProps) {
         </div>
 
         {/* H1 Serified Title */}
-        <div className="px-8 pt-8 pb-6 border-b border-border">
+        <div className="px-6 sm:px-8 pt-6 sm:pt-8 pb-6 border-b border-border">
           <h1 className="font-gambarino text-[28px] sm:text-[34px] md:text-[40px] leading-[1.15] text-carbon font-bold tracking-[-0.02em]">
             {record.title}
           </h1>
@@ -206,7 +208,7 @@ export default async function RecordPage({ params }: PageProps) {
         <div className={`grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-border ${riskBorder}`}>
           
           {/* Left Column: Human Summary */}
-          <div className="p-8 flex flex-col justify-between">
+          <div className="p-6 sm:p-8 flex flex-col justify-between">
             <div>
               <h3 className="font-sans text-[10px] font-bold tracking-[0.15em] text-mid-concrete uppercase mb-4">
                 HUMAN TRANSLATION / ANALYSIS
@@ -238,7 +240,7 @@ export default async function RecordPage({ params }: PageProps) {
           </div>
 
           {/* Right Column: Empirical Metric & Actionable Verdict */}
-          <div className="p-8 flex flex-col gap-8 bg-concrete/5">
+          <div className="p-6 sm:p-8 flex flex-col gap-8 bg-concrete/5">
             {/* Metric Panel */}
             <div className="border border-border p-5 bg-white">
               <span className="font-sans text-[10px] font-bold tracking-[0.15em] text-mid-concrete uppercase block mb-3">
