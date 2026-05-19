@@ -1,0 +1,60 @@
+@import "tailwindcss";
+
+@theme {
+  --color-carbon: #0B0B0B;
+  --color-concrete: #F2F0EB;
+  --color-mid-concrete: #7A7A79;
+  --color-signal: #FF3E00;
+  --color-stable: #1A7A4A;
+  --color-warning: #E8A020;
+  --color-critical: #FF3E00;
+  --color-border: #E0DED8;
+  --color-premium: #534AB7;
+
+  --font-gambarino: var(--font-gambarino), Georgia, serif;
+  --font-sans: var(--font-dm-sans), "DM Sans", sans-serif;
+  --font-mono: monospace;
+}
+
+:root {
+  --background: #ffffff;
+  --foreground: #0B0B0B;
+  --color-border: #E0DED8;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  min-height: 100vh;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom Editorial / Brutalist Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #F2F0EB;
+}
+::-webkit-scrollbar-thumb {
+  background: #7A7A79;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #0B0B0B;
+}
+
+/* Hard outlines for high-contrast focus */
+input:focus, textarea:focus, button:focus-visible {
+  outline: 1px solid #FF3E00 !important;
+  outline-offset: -1px;
+}
+
+/* Text selections matching the brutalist accent */
+::selection {
+  background-color: #FF3E00;
+  color: #ffffff;
+}
