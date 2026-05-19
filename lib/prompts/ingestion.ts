@@ -47,8 +47,10 @@ FOR EACH PAPER ABSTRACT PROVIDED, return valid JSON matching this exact schema:
   "pillar": "COGNITIVE OFFLOADING" | "FRICTION & VERIFICATION" | "TEMPORAL PERCEPTION" | "EPISTEMIC AGENCY",
   "title": string,          // Max 12 words. Names what changed for humans, not what was studied. No jargon.
   "human_summary": string,  // 120-160 words. Structure: opening human moment -> what researchers actually did -> key finding in plain language -> one specific number/metric -> what it means for someone building or using AI today. Must NEVER start with "This study", "Researchers", or "According to".
+  "methodology": string,    // Concise summary of the research setup/methodology. Max 15 words. Example: "8-Week Longitudinal Cohort study (n=312 knowledge workers)"
+  "threat_vector": string,  // The primary human cognitive vulnerability or bias compromised. Max 6 words. Example: "Automation Bias & Prospective Memory Decay"
   "metric": string,         // ONE empirical number. Format: [what was measured] + [result] + [sample context]. Example: "Memory recall dropped 23% after 8 weeks of daily AI assistant use (n=312 knowledge workers)."
-  "verdict": string,        // ONE actionable design constraint or behavioral implication. NOT a vague recommendation like "designers should consider X". Instead, use concrete parameters: "Any AI system handling more than 3 sequential tasks without human confirmation creates measurable memory erosion within 6 weeks — build a review gate."
+  "verdict": string,        // ONE actionable verdict or behavioral implication. NOT a vague recommendation like "builders should consider X". Instead, use concrete parameters: "Any AI system handling more than 3 sequential tasks without human confirmation creates measurable memory erosion within 6 weeks — build a review gate."
   "risk_level": "stable" | "warning" | "critical",
   "source_type": "peer-reviewed" | "preprint" | "conference"
 }

@@ -143,12 +143,21 @@ async function runIngestionCycle() {
           }
         }
 
+        // Option A: pre-format methodology and threat_vector as structured markdown sections inside human_summary
+        let formattedSummary = item.human_summary;
+        if (item.methodology && item.methodology.trim() !== '') {
+          formattedSummary += `\n\n**RESEARCH METHODOLOGY**\n${item.methodology.trim()}`;
+        }
+        if (item.threat_vector && item.threat_vector.trim() !== '') {
+          formattedSummary += `\n\n**COGNITIVE THREAT VECTOR**\n${item.threat_vector.trim()}`;
+        }
+
         console.log(`✍️ Inserting paper: "${item.title}" [${item.pillar}]`);
         const { error: insertErr } = await supabase.from('registry').insert({
           code,
           pillar: item.pillar,
           title: item.title,
-          human_summary: item.human_summary,
+          human_summary: formattedSummary,
           metric: item.metric,
           verdict: item.verdict,
           risk_level: item.risk_level,
