@@ -258,14 +258,25 @@ export default async function RecordPage({ params }: PageProps) {
           {/* Right Column: Empirical Metric & Actionable Verdict & Metadata */}
           <div className="p-6 sm:p-8 flex flex-col gap-6 bg-concrete/5">
             {/* Metric Panel */}
-            <div className="border border-border p-5 bg-white">
-              <span className="font-sans text-[10px] font-bold tracking-[0.15em] text-mid-concrete uppercase block mb-3">
-                EMPIRICAL METRIC RECORDED
-              </span>
-              <p className="font-sans text-[15px] font-bold text-carbon leading-snug">
-                {record.metric}
-              </p>
-            </div>
+            {(() => {
+              const hasMetric = record.metric && 
+                record.metric.trim() !== '' && 
+                !record.metric.toLowerCase().includes('not available') && 
+                record.metric.toLowerCase() !== 'n/a';
+                
+              if (!hasMetric) return null;
+              
+              return (
+                <div className="border border-border p-5 bg-white">
+                  <span className="font-sans text-[10px] font-bold tracking-[0.15em] text-mid-concrete uppercase block mb-3">
+                    EMPIRICAL METRIC RECORDED
+                  </span>
+                  <p className="font-sans text-[15px] font-bold text-carbon leading-snug">
+                    {record.metric}
+                  </p>
+                </div>
+              );
+            })()}
 
             {/* Actionable Verdict Panel */}
             <div className="border border-border p-5 bg-white relative">
