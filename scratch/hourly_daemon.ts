@@ -2,9 +2,9 @@ import { createClient } from '@supabase/supabase-js';
 import { fetchPapersFromOpenAlex } from '../lib/openalex/fetch';
 import { ingestPapersBatch } from '../lib/gemini/ingest';
 
-const BATCH_SIZE = 5;
-const TARGET_INSERTED_PER_RUN = 60;
-const ONE_HOUR_MS = 60 * 60 * 1000; // 3,600,000 ms
+const BATCH_SIZE = 8;
+const TARGET_INSERTED_PER_RUN = 8;
+const ONE_MINUTE_MS = 60 * 1000; // 60,000 ms
 
 const QUERIES = [
   '"cognitive offloading" "AI assistance"',
@@ -40,7 +40,7 @@ function shuffleArray<T>(array: T[]): T[] {
 
 async function runIngestionCycle() {
   console.log(`\n======================================================`);
-  console.log(`⏰ [${new Date().toISOString()}] STARTING HOURLY INGESTION CYCLE`);
+  console.log(`⏰ [${new Date().toLocaleTimeString()}] STARTING MINUTELY INGESTION CYCLE`);
   console.log(`🎯 Target: Ingest exactly ${TARGET_INSERTED_PER_RUN} new papers...`);
   console.log(`======================================================`);
 
@@ -59,6 +59,20 @@ async function runIngestionCycle() {
   const shuffledQueries = shuffleArray(QUERIES);
   
   try {
+    // Load all existing titles case-insensitively once at startup of the cycle
+    const { data: allExisting, error: fetchErr } = await supabase
+      .from('registry')
+      .select('title');
+      
+    if (fetchErr) {
+      console.error('❌ Failed to load existing registry for duplicate checking:', fetchErr);
+      return;
+    }
+
+    const existingNormalizedTitles = new Set(
+      allExisting?.map(r => r.title.toLowerCase().trim().replace(/\s+/g, ' ')) ?? []
+    );
+
     for (const query of shuffledQueries) {
       if (insertedCount >= TARGET_INSERTED_PER_RUN) {
         break;
@@ -70,25 +84,17 @@ async function runIngestionCycle() {
       
       if (rawPapers.length === 0) continue;
 
-      // De-duplicate: filter out titles that already exist in our registry
-      const titles = rawPapers.map(p => p.title).filter(Boolean);
-      const { data: existingRecords, error: fetchErr } = await supabase
-        .from('registry')
-        .select('title')
-        .in('title', titles);
-        
-      if (fetchErr) {
-        console.error('❌ Failed to query database for duplicates:', fetchErr);
-        continue;
-      }
-
-      const existingTitles = new Set(existingRecords?.map(r => r.title) ?? []);
-      const newPapers = rawPapers.filter(p => !existingTitles.has(p.title) && p.abstract);
+      // De-duplicate in memory using our 100% case-insensitive and space-insensitive cache
+      const newPapers = rawPapers.filter(p => {
+        if (!p.title || !p.abstract) return false;
+        const normalized = p.title.toLowerCase().trim().replace(/\s+/g, ' ');
+        return !existingNormalizedTitles.has(normalized);
+      });
 
       console.log(`Filtering duplicates: ${newPapers.length} new papers eligible for ingestion.`);
       if (newPapers.length === 0) continue;
 
-      // Slice batch based on current progress towards the hourly limit
+      // Slice batch based on current progress towards the minutely limit
       const remainingTarget = TARGET_INSERTED_PER_RUN - insertedCount;
       const batchToProcess = newPapers.slice(0, Math.min(BATCH_SIZE, remainingTarget));
       
@@ -146,6 +152,10 @@ async function runIngestionCycle() {
         } else {
           console.log(`✨ Inserted successfully as ${code}!`);
           insertedCount++;
+          
+          // Cache this title case-insensitively so we don't insert it again in subsequent query loops
+          const normalized = item.title.toLowerCase().trim().replace(/\s+/g, ' ');
+          existingNormalizedTitles.add(normalized);
         }
       }
     }
@@ -162,25 +172,25 @@ async function runIngestionCycle() {
 // Continuous Daemon Loop Runner
 async function startDaemon() {
   console.log(`======================================================`);
-  console.log(`🤖 TSOT AUTOMATED HOURLY INGESTION DAEMON STARTED`);
-  console.log(`⏳ Timer: 60 papers every 1 hour (3600s)`);
+  console.log(`🤖 TSOT AUTOMATED MINUTELY INGESTION DAEMON STARTED`);
+  console.log(`⏳ Timer: 8 papers every 1 minute (60s)`);
   console.log(`📡 Models: OpenAlex API + Gemini 3.1 Flash Lite`);
   console.log(`======================================================`);
 
   // Run immediately on startup
   await runIngestionCycle();
 
-  console.log(`\n⏳ Next ingestion cycle scheduled in 1 hour (${new Date(Date.now() + ONE_HOUR_MS).toLocaleTimeString()})...`);
+  console.log(`\n⏳ Next ingestion cycle scheduled in 1 minute (${new Date(Date.now() + ONE_MINUTE_MS).toLocaleTimeString()})...`);
   
-  // Set the hourly interval
+  // Set the 1 minute interval
   setInterval(async () => {
     try {
       await runIngestionCycle();
     } catch (err) {
       console.error('❌ Background daemon interval task failed:', err);
     }
-    console.log(`\n⏳ Next ingestion cycle scheduled in 1 hour (${new Date(Date.now() + ONE_HOUR_MS).toLocaleTimeString()})...`);
-  }, ONE_HOUR_MS);
+    console.log(`\n⏳ Next ingestion cycle scheduled in 1 minute (${new Date(Date.now() + ONE_MINUTE_MS).toLocaleTimeString()})...`);
+  }, ONE_MINUTE_MS);
 }
 
 startDaemon();
