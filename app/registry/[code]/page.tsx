@@ -163,6 +163,11 @@ export default async function RecordPage({ params }: PageProps) {
 
   const themeColor = PILLAR_COLORS[record.pillar] || '#7A7A79';
   const riskBorder = RISK_BORDER_COLORS[record.risk_level] || 'border-l-[3px] border-border';
+  
+  const hasMetric = record.metric && 
+    !record.metric.toLowerCase().includes('not available') && 
+    !record.metric.toLowerCase().includes('n/a') && 
+    record.metric.trim() !== '';
 
   return (
     <main className="py-12 max-w-[900px] mx-auto px-6">
@@ -242,14 +247,16 @@ export default async function RecordPage({ params }: PageProps) {
           {/* Right Column: Empirical Metric & Actionable Verdict */}
           <div className="p-6 sm:p-8 flex flex-col gap-8 bg-concrete/5">
             {/* Metric Panel */}
-            <div className="border border-border p-5 bg-white">
-              <span className="font-sans text-[10px] font-bold tracking-[0.15em] text-mid-concrete uppercase block mb-3">
-                EMPIRICAL METRIC RECORDED
-              </span>
-              <p className="font-sans text-[15px] font-bold text-carbon leading-snug">
-                {record.metric}
-              </p>
-            </div>
+            {hasMetric && (
+              <div className="border border-border p-5 bg-white">
+                <span className="font-sans text-[10px] font-bold tracking-[0.15em] text-mid-concrete uppercase block mb-3">
+                  EMPIRICAL METRIC RECORDED
+                </span>
+                <p className="font-sans text-[15px] font-bold text-carbon leading-snug">
+                  {record.metric}
+                </p>
+              </div>
+            )}
 
             {/* Actionable Verdict Panel */}
             <div className="border border-border p-5 bg-white relative">
@@ -258,7 +265,7 @@ export default async function RecordPage({ params }: PageProps) {
               <span className="absolute top-0 right-0 h-2 w-[1px] bg-signal"></span>
 
               <span className="font-sans text-[10px] font-bold tracking-[0.15em] text-signal uppercase block mb-3">
-                ACTIONABLE DESIGN VERDICT
+                ACTIONABLE VERDICT
               </span>
               <p className="font-sans text-[14px] text-carbon leading-[1.6]">
                 {record.verdict}
