@@ -130,7 +130,7 @@ interface PageProps {
 
 export default async function RecordPage({ params }: PageProps) {
   const { code } = await params;
-  
+
   let record: RegistryRecord | null = null;
 
   // 1. Fetch from Supabase first
@@ -141,7 +141,7 @@ export default async function RecordPage({ params }: PageProps) {
       .select('*')
       .eq('code', code)
       .single();
-      
+
     if (data) {
       record = data as RegistryRecord;
     }
@@ -163,11 +163,22 @@ export default async function RecordPage({ params }: PageProps) {
 
   const themeColor = PILLAR_COLORS[record.pillar] || '#7A7A79';
   const riskBorder = RISK_BORDER_COLORS[record.risk_level] || 'border-l-[3px] border-border';
-  
-  const hasMetric = record.metric && 
-    !record.metric.toLowerCase().includes('not available') && 
-    !record.metric.toLowerCase().includes('n/a') && 
-    record.metric.trim() !== '';
+
+  let humanSummaryNarrative = record.human_summary;
+  let methodology = '';
+  let threatVector = '';
+
+  const methodologyMatch = humanSummaryNarrative.match(/\*\*RESEARCH METHODOLOGY\*\*\n([\s\S]*?)(?=\n\n\*\*|$)/);
+  const threatVectorMatch = humanSummaryNarrative.match(/\*\*COGNITIVE THREAT VECTOR\*\*\n([\s\S]*?)(?=\n\n\*\*|$)/);
+
+  if (methodologyMatch) {
+    methodology = methodologyMatch[1].trim();
+    humanSummaryNarrative = humanSummaryNarrative.replace(/\n*\*\*RESEARCH METHODOLOGY\*\*\n[\s\S]*?(?=\n\n\*\*|$)/, '').trim();
+  }
+  if (threatVectorMatch) {
+    threatVector = threatVectorMatch[1].trim();
+    humanSummaryNarrative = humanSummaryNarrative.replace(/\n*\*\*COGNITIVE THREAT VECTOR\*\*\n[\s\S]*?(?=\n\n\*\*|$)/, '').trim();
+  }
 
   return (
     <main className="py-12 max-w-[900px] mx-auto px-6">
@@ -211,7 +222,7 @@ export default async function RecordPage({ params }: PageProps) {
 
         {/* Multi Column Layout Content */}
         <div className={`grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-border ${riskBorder}`}>
-          
+
           {/* Left Column: Human Summary */}
           <div className="p-6 sm:p-8 flex flex-col justify-between">
             <div>
@@ -219,7 +230,7 @@ export default async function RecordPage({ params }: PageProps) {
                 HUMAN TRANSLATION / ANALYSIS
               </h3>
               <p className="font-sans text-[14px] text-carbon leading-[1.7] whitespace-pre-line">
-                {record.human_summary}
+                {humanSummaryNarrative}
               </p>
             </div>
             {record.authors && (
@@ -244,19 +255,17 @@ export default async function RecordPage({ params }: PageProps) {
             )}
           </div>
 
-          {/* Right Column: Empirical Metric & Actionable Verdict */}
-          <div className="p-6 sm:p-8 flex flex-col gap-8 bg-concrete/5">
+          {/* Right Column: Empirical Metric & Actionable Verdict & Metadata */}
+          <div className="p-6 sm:p-8 flex flex-col gap-6 bg-concrete/5">
             {/* Metric Panel */}
-            {hasMetric && (
-              <div className="border border-border p-5 bg-white">
-                <span className="font-sans text-[10px] font-bold tracking-[0.15em] text-mid-concrete uppercase block mb-3">
-                  EMPIRICAL METRIC RECORDED
-                </span>
-                <p className="font-sans text-[15px] font-bold text-carbon leading-snug">
-                  {record.metric}
-                </p>
-              </div>
-            )}
+            <div className="border border-border p-5 bg-white">
+              <span className="font-sans text-[10px] font-bold tracking-[0.15em] text-mid-concrete uppercase block mb-3">
+                EMPIRICAL METRIC RECORDED
+              </span>
+              <p className="font-sans text-[15px] font-bold text-carbon leading-snug">
+                {record.metric}
+              </p>
+            </div>
 
             {/* Actionable Verdict Panel */}
             <div className="border border-border p-5 bg-white relative">
@@ -271,8 +280,31 @@ export default async function RecordPage({ params }: PageProps) {
                 {record.verdict}
               </p>
             </div>
+
+            {/* Structured Metadata Boxes (Methodology & Threat Vector) */}
+            {methodology && (
+              <div className="border border-border p-5 bg-white">
+                <span className="font-sans text-[10px] font-bold tracking-[0.15em] text-mid-concrete uppercase block mb-2">
+                  RESEARCH METHODOLOGY
+                </span>
+                <p className="font-sans text-[13px] text-carbon leading-[1.6]">
+                  {methodology}
+                </p>
+              </div>
+            )}
+            
+            {threatVector && (
+              <div className="border border-border p-5 bg-white">
+                <span className="font-sans text-[10px] font-bold tracking-[0.15em] text-mid-concrete uppercase block mb-2">
+                  COGNITIVE THREAT VECTOR
+                </span>
+                <p className="font-sans text-[13px] text-carbon leading-[1.6]">
+                  {threatVector}
+                </p>
+              </div>
+            )}
           </div>
-          
+
         </div>
       </article>
     </main>
