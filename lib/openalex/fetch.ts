@@ -45,7 +45,7 @@ export async function fetchPapersFromOpenAlex(query: string, limit = 50): Promis
   const mailto = process.env.OPENALEX_MAILTO || 'team@thesignoftimes.com';
   const apiKey = process.env.OPENALEX_API_KEY;
   
-  let url = `https://api.openalex.org/works?search=${encodeURIComponent(query)}&filter=has_abstract:true&per_page=${limit}&select=id,title,abstract_inverted_index,publication_year,authorships,doi,primary_location&mailto=${encodeURIComponent(mailto)}`;
+  let url = `https://api.openalex.org/works?search=${encodeURIComponent(query)}&filter=has_abstract:true&sample=${limit}&select=id,title,abstract_inverted_index,publication_year,authorships,doi,primary_location&mailto=${encodeURIComponent(mailto)}`;
   
   if (apiKey) {
     url += `&api_key=${encodeURIComponent(apiKey)}`;

@@ -40,10 +40,10 @@ export interface IngestedPaper {
   pillar: Pillar;
   title: string;
   human_summary: string;
-  methodology?: string;
-  threat_vector?: string;
   metric: string;
   verdict: string;
   risk_level: RiskLevel;
   source_type: SourceType;
+  methodology?: string;
+  threat_vector?: string;
 }

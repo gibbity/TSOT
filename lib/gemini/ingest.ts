@@ -35,6 +35,7 @@ export async function ingestPapersBatch(
         generationConfig: {
           responseMimeType: 'application/json',
           temperature: 0.1,
+          maxOutputTokens: 8192,
         },
       });
       break;
@@ -66,7 +67,25 @@ export async function ingestPapersBatch(
     }
     sanitizedText = sanitizedText.trim();
     
-    const parsed = JSON.parse(sanitizedText);
+    let parsed: any[];
+    try {
+      parsed = JSON.parse(sanitizedText);
+    } catch (parseErr) {
+      // Gemini truncated the JSON — attempt to recover all complete objects
+      console.warn(`⚠️  JSON truncated by Gemini. Attempting partial recovery...`);
+      // Find the last closing } that belongs to a complete array element
+      const lastClose = sanitizedText.lastIndexOf('}');
+      if (lastClose === -1) throw parseErr;
+      const truncated = sanitizedText.substring(0, lastClose + 1);
+      // Re-wrap as a valid JSON array
+      const recovered = truncated.startsWith('[') ? truncated + ']' : '[' + truncated + ']';
+      try {
+        parsed = JSON.parse(recovered);
+        console.warn(`✅ Partial recovery succeeded: recovered ${parsed.length} paper(s) from truncated output.`);
+      } catch {
+        throw parseErr; // give up, throw the original error
+      }
+    }
     
     if (!Array.isArray(parsed)) {
       throw new Error('Gemini did not return an array of results.');

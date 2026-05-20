@@ -10,86 +10,76 @@ async function cleanupDuplicates() {
   }
 
   const supabase = createClient(supabaseUrl, serviceRoleKey);
-  const { data, error } = await supabase.from('registry').select('id, title, source_url, code, pillar');
+  const { data, error } = await supabase.from('registry').select('id, title, source_url, created_at');
   
   if (error) {
     console.error('❌ Failed to fetch registry:', error);
     return;
   }
 
-  const records = data || [];
-  console.log(`📊 Loaded ${records.length} records from registry.`);
-
-  const idsToDelete = new Set<number>();
+  const byUrl = new Map<string, Array<any>>();
+  const byNormalizedTitle = new Map<string, Array<any>>();
   
-  // 1. Deduplicate by source_url (only for valid, non-empty URLs)
-  const urlMap = new Map<string, typeof records>();
-  for (const record of records) {
-    if (!record.source_url) continue;
-    const normUrl = record.source_url.toLowerCase().trim();
-    if (!urlMap.has(normUrl)) {
-      urlMap.set(normUrl, []);
-    }
-    urlMap.get(normUrl)!.push(record);
-  }
-
-  console.log('\n🔍 Checking duplicates by Source URL (DOI / Landing Page)...');
-  for (const [url, list] of urlMap.entries()) {
-    if (list.length > 1) {
-      // Sort by id ascending to keep the earliest one inserted
-      list.sort((a, b) => a.id - b.id);
-      console.log(`⚠️ Found URL duplicate: "${url}" (${list.length} copies)`);
-      console.log(`   Keep: ID ${list[0].id} (Code: ${list[0].code}, Pillar: ${list[0].pillar}) - Title: "${list[0].title}"`);
-      for (let i = 1; i < list.length; i++) {
-        console.log(`   ❌ Delete: ID ${list[i].id} (Code: ${list[i].code}, Pillar: ${list[i].pillar}) - Title: "${list[i].title}"`);
-        idsToDelete.add(list[i].id);
+  for (const item of data || []) {
+    if (item.source_url && item.source_url.trim() !== '') {
+      if (!byUrl.has(item.source_url)) {
+        byUrl.set(item.source_url, []);
       }
-    }
-  }
-
-  // Filter out records already queued for deletion to proceed to title deduplication
-  const remainingRecords = records.filter(r => !idsToDelete.has(r.id));
-
-  // 2. Deduplicate by normalized Title (case-insensitive, whitespace-collapsed)
-  const titleMap = new Map<string, typeof records>();
-  for (const record of remainingRecords) {
-    if (!record.title) continue;
-    const normTitle = record.title.toLowerCase().trim().replace(/\s+/g, ' ');
-    if (!titleMap.has(normTitle)) {
-      titleMap.set(normTitle, []);
-    }
-    titleMap.get(normTitle)!.push(record);
-  }
-
-  console.log('\n🔍 Checking remaining duplicates by Title...');
-  for (const [title, list] of titleMap.entries()) {
-    if (list.length > 1) {
-      list.sort((a, b) => a.id - b.id);
-      console.log(`⚠️ Found Title duplicate: "${list[0].title}" (${list.length} copies)`);
-      for (let i = 1; i < list.length; i++) {
-        console.log(`   ❌ Delete: ID ${list[i].id} (Code: ${list[i].code}, Pillar: ${list[i].pillar})`);
-        idsToDelete.add(list[i].id);
+      byUrl.get(item.source_url)!.push(item);
+    } else {
+      const normalized = item.title.toLowerCase().trim().replace(/[^a-z0-9]/g, '');
+      if (!byNormalizedTitle.has(normalized)) {
+        byNormalizedTitle.set(normalized, []);
       }
+      byNormalizedTitle.get(normalized)!.push(item);
     }
   }
 
-  const deleteList = Array.from(idsToDelete);
-  if (deleteList.length === 0) {
-    console.log('\n✅ Database is 100% clean. No duplicate papers found.');
+  let idsToDelete: number[] = [];
+
+  // Find URL duplicates
+  for (const [url, list] of byUrl.entries()) {
+    if (list.length > 1) {
+      list.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+      console.log(`\nURL Duplicate: ${url}`);
+      list.forEach((item, index) => {
+        if (index > 0) idsToDelete.push(item.id);
+        console.log(`  [${index === 0 ? 'KEEP' : 'DELETE'}] ID: ${item.id} | ${item.title}`);
+      });
+    }
+  }
+
+  // Find Title duplicates for papers without URL
+  for (const [title, list] of byNormalizedTitle.entries()) {
+    if (list.length > 1) {
+      list.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+      console.log(`\nTitle Duplicate: ${title}`);
+      list.forEach((item, index) => {
+        if (index > 0) idsToDelete.push(item.id);
+        console.log(`  [${index === 0 ? 'KEEP' : 'DELETE'}] ID: ${item.id} | ${item.title}`);
+      });
+    }
+  }
+
+  if (idsToDelete.length === 0) {
+    console.log('\n✅ Clean database! No duplicate papers found.');
     return;
   }
 
-  console.log(`\n🔥 Executing deletion of ${deleteList.length} duplicate records...`);
-  const { error: deleteErr } = await supabase
-    .from('registry')
-    .delete()
-    .in('id', deleteList);
-
-  if (deleteErr) {
-    console.error('❌ Failed to delete duplicates:', deleteErr);
-  } else {
-    console.log('✨ Success! All duplicates successfully removed.');
+  console.log(`\n🗑️ Found ${idsToDelete.length} duplicate records to delete.`);
+  
+  // Delete in batches of 50
+  for (let i = 0; i < idsToDelete.length; i += 50) {
+    const batch = idsToDelete.slice(i, i + 50);
+    const { error: delErr } = await supabase.from('registry').delete().in('id', batch);
+    if (delErr) {
+      console.error('❌ Failed to delete batch:', delErr);
+    } else {
+      console.log(`✅ Deleted batch of ${batch.length} duplicates.`);
+    }
   }
+  
+  console.log('🎉 Cleanup complete!');
 }
 
 cleanupDuplicates();

@@ -103,22 +103,27 @@ const SEED_RECORDS: RegistryRecord[] = [
 
 export default async function RegistryPage() {
   let records: RegistryRecord[] = [];
+  let totalCount = 0;
 
   try {
     const supabase = await createClient();
-    const { data } = await supabase
+    const { data, count } = await supabase
       .from('registry')
-      .select('*')
-      .order('created_at', { ascending: false });
+      .select('*', { count: 'exact' })
+      .order('created_at', { ascending: false })
+      .range(0, 29);
 
     if (data && data.length > 0) {
       records = data as RegistryRecord[];
+      totalCount = count || data.length;
     } else {
       records = SEED_RECORDS;
+      totalCount = SEED_RECORDS.length;
     }
   } catch (error) {
     console.warn('Supabase database unlinked. Rendering fallback ledger seeds.', error);
     records = SEED_RECORDS;
+    totalCount = SEED_RECORDS.length;
   }
 
   return (
@@ -134,7 +139,7 @@ export default async function RegistryPage() {
       </div>
 
       {/* Render search client */}
-      <RegistryClient initialRecords={records} />
+      <RegistryClient initialRecords={records} initialCount={totalCount} />
     </main>
   );
 }

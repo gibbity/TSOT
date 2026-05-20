@@ -1,0 +1,17 @@
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+async function run() {
+  const { data, error } = await supabase.from('registry').select('code, human_summary, verdict').limit(3);
+  if (error) {
+    console.error(error);
+    return;
+  }
+  
+  console.log(JSON.stringify(data, null, 2));
+}
+
+run();
