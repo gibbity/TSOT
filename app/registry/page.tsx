@@ -127,15 +127,19 @@ export default async function RegistryPage() {
   }
 
   return (
-    <main className="max-w-[1200px] mx-auto px-6 py-12">
-      {/* Title */}
-      <div className="border-b border-border pb-6 mb-10">
-        <h1 className="font-gambarino text-[36px] md:text-[44px] text-carbon font-normal">
-          HCI Research Ledger
-        </h1>
-        <p className="font-sans text-[13px] text-mid-concrete mt-2 max-w-[600px] leading-relaxed">
-          Index of peer-reviewed empirical studies, preprints, and conference publications analyzed through the lens of cognitive impact and strategic design constraints.
-        </p>
+    <main className="max-w-[1200px] mx-auto px-6 py-6">
+      {/* Title & Description side-by-side */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-baseline pb-6 border-b border-border mb-8">
+        <div className="md:col-span-1">
+          <h1 className="font-gambarino text-[32px] sm:text-[38px] md:text-[42px] text-[#3a66f5] font-normal leading-none">
+            HCI Research Ledger
+          </h1>
+        </div>
+        <div className="md:col-span-2">
+          <p className="font-gambarino text-[13px] sm:text-[14px] md:text-[15px] text-[#3a66f5] leading-relaxed max-w-[700px]">
+            Index of peer-reviewed empirical studies, preprints, and conference publications analyzed through the lens of cognitive impact and strategic design constraints.
+          </p>
+        </div>
       </div>
 
       {/* Render search client */}

@@ -86,7 +86,7 @@ export async function GET(req: NextRequest) {
       }));
 
       // Filter by a minimum relevance score (48%) to prune poor matches
-      const filtered = formatted.filter(r => r.score >= 48);
+      const filtered = formatted.filter((r: any) => r.score >= 48);
 
       // Apply pagination locally to the ranked/filtered results
       const paginated = filtered.slice(page * limit, (page + 1) * limit);

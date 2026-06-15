@@ -253,11 +253,11 @@ export default function RegistryClient({ initialRecords, initialCount }: Registr
   return (
     <div className="flex flex-col gap-10 relative">
       {/* Search & Filter Header Strip */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 bg-white border border-border p-6 select-none">
-        <div className="lg:col-span-1">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 pb-6 border-b border-border select-none">
+        <div className="w-full lg:max-w-[450px]">
           <SearchBar value={searchQuery} onChange={setSearchQuery} />
         </div>
-        <div className="lg:col-span-2">
+        <div className="w-full lg:w-auto">
           <PillarFilter selected={selectedPillar} onChange={setSelectedPillar} />
         </div>
       </div>
