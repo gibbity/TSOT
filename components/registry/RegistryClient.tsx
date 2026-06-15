@@ -47,7 +47,7 @@ export default function RegistryClient({ initialRecords, initialCount }: Registr
     setIsLoading(true);
     try {
       const res = await fetch(
-        `/api/search?q=${encodeURIComponent(search)}&pillar=${pillar}&limit=${PAGE_SIZE}&page=0`
+        `/api/search?q=${encodeURIComponent(search)}&pillar=${encodeURIComponent(pillar)}&limit=${PAGE_SIZE}&page=0`
       );
       if (!res.ok) throw new Error('Search API failed');
       const data = await res.json();
@@ -103,7 +103,7 @@ export default function RegistryClient({ initialRecords, initialCount }: Registr
 
     try {
       const res = await fetch(
-        `/api/search?q=${encodeURIComponent(searchQuery)}&pillar=${selectedPillar}&limit=${PAGE_SIZE}&page=${nextPage}`
+        `/api/search?q=${encodeURIComponent(searchQuery)}&pillar=${encodeURIComponent(selectedPillar)}&limit=${PAGE_SIZE}&page=${nextPage}`
       );
       if (!res.ok) throw new Error('Load more failed');
       const data = await res.json();
