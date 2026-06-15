@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { fetchPapersFromOpenAlex } from '../lib/openalex/fetch';
 import { ingestPapersBatch } from '../lib/gemini/ingest';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 // We process a max of 4 papers per API call to prevent Gemini's JSON output from truncating!
 const BATCH_SIZE = 4;
@@ -53,6 +54,30 @@ async function throttledIngest(papers: any[]) {
   }
   lastGeminiCallTime = Date.now();
   return ingestPapersBatch(papers);
+}
+
+async function generatePaperEmbedding(title: string, summary: string, verdict: string): Promise<number[] | null> {
+  const geminiApiKey = process.env.GEMINI_API_KEY;
+  if (!geminiApiKey) {
+    console.error('❌ Missing GEMINI_API_KEY for embedding generation.');
+    return null;
+  }
+  
+  try {
+    const ai = new GoogleGenerativeAI(geminiApiKey);
+    const embModel = ai.getGenerativeModel({ model: 'gemini-embedding-2' });
+    const textToEmbed = `Title: ${title}\nSummary: ${summary}\nVerdict: ${verdict}`;
+    
+    const result = await embModel.embedContent({
+      content: { role: 'user', parts: [{ text: textToEmbed }] },
+      outputDimensionality: 768
+    } as any);
+    
+    return result.embedding?.values || null;
+  } catch (err) {
+    console.error('❌ Failed to generate embedding for paper:', err);
+    return null;
+  }
 }
 
 async function runIngestionCycle() {
@@ -147,11 +172,17 @@ async function runIngestionCycle() {
           }
         }
 
+        const combinedSummary = item.human_summary + (item.methodology ? `\n\n**RESEARCH METHODOLOGY**\n${item.methodology}` : '') + (item.threat_vector ? `\n\n**COGNITIVE THREAT VECTOR**\n${item.threat_vector}` : '');
+
+        // Generate embedding
+        console.log(`🤖 Generating embedding for ${code}...`);
+        const embedding = await generatePaperEmbedding(item.title, combinedSummary, item.verdict);
+
         const { error: insertErr } = await supabase.from('registry').insert({
           code,
           pillar: item.pillar,
           title: item.title,
-          human_summary: item.human_summary + (item.methodology ? `\n\n**RESEARCH METHODOLOGY**\n${item.methodology}` : '') + (item.threat_vector ? `\n\n**COGNITIVE THREAT VECTOR**\n${item.threat_vector}` : ''),
+          human_summary: combinedSummary,
           metric: item.metric,
           verdict: item.verdict,
           risk_level: item.risk_level,
@@ -159,6 +190,7 @@ async function runIngestionCycle() {
           source_type: 'peer-reviewed',
           paper_year: item.original.year,
           authors: item.original.authors,
+          embedding: embedding
         });
 
         if (insertErr) {
@@ -232,11 +264,17 @@ async function runIngestionCycle() {
             }
           }
 
+          const combinedSummary = item.human_summary + (item.methodology ? `\n\n**RESEARCH METHODOLOGY**\n${item.methodology}` : '') + (item.threat_vector ? `\n\n**COGNITIVE THREAT VECTOR**\n${item.threat_vector}` : '');
+
+          // Generate embedding
+          console.log(`🤖 Generating embedding for ${code}...`);
+          const embedding = await generatePaperEmbedding(item.title, combinedSummary, item.verdict);
+
           const { error: insertErr } = await supabase.from('registry').insert({
             code,
             pillar: item.pillar,
             title: item.title,
-            human_summary: item.human_summary + (item.methodology ? `\n\n**RESEARCH METHODOLOGY**\n${item.methodology}` : '') + (item.threat_vector ? `\n\n**COGNITIVE THREAT VECTOR**\n${item.threat_vector}` : ''),
+            human_summary: combinedSummary,
             metric: item.metric,
             verdict: item.verdict,
             risk_level: item.risk_level,
@@ -244,6 +282,7 @@ async function runIngestionCycle() {
             source_type: 'peer-reviewed',
             paper_year: item.original.year,
             authors: item.original.authors,
+            embedding: embedding
           });
 
           if (insertErr) {

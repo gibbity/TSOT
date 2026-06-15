@@ -28,7 +28,7 @@ export default function Masthead() {
 
       {/* Masthead Title */}
       <div className="max-w-[1200px] mx-auto px-6 py-5 border-t border-b border-border">
-        <h1 className="font-gambarino text-[32px] sm:text-[48px] md:text-[60px] leading-[1.1] tracking-[-0.03em] text-carbon text-center select-none font-bold break-words">
+        <h1 className="font-gambarino text-[32px] sm:text-[48px] md:text-[60px] leading-[1.1] text-carbon text-center select-none font-normal break-words">
           <Link href="/" className="hover:text-mid-concrete transition-colors">
             The Sign of Times
           </Link>

@@ -145,7 +145,7 @@ export default async function HomePage() {
     <main className="max-w-[1200px] mx-auto px-6 py-12">
       {/* Above the fold editorial statement */}
       <div className="border-b border-border pb-10 mb-10">
-        <p className="font-gambarino text-[28px] md:text-[36px] leading-[1.3] text-carbon max-w-[900px] tracking-[-0.02em]">
+        <p className="font-gambarino text-[28px] md:text-[36px] leading-[1.3] text-carbon max-w-[900px]">
           A stark, empirical ledger of what the research actually says about artificial intelligence and the human psyche. No hype. No philosophy. Just actionable constraints.
         </p>
       </div>
@@ -161,7 +161,7 @@ export default async function HomePage() {
             <span className="font-sans text-[10px] font-bold tracking-[0.15em] text-mid-concrete order-2 md:order-1 uppercase">
               {stat.label}
             </span>
-            <span className={`font-gambarino text-[42px] leading-none tracking-[-0.03em] font-bold order-1 md:order-2 ${stat.color}`}>
+            <span className={`font-gambarino text-[42px] leading-none font-normal order-1 md:order-2 ${stat.color}`}>
               {stat.value}
             </span>
           </div>
@@ -182,7 +182,7 @@ export default async function HomePage() {
       </div>
 
       {/* Ledger open grid (delicate border delimiters separating cards) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 border-t border-l border-border bg-white mb-12">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 bg-transparent mb-12">
         {records.map(record => (
           <RecordCard key={record.id || record.code} record={record} />
         ))}

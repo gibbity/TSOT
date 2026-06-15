@@ -3,7 +3,7 @@ export default function AboutPage() {
     <main className="py-12 max-w-[800px] mx-auto px-6 select-text">
       {/* Title */}
       <div className="border-b border-border pb-6 mb-10">
-        <h1 className="font-gambarino text-[36px] md:text-[44px] tracking-[-0.02em] font-bold text-carbon">
+        <h1 className="font-gambarino text-[36px] md:text-[44px] text-carbon font-normal">
           METHODOLOGY & PILLARS
         </h1>
         <p className="font-sans text-[13px] text-mid-concrete mt-2 max-w-[600px] leading-relaxed uppercase tracking-wider">

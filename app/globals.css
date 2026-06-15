@@ -32,6 +32,12 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Force Gambarino to always be regular weight (400) and have 0% letter-spacing */
+.font-gambarino {
+  font-weight: 400 !important;
+  letter-spacing: 0em !important;
+}
+
 /* Custom Editorial / Brutalist Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;

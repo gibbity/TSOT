@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
-import { DM_Sans, Lora } from 'next/font/google';
+import { DM_Sans } from 'next/font/google';
+import localFont from 'next/font/local';
 import './globals.css';
 import Masthead from '@/components/layout/Masthead';
 import Footer from '@/components/layout/Footer';
@@ -10,11 +11,10 @@ const dmSans = DM_Sans({
   weight: ['400', '500', '700'],
 });
 
-const lora = Lora({
-  subsets: ['latin'],
+const gambarino = localFont({
+  src: '../public/fonts/Gambarino-Regular.woff2',
   variable: '--font-gambarino',
-  weight: ['400', '500', '700'],
-  style: ['normal', 'italic'],
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
@@ -28,7 +28,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${dmSans.variable} ${lora.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${dmSans.variable} ${gambarino.variable}`} suppressHydrationWarning>
       <body className="bg-white min-h-screen flex flex-col font-sans text-carbon antialiased" suppressHydrationWarning>
         <Masthead />
         <div className="flex-grow w-full">

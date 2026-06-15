@@ -27,10 +27,7 @@ export default function RecordCard({ record }: { record: RegistryRecord }) {
 
   return (
     <Link href={`/registry/${record.code}`} className="block w-full h-full">
-      <article className="bg-white px-6 py-6 relative flex flex-col justify-between h-[250px] group transition-colors hover:bg-concrete/30 cursor-pointer border-r border-b border-border">
-        {/* Top-Left Framing Accent (Brutalist corner ticks) */}
-        <span className="absolute top-0 left-0 w-3 h-[1px] bg-border group-hover:bg-carbon transition-colors"></span>
-        <span className="absolute top-0 left-0 h-3 w-[1px] bg-border group-hover:bg-carbon transition-colors"></span>
+      <article className="bg-white px-6 py-6 relative flex flex-col justify-between h-[250px] group transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_12px_30px_rgba(0,0,0,0.04)] cursor-pointer border border-border rounded-xl">
 
         {/* Top Metadata Header */}
         <div className="flex items-center justify-between w-full">
@@ -44,7 +41,7 @@ export default function RecordCard({ record }: { record: RegistryRecord }) {
 
         {/* Center: Major Serified Finding statement */}
         <div className="flex-1 flex items-center pr-2 my-4">
-          <h2 className="font-gambarino text-[18px] sm:text-[20px] md:text-[21px] leading-[1.3] text-carbon font-normal tracking-[-0.01em] line-clamp-3 group-hover:underline decoration-signal decoration-1 underline-offset-4">
+          <h2 className="font-gambarino text-[18px] sm:text-[20px] md:text-[21px] leading-[1.3] text-carbon font-normal line-clamp-3 group-hover:underline decoration-signal decoration-1 underline-offset-4">
             {record.title}
           </h2>
         </div>

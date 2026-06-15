@@ -130,7 +130,7 @@ export default async function RegistryPage() {
     <main className="max-w-[1200px] mx-auto px-6 py-12">
       {/* Title */}
       <div className="border-b border-border pb-6 mb-10">
-        <h1 className="font-gambarino text-[36px] md:text-[44px] tracking-[-0.02em] font-bold text-carbon">
+        <h1 className="font-gambarino text-[36px] md:text-[44px] text-carbon font-normal">
           HCI Research Ledger
         </h1>
         <p className="font-sans text-[13px] text-mid-concrete mt-2 max-w-[600px] leading-relaxed">

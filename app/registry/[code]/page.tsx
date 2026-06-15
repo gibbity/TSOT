@@ -215,7 +215,7 @@ export default async function RecordPage({ params }: PageProps) {
 
         {/* H1 Serified Title */}
         <div className="px-6 sm:px-8 pt-6 sm:pt-8 pb-6 border-b border-border">
-          <h1 className="font-gambarino text-[28px] sm:text-[34px] md:text-[40px] leading-[1.15] text-carbon font-bold tracking-[-0.02em]">
+          <h1 className="font-gambarino text-[28px] sm:text-[34px] md:text-[40px] leading-[1.15] text-carbon font-normal">
             {record.title}
           </h1>
         </div>
