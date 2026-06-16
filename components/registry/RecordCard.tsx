@@ -23,6 +23,54 @@ const pillarLabels: Record<string, string> = {
   'EPISTEMIC AGENCY': 'ETHICS',
 };
 
+function toSentenceCase(str: string): string {
+  if (!str) return '';
+  const words = str.split(/\s+/);
+  let titleCaseCount = 0;
+  let lowercaseCount = 0;
+
+  words.forEach(w => {
+    const clean = w.replace(/[^a-zA-Z]/g, '');
+    if (clean.length > 0) {
+      if (clean[0] === clean[0].toUpperCase()) {
+        titleCaseCount++;
+      } else {
+        lowercaseCount++;
+      }
+    }
+  });
+
+  const isLikelyTitleCase = titleCaseCount > lowercaseCount && words.length > 2;
+
+  if (!isLikelyTitleCase) {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  }
+
+  const processPart = (part: string, isFirst: boolean) => {
+    if (!part) return '';
+    if (isFirst) {
+      if (part === part.toUpperCase()) return part;
+      return part.charAt(0).toUpperCase() + part.slice(1).toLowerCase();
+    }
+    if (part === part.toUpperCase() && part.length > 1 && !/^\d+$/.test(part)) {
+      return part;
+    }
+    const clean = part.replace(/[^a-zA-Z]/g, '');
+    const hasInternalUpper = clean.slice(1).split('').some(c => c === c.toUpperCase());
+    if (hasInternalUpper && clean.length > 1) {
+      return part;
+    }
+    return part.toLowerCase();
+  };
+
+  const processWord = (word: string, isFirstWord: boolean) => {
+    const parts = word.split('-');
+    return parts.map((part, idx) => processPart(part, isFirstWord && idx === 0)).join('-');
+  };
+
+  return words.map((word, idx) => processWord(word, idx === 0)).join(' ');
+}
+
 export default function RecordCard({ record }: { record: RegistryRecord }) {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   
@@ -69,7 +117,7 @@ export default function RecordCard({ record }: { record: RegistryRecord }) {
           {/* Center: Title Statement - Transitions from black to white */}
           <div className="flex-1 flex items-center pr-2 my-4 transition-colors duration-500 text-carbon group-hover:text-white">
             <h2 className="font-gambarino text-[18px] sm:text-[20px] leading-[1.3] font-normal break-words line-clamp-4">
-              {record.title}
+              {toSentenceCase(record.title)}
             </h2>
           </div>
 
