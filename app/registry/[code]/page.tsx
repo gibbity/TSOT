@@ -201,7 +201,7 @@ export default async function RecordPage({ params }: PageProps) {
             </span>
             <span className="text-border">|</span>
             <span
-              className="font-sans text-[10.5px] font-bold uppercase tracking-wider"
+              className="font-sans text-[10.5px] font-bold uppercase tracking-normal"
               style={{ color: themeColor }}
             >
               {record.pillar}
@@ -226,7 +226,7 @@ export default async function RecordPage({ params }: PageProps) {
           {/* Left Column: Human Summary */}
           <div className="p-6 sm:p-8 flex flex-col justify-between">
             <div>
-              <h3 className="font-sans text-[10px] font-bold tracking-[0.15em] text-mid-concrete uppercase mb-4 select-none">
+              <h3 className="font-sans text-[10px] font-bold tracking-normal text-mid-concrete uppercase mb-4 select-none">
                 HUMAN TRANSLATION / ANALYSIS
               </h3>
               <p className="font-sans text-[14px] text-carbon leading-[1.7] whitespace-pre-line">
@@ -235,7 +235,7 @@ export default async function RecordPage({ params }: PageProps) {
             </div>
             {record.authors && (
               <div className="mt-8 pt-4 border-t border-border/60">
-                <span className="font-sans text-[9px] font-bold uppercase tracking-wider text-mid-concrete block mb-1 select-none">
+                <span className="font-sans text-[9px] font-bold uppercase tracking-normal text-mid-concrete block mb-1 select-none">
                   RESEARCH CITATION
                 </span>
                 <span className="font-sans text-[12px] text-carbon italic block">
@@ -246,7 +246,7 @@ export default async function RecordPage({ params }: PageProps) {
                     href={record.source_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="font-mono text-[10px] text-signal hover:text-signal/80 hover:underline uppercase block mt-2 tracking-wider transition-colors"
+                    className="font-mono text-[10px] text-signal hover:text-signal/80 hover:underline uppercase block mt-2 tracking-normal transition-colors"
                   >
                     View Original Scholar Document ↗
                   </a>
@@ -268,7 +268,7 @@ export default async function RecordPage({ params }: PageProps) {
               
               return (
                 <div className="bg-[#f8f8f8] p-5 rounded-[15px] shadow-[2px_2px_4px_0px_rgba(0,0,0,0.03)] border-none">
-                  <span className="font-sans text-[9px] font-bold tracking-[0.15em] text-mid-concrete uppercase block mb-3 select-none">
+                  <span className="font-sans text-[9px] font-bold tracking-normal text-mid-concrete uppercase block mb-3 select-none">
                     EMPIRICAL METRIC RECORDED
                   </span>
                   <p className="font-sans text-[14px] font-bold text-carbon leading-snug">
@@ -280,7 +280,7 @@ export default async function RecordPage({ params }: PageProps) {
 
             {/* Actionable Verdict Panel */}
             <div className="bg-[#f8f8f8] p-5 rounded-[15px] relative shadow-[2px_2px_4px_0px_rgba(0,0,0,0.03)] border-l-4 border-l-signal border-y-none border-r-none">
-              <span className="font-sans text-[9px] font-bold tracking-[0.15em] text-signal uppercase block mb-3 select-none">
+              <span className="font-sans text-[9px] font-bold tracking-normal text-signal uppercase block mb-3 select-none">
                 ACTIONABLE VERDICT
               </span>
               <p className="font-sans text-[13px] text-carbon leading-[1.6]">
@@ -291,7 +291,7 @@ export default async function RecordPage({ params }: PageProps) {
             {/* Structured Metadata Boxes (Methodology & Threat Vector) */}
             {methodology && (
               <div className="bg-[#f8f8f8] p-5 rounded-[15px] shadow-[2px_2px_4px_0px_rgba(0,0,0,0.03)] border-none">
-                <span className="font-sans text-[9px] font-bold tracking-[0.15em] text-mid-concrete uppercase block mb-2 select-none">
+                <span className="font-sans text-[9px] font-bold tracking-normal text-mid-concrete uppercase block mb-2 select-none">
                   RESEARCH METHODOLOGY
                 </span>
                 <p className="font-sans text-[12.5px] text-carbon leading-[1.6]">
@@ -302,7 +302,7 @@ export default async function RecordPage({ params }: PageProps) {
             
             {threatVector && (
               <div className="bg-[#f8f8f8] p-5 rounded-[15px] shadow-[2px_2px_4px_0px_rgba(0,0,0,0.03)] border-none">
-                <span className="font-sans text-[9px] font-bold tracking-[0.15em] text-mid-concrete uppercase block mb-2 select-none">
+                <span className="font-sans text-[9px] font-bold tracking-normal text-mid-concrete uppercase block mb-2 select-none">
                   COGNITIVE THREAT VECTOR
                 </span>
                 <p className="font-sans text-[12.5px] text-carbon leading-[1.6]">

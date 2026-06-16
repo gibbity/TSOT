@@ -158,7 +158,7 @@ export default async function HomePage() {
           { label: 'NECESSARY FINDINGS', value: stableCount, color: 'text-[#0f1e19]' },
         ].map((stat, i) => (
           <div key={i} className="bg-[#f8f8f8] rounded-[22px] shadow-[5px_7px_4px_0px_rgba(0,0,0,0.15)] px-7 py-6 flex flex-col justify-between h-[130px] transition-all duration-300 hover:-translate-y-1 hover:shadow-[5px_7px_12px_0px_rgba(0,0,0,0.2)]">
-            <span className="font-sans text-[10px] font-bold tracking-[0.15em] text-[#3a66f5] uppercase">
+            <span className="font-sans text-[10px] font-bold tracking-normal text-[#3a66f5] uppercase">
               {stat.label}
             </span>
             <span className={`font-gambarino text-[48px] leading-none font-normal self-end ${stat.color}`}>

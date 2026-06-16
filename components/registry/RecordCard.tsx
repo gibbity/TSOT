@@ -58,10 +58,10 @@ export default function RecordCard({ record }: { record: RegistryRecord }) {
           
           {/* Top Metadata Header - Fades in and slides down */}
           <div className="flex items-center justify-between w-full opacity-0 -translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 delay-75">
-            <span className="font-sans text-[11px] font-bold tracking-wider text-white/70">
+            <span className="font-sans text-[11px] font-bold tracking-normal text-white/70">
               #{record.code}
             </span>
-            <span className="font-sans text-[11px] font-bold tracking-wider uppercase text-white">
+            <span className="font-sans text-[11px] font-bold tracking-normal uppercase text-white">
               {riskLabel}
             </span>
           </div>
@@ -75,11 +75,11 @@ export default function RecordCard({ record }: { record: RegistryRecord }) {
 
           {/* Bottom Footer Action - Fades in and slides up */}
           <div className="flex items-center justify-between w-full opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 delay-100">
-            <span className="font-sans text-[11px] font-bold tracking-wider text-white/70 uppercase">
+            <span className="font-sans text-[11px] font-bold tracking-normal text-white/70 uppercase">
               {pillarLabel}
             </span>
             
-            <span className="font-sans text-[11px] font-bold uppercase tracking-wider text-white underline underline-offset-4 decoration-white/40 hover:decoration-white transition-all">
+            <span className="font-sans text-[11px] font-bold uppercase tracking-normal text-white underline underline-offset-4 decoration-white/40 hover:decoration-white transition-all">
               View brief
             </span>
           </div>

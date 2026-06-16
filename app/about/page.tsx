@@ -35,7 +35,7 @@ export default function AboutPage() {
             
             {/* Pillar 1 */}
             <div className="group bg-[#f8f8f8] p-6 rounded-[22px] shadow-[5px_7px_4px_0px_rgba(0,0,0,0.15)] border-none transition-all duration-500 hover:-translate-y-1 hover:shadow-[5px_7px_12px_0px_rgba(0,0,0,0.2)] hover:bg-[#000c4b] hover:text-white flex flex-col min-h-[190px]">
-              <h3 className="font-sans text-[13px] font-bold tracking-wider text-[#534AB7] group-hover:text-white transition-colors duration-500 uppercase mb-3">
+              <h3 className="font-sans text-[13px] font-bold tracking-normal text-[#534AB7] group-hover:text-white transition-colors duration-500 uppercase mb-3">
                 1. COGNITIVE OFFLOADING
               </h3>
               <p className="text-[13px] text-mid-concrete group-hover:text-white/80 transition-colors duration-500 leading-relaxed">
@@ -45,7 +45,7 @@ export default function AboutPage() {
 
             {/* Pillar 2 */}
             <div className="group bg-[#f8f8f8] p-6 rounded-[22px] shadow-[5px_7px_4px_0px_rgba(0,0,0,0.15)] border-none transition-all duration-500 hover:-translate-y-1 hover:shadow-[5px_7px_12px_0px_rgba(0,0,0,0.2)] hover:bg-[#0f1e19] hover:text-white flex flex-col min-h-[190px]">
-              <h3 className="font-sans text-[13px] font-bold tracking-wider text-[#0F6E56] group-hover:text-white transition-colors duration-500 uppercase mb-3">
+              <h3 className="font-sans text-[13px] font-bold tracking-normal text-[#0F6E56] group-hover:text-white transition-colors duration-500 uppercase mb-3">
                 2. FRICTION & VERIFICATION
               </h3>
               <p className="text-[13px] text-mid-concrete group-hover:text-white/80 transition-colors duration-500 leading-relaxed">
@@ -55,7 +55,7 @@ export default function AboutPage() {
 
             {/* Pillar 3 */}
             <div className="group bg-[#f8f8f8] p-6 rounded-[22px] shadow-[5px_7px_4px_0px_rgba(0,0,0,0.15)] border-none transition-all duration-500 hover:-translate-y-1 hover:shadow-[5px_7px_12px_0px_rgba(0,0,0,0.2)] hover:bg-[#3e1535] hover:text-white flex flex-col min-h-[190px]">
-              <h3 className="font-sans text-[13px] font-bold tracking-wider text-[#854F0B] group-hover:text-white transition-colors duration-500 uppercase mb-3">
+              <h3 className="font-sans text-[13px] font-bold tracking-normal text-[#854F0B] group-hover:text-white transition-colors duration-500 uppercase mb-3">
                 3. TEMPORAL PERCEPTION
               </h3>
               <p className="text-[13px] text-mid-concrete group-hover:text-white/80 transition-colors duration-500 leading-relaxed">
@@ -65,7 +65,7 @@ export default function AboutPage() {
 
             {/* Pillar 4 */}
             <div className="group bg-[#f8f8f8] p-6 rounded-[22px] shadow-[5px_7px_4px_0px_rgba(0,0,0,0.15)] border-none transition-all duration-500 hover:-translate-y-1 hover:shadow-[5px_7px_12px_0px_rgba(0,0,0,0.2)] hover:bg-[#4a0e17] hover:text-white flex flex-col min-h-[190px]">
-              <h3 className="font-sans text-[13px] font-bold tracking-wider text-[#993C1D] group-hover:text-white transition-colors duration-500 uppercase mb-3">
+              <h3 className="font-sans text-[13px] font-bold tracking-normal text-[#993C1D] group-hover:text-white transition-colors duration-500 uppercase mb-3">
                 4. EPISTEMIC AGENCY
               </h3>
               <p className="text-[13px] text-mid-concrete group-hover:text-white/80 transition-colors duration-500 leading-relaxed">
