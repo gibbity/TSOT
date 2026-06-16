@@ -1,20 +1,24 @@
 export default function AboutPage() {
   return (
     <main className="py-12 max-w-[800px] mx-auto px-6 select-text">
-      {/* Title */}
-      <div className="border-b border-border pb-6 mb-10">
-        <h1 className="font-gambarino text-[36px] md:text-[44px] text-carbon font-normal">
-          METHODOLOGY & PILLARS
-        </h1>
-        <p className="font-sans text-[13px] text-mid-concrete mt-2 max-w-[600px] leading-relaxed uppercase tracking-wider">
-          The structural design constraints guiding TSOT paper classification.
-        </p>
+      {/* Title & Description side-by-side */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-baseline pb-6 border-b border-border mb-10">
+        <div className="md:col-span-1">
+          <h1 className="font-gambarino text-[32px] sm:text-[38px] md:text-[42px] text-[#3a66f5] font-normal leading-none uppercase">
+            Methodology & Pillars
+          </h1>
+        </div>
+        <div className="md:col-span-2">
+          <p className="font-gambarino text-[13px] sm:text-[14px] md:text-[15px] text-[#3a66f5] leading-relaxed max-w-[700px]">
+            The structural design constraints guiding TSOT paper classification. Map how current AI interface structures alter human cognition, memory recall, and planning.
+          </p>
+        </div>
       </div>
 
       {/* Main Content */}
       <article className="prose prose-neutral max-w-none font-sans text-[14px] leading-[1.8] text-carbon flex flex-col gap-10">
         <section className="flex flex-col gap-4">
-          <p className="font-gambarino text-[20px] leading-relaxed text-carbon">
+          <p className="font-gambarino text-[20px] leading-relaxed text-[#3a66f5]">
             The Sign of Times (TSOT) is a research registry designed to map how current AI interface structures alter human cognition, memory recall, planning, and belief calibration.
           </p>
           <p>
@@ -30,49 +34,41 @@ export default function AboutPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             
             {/* Pillar 1 */}
-            <div className="border border-border p-5 relative bg-white">
-              <span className="absolute top-0 left-0 w-2 h-[1px] bg-[#534AB7]"></span>
-              <span className="absolute top-0 left-0 h-2 w-[1px] bg-[#534AB7]"></span>
-              <h3 className="font-sans text-[12px] font-bold tracking-wider text-[#534AB7] uppercase mb-2">
+            <div className="group bg-[#f8f8f8] p-6 rounded-[22px] shadow-[5px_7px_4px_0px_rgba(0,0,0,0.15)] border-none transition-all duration-500 hover:-translate-y-1 hover:shadow-[5px_7px_12px_0px_rgba(0,0,0,0.2)] hover:bg-[#000c4b] hover:text-white flex flex-col min-h-[190px]">
+              <h3 className="font-sans text-[13px] font-bold tracking-wider text-[#534AB7] group-hover:text-white transition-colors duration-500 uppercase mb-3">
                 1. COGNITIVE OFFLOADING
               </h3>
-              <p className="text-[13px] text-mid-concrete leading-relaxed">
+              <p className="text-[13px] text-mid-concrete group-hover:text-white/80 transition-colors duration-500 leading-relaxed">
                 Deals with technologies that erode human prospective memory, structural planning, logical reasoning, and long-term retention. Evaluates the long-term impact of delegating cognitive tasks to machines.
               </p>
             </div>
 
             {/* Pillar 2 */}
-            <div className="border border-border p-5 relative bg-white">
-              <span className="absolute top-0 left-0 w-2 h-[1px] bg-[#0F6E56]"></span>
-              <span className="absolute top-0 left-0 h-2 w-[1px] bg-[#0F6E56]"></span>
-              <h3 className="font-sans text-[12px] font-bold tracking-wider text-[#0F6E56] uppercase mb-2">
+            <div className="group bg-[#f8f8f8] p-6 rounded-[22px] shadow-[5px_7px_4px_0px_rgba(0,0,0,0.15)] border-none transition-all duration-500 hover:-translate-y-1 hover:shadow-[5px_7px_12px_0px_rgba(0,0,0,0.2)] hover:bg-[#0f1e19] hover:text-white flex flex-col min-h-[190px]">
+              <h3 className="font-sans text-[13px] font-bold tracking-wider text-[#0F6E56] group-hover:text-white transition-colors duration-500 uppercase mb-3">
                 2. FRICTION & VERIFICATION
               </h3>
-              <p className="text-[13px] text-mid-concrete leading-relaxed">
+              <p className="text-[13px] text-mid-concrete group-hover:text-white/80 transition-colors duration-500 leading-relaxed">
                 Measures interface interventions that interrupt automated habits. Focuses on productive friction design paradigms that calibrates user expectations and restores active verification loops.
               </p>
             </div>
 
             {/* Pillar 3 */}
-            <div className="border border-border p-5 relative bg-white">
-              <span className="absolute top-0 left-0 w-2 h-[1px] bg-[#854F0B]"></span>
-              <span className="absolute top-0 left-0 h-2 w-[1px] bg-[#854F0B]"></span>
-              <h3 className="font-sans text-[12px] font-bold tracking-wider text-[#854F0B] uppercase mb-2">
+            <div className="group bg-[#f8f8f8] p-6 rounded-[22px] shadow-[5px_7px_4px_0px_rgba(0,0,0,0.15)] border-none transition-all duration-500 hover:-translate-y-1 hover:shadow-[5px_7px_12px_0px_rgba(0,0,0,0.2)] hover:bg-[#3e1535] hover:text-white flex flex-col min-h-[190px]">
+              <h3 className="font-sans text-[13px] font-bold tracking-wider text-[#854F0B] group-hover:text-white transition-colors duration-500 uppercase mb-3">
                 3. TEMPORAL PERCEPTION
               </h3>
-              <p className="text-[13px] text-mid-concrete leading-relaxed">
+              <p className="text-[13px] text-mid-concrete group-hover:text-white/80 transition-colors duration-500 leading-relaxed">
                 Evaluates response timing, system latencies, and output paces. Researches how real-time streaming, latency offsets, and immediate reply structures affect human turn-taking thresholds and anthropomorphism.
               </p>
             </div>
 
             {/* Pillar 4 */}
-            <div className="border border-border p-5 relative bg-white">
-              <span className="absolute top-0 left-0 w-2 h-[1px] bg-[#993C1D]"></span>
-              <span className="absolute top-0 left-0 h-2 w-[1px] bg-[#993C1D]"></span>
-              <h3 className="font-sans text-[12px] font-bold tracking-wider text-[#993C1D] uppercase mb-2">
+            <div className="group bg-[#f8f8f8] p-6 rounded-[22px] shadow-[5px_7px_4px_0px_rgba(0,0,0,0.15)] border-none transition-all duration-500 hover:-translate-y-1 hover:shadow-[5px_7px_12px_0px_rgba(0,0,0,0.2)] hover:bg-[#4a0e17] hover:text-white flex flex-col min-h-[190px]">
+              <h3 className="font-sans text-[13px] font-bold tracking-wider text-[#993C1D] group-hover:text-white transition-colors duration-500 uppercase mb-3">
                 4. EPISTEMIC AGENCY
               </h3>
-              <p className="text-[13px] text-mid-concrete leading-relaxed">
+              <p className="text-[13px] text-mid-concrete group-hover:text-white/80 transition-colors duration-500 leading-relaxed">
                 Studies how generative search formats, personalized sentiment mapping, and contextual source filtering change how users establish truth, review evidence, and shape societal beliefs.
               </p>
             </div>

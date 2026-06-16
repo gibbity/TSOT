@@ -144,24 +144,24 @@ export default async function HomePage() {
   return (
     <main className="max-w-[1200px] mx-auto px-6 py-12">
       {/* Above the fold editorial statement */}
-      <div className="border-b border-border pb-10 mb-10">
-        <p className="font-gambarino text-[28px] md:text-[36px] leading-[1.3] text-carbon max-w-[900px]">
+      <div className="border-b border-border pb-8 mb-10">
+        <p className="font-gambarino text-[28px] md:text-[36px] leading-[1.3] text-[#3a66f5] max-w-[900px]">
           A stark, empirical ledger of what the research actually says about artificial intelligence and the human psyche. No hype. No philosophy. Just actionable constraints.
         </p>
       </div>
 
       {/* Stats ledger band */}
-      <div className="grid grid-cols-1 md:grid-cols-3 border border-border mb-16 select-none bg-white">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16 select-none bg-transparent">
         {[
-          { label: 'CRITICAL WARNINGS', value: criticalCount, color: 'text-critical', border: 'border-b md:border-b-0 md:border-r border-border' },
-          { label: 'IMPORTANT SIGNALS', value: warningCount, color: 'text-warning', border: 'border-b md:border-b-0 md:border-r border-border' },
-          { label: 'NECESSARY FINDINGS', value: stableCount, color: 'text-stable', border: '' },
+          { label: 'CRITICAL WARNINGS', value: criticalCount, color: 'text-[#3e1535]' },
+          { label: 'IMPORTANT SIGNALS', value: warningCount, color: 'text-[#000c4b]' },
+          { label: 'NECESSARY FINDINGS', value: stableCount, color: 'text-[#0f1e19]' },
         ].map((stat, i) => (
-          <div key={i} className={`px-6 py-5 flex items-baseline justify-between md:flex-col md:justify-start md:gap-2 ${stat.border}`}>
-            <span className="font-sans text-[10px] font-bold tracking-[0.15em] text-mid-concrete order-2 md:order-1 uppercase">
+          <div key={i} className="bg-[#f8f8f8] rounded-[22px] shadow-[5px_7px_4px_0px_rgba(0,0,0,0.15)] px-7 py-6 flex flex-col justify-between h-[130px] transition-all duration-300 hover:-translate-y-1 hover:shadow-[5px_7px_12px_0px_rgba(0,0,0,0.2)]">
+            <span className="font-sans text-[10px] font-bold tracking-[0.15em] text-[#3a66f5] uppercase">
               {stat.label}
             </span>
-            <span className={`font-gambarino text-[42px] leading-none font-normal order-1 md:order-2 ${stat.color}`}>
+            <span className={`font-gambarino text-[48px] leading-none font-normal self-end ${stat.color}`}>
               {stat.value}
             </span>
           </div>
@@ -175,7 +175,7 @@ export default async function HomePage() {
         </h2>
         <Link
           href="/registry"
-          className="font-sans text-[11px] font-bold text-mid-concrete hover:text-carbon transition-colors uppercase tracking-[0.08em] hover:underline underline-offset-4"
+          className="font-sans text-[11px] font-bold text-[#3a66f5] hover:text-[#254edb] transition-colors uppercase tracking-[0.08em] hover:underline underline-offset-4"
         >
           View Full Ledger →
         </Link>

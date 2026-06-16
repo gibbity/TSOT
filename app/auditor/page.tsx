@@ -434,7 +434,7 @@ export default function AuditorPage() {
             key={index}
             type="button"
             onClick={() => handleOpenCitationBrief(code)}
-            className="px-2 py-0.5 mx-1 inline-flex items-center gap-1 rounded bg-[#EEEDFE] hover:bg-premium hover:text-white transition-colors duration-150 font-mono text-[11px] font-bold text-premium select-all border border-premium/15 cursor-pointer align-baseline"
+            className="px-2 py-0.5 mx-1 inline-flex items-center gap-1 rounded-[6px] bg-[#3a66f5]/10 hover:bg-[#3a66f5] hover:text-white transition-colors duration-150 font-mono text-[11px] font-bold text-[#3a66f5] select-all border border-[#3a66f5]/15 cursor-pointer align-baseline"
             title={`View evidence detail brief for #${code}`}
           >
             #{code}
@@ -722,62 +722,64 @@ export default function AuditorPage() {
     <main className="max-w-[1280px] mx-auto px-6 py-12 select-text font-sans relative">
       
       {/* Editorial Title Header */}
-      <div className="border-b-2 border-carbon pb-8 mb-12 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
-        <div>
-          <span className="font-mono text-[11px] font-bold text-premium uppercase tracking-[0.2em] block mb-2">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-baseline pb-6 border-b border-border mb-10">
+        <div className="md:col-span-1">
+          <span className="font-mono text-[11px] font-bold text-[#3a66f5] uppercase tracking-[0.2em] block mb-2">
             TSOT DESIGN ENGINE v1.2
           </span>
-          <h1 className="font-gambarino text-[42px] md:text-[54px] font-normal text-carbon leading-none">
+          <h1 className="font-gambarino text-[32px] sm:text-[38px] md:text-[42px] text-[#3a66f5] font-normal leading-none uppercase">
             TSOT Design Auditor
           </h1>
-          <p className="font-sans text-[14px] text-mid-concrete mt-3 max-w-[640px] leading-relaxed">
+        </div>
+        <div className="md:col-span-2">
+          <p className="font-gambarino text-[13px] sm:text-[14px] md:text-[15px] text-[#3a66f5] leading-relaxed max-w-[700px]">
             Submit your AI product specifications, streaming latencies, or agent loops. Our RAG engine evaluates your systems against 1,700+ curated HCI risk records.
           </p>
         </div>
+      </div>
 
-        {/* Global Configuration Banner (Brutalist style) */}
-        <div className="bg-concrete border border-border p-4 flex flex-col sm:flex-row gap-4 items-center w-full md:w-auto">
-          {/* Tier Switcher for Developer Testing */}
-          <div className="flex flex-col gap-1 w-full sm:w-auto">
-            <span className="font-mono text-[9px] font-bold uppercase tracking-wider text-mid-concrete block">
-              DEVELOPER ACCOUNT TIER
-            </span>
-            <div className="flex border border-carbon bg-white">
-              {(['free', 'pro', 'team'] as const).map(t => (
-                <button
-                  key={t}
-                  onClick={() => handleTierChange(t)}
-                  className={`px-3 py-1 font-mono text-[10px] font-bold uppercase cursor-pointer transition-colors ${
-                    tier === t 
-                      ? 'bg-carbon text-white' 
-                      : 'text-carbon hover:bg-concrete'
-                  }`}
-                >
-                  {t}
-                </button>
-              ))}
-            </div>
+      {/* Global Configuration Banner (Brutalist/Card style) */}
+      <div className="bg-[#f8f8f8] p-4 flex flex-col sm:flex-row gap-4 items-center w-full justify-between mb-8 rounded-[10px] border border-[#3a66f5]/20 shadow-xs">
+        {/* Tier Switcher for Developer Testing */}
+        <div className="flex flex-col gap-1 w-full sm:w-auto">
+          <span className="font-mono text-[9px] font-bold uppercase tracking-wider text-mid-concrete block">
+            DEVELOPER ACCOUNT TIER
+          </span>
+          <div className="flex border border-[#3a66f5] bg-white rounded-[10px] overflow-hidden p-0.5">
+            {(['free', 'pro', 'team'] as const).map(t => (
+              <button
+                key={t}
+                onClick={() => handleTierChange(t)}
+                className={`px-3 py-1 font-mono text-[10px] font-bold uppercase cursor-pointer rounded-[8px] transition-colors ${
+                  tier === t 
+                    ? 'bg-[#3a66f5] text-white' 
+                    : 'text-carbon hover:bg-[#f8f8f8]'
+                }`}
+              >
+                {t}
+              </button>
+            ))}
           </div>
-
-          <div className="h-[1px] sm:h-8 w-full sm:w-[1px] bg-border"></div>
-
-          {/* Guide Toggle */}
-          <button
-            onClick={() => setShowSpecGuide(!showSpecGuide)}
-            className="flex items-center gap-2 font-mono text-[11px] font-bold text-carbon hover:text-signal transition-colors uppercase cursor-pointer border border-carbon px-4 py-1.5 bg-white shadow-[2px_2px_0px_#0B0B0B]"
-          >
-            <BookOpen className="w-4 h-4" />
-            {showSpecGuide ? 'Hide Specifications' : 'Show Specifications'}
-          </button>
         </div>
+
+        <div className="hidden sm:block h-8 w-[1px] bg-border"></div>
+
+        {/* Guide Toggle */}
+        <button
+          onClick={() => setShowSpecGuide(!showSpecGuide)}
+          className="flex items-center gap-2 font-mono text-[11px] font-bold text-white hover:bg-[#254edb] transition-colors uppercase cursor-pointer bg-[#3a66f5] px-5 py-2.5 rounded-[10px] border-none shadow-sm"
+        >
+          <BookOpen className="w-4 h-4" />
+          {showSpecGuide ? 'Hide Specifications' : 'Show Specifications'}
+        </button>
       </div>
 
       {/* Interactive Specifications Guide Panel */}
       {showSpecGuide && (
-        <div className="bg-concrete border-2 border-dashed border-carbon p-6 md:p-8 mb-12 animate-fade-in">
+        <div className="bg-[#f8f8f8] border-none rounded-[22px] shadow-[5px_7px_4px_0px_rgba(0,0,0,0.1)] p-6 md:p-8 mb-12 animate-fade-in">
           <div className="flex justify-between items-start mb-6">
             <div>
-              <h2 className="font-gambarino text-[22px] font-normal text-carbon">
+              <h2 className="font-gambarino text-[22px] font-normal text-[#3a66f5]">
                 TSOT Design Auditor System Blueprint
               </h2>
               <p className="text-[13px] text-mid-concrete mt-1">
@@ -799,7 +801,7 @@ export default function AuditorPage() {
               <span className="font-mono text-[10px] font-bold text-mid-concrete uppercase tracking-wider block mb-3">
                 THE 8-STEP PIPELINE PIPELINE (CLICK TO EXPAND)
               </span>
-              <div className="flex flex-col border border-border">
+              <div className="flex flex-col border border-border/60 rounded-[15px] overflow-hidden shadow-sm">
                 {userStepGuideData.map((step, idx) => {
                   const isOpen = activeStepGuide === idx;
                   return (
@@ -809,7 +811,7 @@ export default function AuditorPage() {
                         className="w-full flex items-center justify-between p-3.5 hover:bg-concrete/40 transition-colors text-left cursor-pointer"
                       >
                         <div className="flex items-center gap-3">
-                          <span className="font-mono text-[11px] font-bold text-premium bg-premium/10 px-2 py-0.5 rounded">
+                          <span className="font-mono text-[11px] font-bold text-white bg-[#3a66f5] px-2 py-0.5 rounded-[6px]">
                             {step.num}
                           </span>
                           <span className="font-sans text-[13px] font-bold text-carbon">
@@ -847,8 +849,8 @@ export default function AuditorPage() {
                   { num: "09", txt: "Every execution is archived for prompt refinement." },
                   { num: "10", txt: "Speaks strictly as TSOT, completely eliminating personal pronouns." }
                 ].map((rule, idx) => (
-                  <div key={idx} className="flex gap-2.5 items-start p-3 bg-white border border-border">
-                    <span className="font-mono text-[10px] font-bold text-signal bg-signal/10 px-1.5 py-0.5 rounded">
+                  <div key={idx} className="flex gap-2.5 items-start p-3 bg-white border border-border/60 rounded-[15px] shadow-sm">
+                    <span className="font-mono text-[10px] font-bold text-white bg-[#3a66f5] px-1.5 py-0.5 rounded-[6px]">
                       {rule.num}
                     </span>
                     <p className="text-[12px] text-carbon leading-snug">
@@ -869,7 +871,7 @@ export default function AuditorPage() {
         <div className="lg:col-span-5 flex flex-col gap-6 w-full">
           
           {/* Mode Selector Tabs (Editorial style) */}
-          <div className="flex border-b border-carbon w-full bg-white select-none">
+          <div className="flex border-b border-[#3a66f5]/20 w-full bg-white select-none mb-2">
             {[
               { id: 'free_text', label: '📝 FREE TEXT' },
               { id: 'deep_dive', label: '🔍 DEEP DIVE' }
@@ -877,10 +879,10 @@ export default function AuditorPage() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id as any)}
-                className={`flex-1 py-3 text-center font-mono text-[11px] font-bold uppercase tracking-wider cursor-pointer border-t border-x border-transparent transition-all ${
+                className={`flex-1 py-3 text-center font-mono text-[11px] font-bold uppercase tracking-wider cursor-pointer border-b-2 transition-all ${
                   activeTab === tab.id 
-                    ? 'border-carbon bg-white border-t-2 border-t-carbon text-carbon font-extrabold -mb-[1px]' 
-                    : 'text-mid-concrete hover:text-carbon'
+                    ? 'border-[#3a66f5] text-[#3a66f5] font-extrabold' 
+                    : 'border-transparent text-mid-concrete hover:text-carbon'
                 }`}
               >
                 {tab.label}
@@ -889,9 +891,9 @@ export default function AuditorPage() {
           </div>
 
           {/* Form Block */}
-          <form onSubmit={(e) => executeAudit(e)} className="bg-white border-2 border-carbon p-6 flex flex-col gap-6 relative shadow-[4px_4px_0px_#0B0B0B]">
+          <form onSubmit={(e) => executeAudit(e)} className="bg-[#f8f8f8] rounded-[22px] shadow-[5px_7px_4px_0px_rgba(58,102,245,0.15)] p-6 flex flex-col gap-6 relative border-none">
             {/* Top Indicator */}
-            <div className="absolute top-0 right-6 w-12 h-1 bg-carbon"></div>
+            <div className="absolute top-0 right-6 w-12 h-1 bg-[#3a66f5] rounded-b-full"></div>
 
             {/* MODE 1: FREE TEXT AUDIT */}
             {activeTab === 'free_text' && (
@@ -900,7 +902,7 @@ export default function AuditorPage() {
                   <div className="flex justify-between items-baseline mb-2">
                     <label
                       htmlFor="product-desc"
-                      className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-carbon"
+                      className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-[#3a66f5]"
                     >
                       AI System Workflow or Spec Brief
                     </label>
@@ -915,15 +917,15 @@ export default function AuditorPage() {
                     placeholder="Describe your design patterns, feature interfaces, latency thresholds, explainability dialogs, or ambient alert structures..."
                     value={productDesc}
                     onChange={(e) => setProductDesc(e.target.value.slice(0, 2000))}
-                    className="w-full bg-white border border-carbon p-4 font-sans text-[13px] leading-relaxed placeholder:text-mid-concrete/50 focus:outline-none focus:border-signal text-carbon resize-y rounded-none"
+                    className="w-full bg-white border border-[#3a66f5]/20 p-4 font-sans text-[13px] leading-relaxed placeholder:text-mid-concrete/50 focus:outline-none focus:border-[#3a66f5] focus:ring-1 focus:ring-[#3a66f5] text-carbon resize-y rounded-[10px] transition-all"
                     disabled={isAuditing}
                     required
                   />
 
                   {/* Character limit checks */}
                   {productDesc.length > 0 && productDesc.length < 100 && (
-                    <div className="mt-2 flex items-center gap-1.5 text-warning font-mono text-[9px] uppercase font-bold animate-fade-in bg-warning/5 border border-warning/15 px-2.5 py-1">
-                      <AlertTriangle className="w-3.5 h-3.5" />
+                    <div className="mt-2 flex items-center gap-1.5 text-warning font-mono text-[9px] uppercase font-bold animate-fade-in bg-warning/5 border border-warning/15 px-2.5 py-1 rounded-[6px]">
+                      <AlertTriangle className="w-3.5 h-3.5 text-warning" />
                       Audits produce high-fidelity output with inputs over 100 characters. Structured mode recommended.
                     </div>
                   )}
@@ -936,7 +938,7 @@ export default function AuditorPage() {
                       CLASSIFIED TARGETS:
                     </span>
                     {currentDetectedTags.map(tag => (
-                      <span key={tag} className="font-mono text-[9px] font-bold text-premium bg-premium/10 border border-premium/20 px-2 py-0.5 rounded">
+                      <span key={tag} className="font-mono text-[9px] font-bold text-[#3a66f5] bg-[#3a66f5]/10 border border-[#3a66f5]/20 px-2 py-0.5 rounded-[6px]">
                         {tag}
                       </span>
                     ))}
@@ -946,26 +948,24 @@ export default function AuditorPage() {
               </div>
             )}
 
-
-
             {/* MODE 3: RECORD DEEP DIVE AUDIT */}
             {activeTab === 'deep_dive' && (
               <div className="flex flex-col gap-4">
-                <div className="bg-concrete/40 border border-border p-3 flex gap-2.5 items-start text-carbon">
-                  <Info className="w-4.5 h-4.5 text-premium flex-shrink-0 mt-0.5" />
+                <div className="bg-white border border-[#3a66f5]/15 p-3 flex gap-2.5 items-start text-carbon rounded-[10px]">
+                  <Info className="w-4.5 h-4.5 text-[#3a66f5] flex-shrink-0 mt-0.5" />
                   <p className="font-sans text-[12px] leading-relaxed text-mid-concrete">
                     Audit directly from a specific TSOT brief to see how its core verdict applies to your product.
                   </p>
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                  <label className="font-mono text-[10px] font-bold uppercase text-carbon">
+                  <label className="font-mono text-[10px] font-bold uppercase text-[#3a66f5]">
                     Target TSOT Registry Brief
                   </label>
                   <select
                     value={selectedDeepRecordCode}
                     onChange={(e) => setSelectedDeepRecordCode(e.target.value)}
-                    className="w-full bg-white border border-carbon px-3 py-2 text-[12px] focus:outline-none focus:border-signal text-carbon rounded-none"
+                    className="w-full bg-white border border-[#3a66f5]/20 px-3 py-2 text-[12px] focus:outline-none focus:border-[#3a66f5] focus:ring-1 focus:ring-[#3a66f5] text-carbon rounded-[10px] transition-all"
                   >
                     {Object.keys(BRIEF_SEEDS).map(code => (
                       <option key={code} value={code}>
@@ -976,7 +976,7 @@ export default function AuditorPage() {
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                  <label className="font-mono text-[10px] font-bold uppercase text-carbon">
+                  <label className="font-mono text-[10px] font-bold uppercase text-[#3a66f5]">
                     How does this apply to your product?
                   </label>
                   <textarea
@@ -984,7 +984,7 @@ export default function AuditorPage() {
                     placeholder="We represent autocomplete recommendations instantly to engineering leads..."
                     value={deepDiveQuestion}
                     onChange={(e) => setDeepDiveQuestion(e.target.value)}
-                    className="w-full bg-white border border-carbon p-3 font-sans text-[13px] leading-relaxed focus:outline-none focus:border-signal text-carbon rounded-none resize-none"
+                    className="w-full bg-white border border-[#3a66f5]/20 p-3 font-sans text-[13px] leading-relaxed focus:outline-none focus:border-[#3a66f5] focus:ring-1 focus:ring-[#3a66f5] text-carbon rounded-[10px] resize-none transition-all"
                     disabled={isAuditing}
                     required
                   />
@@ -1001,7 +1001,7 @@ export default function AuditorPage() {
                 >
                   Personal Gemini API Key (BYOK)
                 </label>
-                <span className="font-mono text-[9px] text-premium uppercase font-bold">
+                <span className="font-mono text-[9px] text-[#3a66f5] uppercase font-bold">
                   Bypasses Daily Limits
                 </span>
               </div>
@@ -1011,14 +1011,14 @@ export default function AuditorPage() {
                 placeholder="PASTE YOUR GEMINI_API_KEY..."
                 value={byokKey}
                 onChange={(e) => handleSaveKey(e.target.value)}
-                className="w-full bg-white border border-carbon px-3 py-2 font-mono text-[11px] placeholder:text-mid-concrete/40 focus:outline-none focus:border-signal text-carbon rounded-none"
+                className="w-full bg-white border border-[#3a66f5]/20 px-3 py-2 font-mono text-[11px] placeholder:text-mid-concrete/40 focus:outline-none focus:border-[#3a66f5] focus:ring-1 focus:ring-[#3a66f5] text-carbon rounded-[10px] transition-all"
                 disabled={isAuditing}
               />
             </div>
 
             {/* Daily limit tracker */}
             {!byokKey && tier === 'free' && (
-              <div className="bg-concrete border border-border px-4 py-3 flex items-center justify-between">
+              <div className="bg-white border border-[#3a66f5]/15 px-4 py-3 flex items-center justify-between rounded-[10px]">
                 <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-mid-concrete">
                   Free Session Audits Remaining:
                 </span>
@@ -1032,7 +1032,7 @@ export default function AuditorPage() {
             <button
               type="submit"
               disabled={isAuditing || (activeTab === 'free_text' && !productDesc.trim())}
-              className="w-full font-mono text-[12px] font-bold tracking-wider uppercase px-4 py-3 border-2 border-carbon select-none transition-all rounded-none bg-carbon text-white hover:bg-white hover:text-carbon shadow-[3px_3px_0px_#FF3E00] cursor-pointer disabled:bg-concrete disabled:text-mid-concrete disabled:border-border disabled:cursor-not-allowed disabled:shadow-none"
+              className="w-full bg-[#3a66f5] hover:bg-[#254edb] text-white font-sans text-sm font-semibold rounded-[10px] py-3.5 transition-colors border-none shadow-sm cursor-pointer disabled:bg-concrete disabled:text-mid-concrete disabled:border-border disabled:cursor-not-allowed disabled:shadow-none"
             >
               {isAuditing ? 'Auditing Product Architecture...' : 'RUN ADVERSARIAL AUDIT'}
             </button>
@@ -1040,32 +1040,32 @@ export default function AuditorPage() {
         </div>
 
         {/* Right Output Console (Cols 6-12) */}
-        <div className="lg:col-span-7 bg-white border-2 border-carbon min-h-[520px] flex flex-col relative shadow-[4px_4px_0px_#0B0B0B] w-full">
+        <div className="lg:col-span-7 bg-[#f8f8f8] rounded-[22px] shadow-[5px_7px_4px_0px_rgba(58,102,245,0.08)] min-h-[520px] flex flex-col relative border-none w-full overflow-hidden">
           
           {/* Header Panel Console */}
-          <div className="border-b border-carbon px-6 py-4 flex justify-between items-center bg-concrete select-none">
+          <div className="border-b border-[#3a66f5]/10 px-6 py-4 flex justify-between items-center bg-[#f0f0f0] select-none rounded-t-[22px]">
             <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-carbon"></span>
-              <span className="font-mono text-[11px] font-bold tracking-wider text-carbon uppercase">
+              <span className="w-2.5 h-2.5 rounded-full bg-[#3a66f5]"></span>
+              <span className="font-mono text-[11px] font-bold tracking-wider text-[#3a66f5] uppercase">
                 TSOT AUDIT CONSOLE
               </span>
             </div>
             <div className="flex gap-2 items-center">
               {isAuditing && (
-                <span className="font-mono text-[9px] font-bold text-signal uppercase tracking-wider animate-pulse">
+                <span className="font-mono text-[9px] font-bold text-[#3a66f5] uppercase tracking-wider animate-pulse">
                   Streaming synthesis...
                 </span>
               )}
-              <span className={`w-3 h-3 rounded-full border border-carbon ${isAuditing ? 'bg-signal animate-pulse' : 'bg-border'}`}></span>
+              <span className={`w-3 h-3 rounded-full border border-none ${isAuditing ? 'bg-signal animate-pulse' : 'bg-border'}`}></span>
             </div>
           </div>
 
           {/* Main output body */}
-          <div className="p-8 flex-1 flex flex-col justify-start overflow-y-auto leading-relaxed">
+          <div className="p-8 flex-1 flex flex-col justify-start overflow-y-auto leading-relaxed bg-white">
             
             {/* Error alerts */}
             {errorMsg && (
-              <div className="border-2 border-critical px-4 py-3 bg-[#FAECE7] mb-6 text-[13px] text-critical select-none flex gap-2 items-start">
+              <div className="border-2 border-critical px-4 py-3 bg-[#FAECE7] mb-6 text-[13px] text-critical select-none flex gap-2 items-start rounded-[15px]">
                 <AlertTriangle className="w-5 h-5 text-critical flex-shrink-0 mt-0.5" />
                 <div>
                   <span className="font-mono font-bold uppercase block mb-1">AUDIT PROCESS FAILED</span>
@@ -1080,7 +1080,7 @@ export default function AuditorPage() {
                 
                 {/* 1. DISCLAIMER OVERLAY (Scope constraint rule 6) */}
                 {parsedStream.disclaimer && (
-                  <div className="border-l-4 border-signal bg-signal/5 p-5 border border-border">
+                  <div className="border-l-4 border-signal bg-signal/5 p-5 border border-border rounded-r-[10px] rounded-l-[4px]">
                     <span className="font-mono text-[10px] font-bold text-signal uppercase tracking-wider block mb-2">
                       ⚠️ TSOT CRITICAL SCOPE WARNING
                     </span>
@@ -1091,9 +1091,9 @@ export default function AuditorPage() {
                 )}
                 {/* 2. VAGUE CLARIFICATION BLOCK */}
                 {parsedStream.clarification && (
-                  <div className="border-l-4 border-premium bg-premium/5 p-5 border border-border animate-fade-in flex flex-col gap-4">
+                  <div className="border-l-4 border-[#3a66f5] bg-[#3a66f5]/5 p-5 border border-[#3a66f5]/10 animate-fade-in flex flex-col gap-4 rounded-r-[10px] rounded-l-[4px]">
                     <div>
-                      <span className="font-mono text-[10px] font-bold text-premium uppercase tracking-wider block mb-2">
+                      <span className="font-mono text-[10px] font-bold text-[#3a66f5] uppercase tracking-wider block mb-2">
                         💡 Clarification Prompt Required
                       </span>
                       <div className="font-sans text-[13.5px] leading-relaxed text-carbon select-text whitespace-pre-wrap">
@@ -1102,20 +1102,20 @@ export default function AuditorPage() {
                     </div>
 
                     {/* Inline Response Form */}
-                    <form onSubmit={handleSendFollowUp} className="border border-premium/30 p-2.5 flex gap-2 items-center bg-white mt-2">
+                    <form onSubmit={handleSendFollowUp} className="border border-[#3a66f5]/30 p-2.5 flex gap-2 items-center bg-white mt-2 rounded-[10px]">
                       <input
                         type="text"
                         placeholder="Type your answers here (e.g. 1. static email 2. Q&A 3. 500ms)..."
                         value={followUpQuery}
                         onChange={(e) => setFollowUpQuery(e.target.value)}
-                        className="flex-1 bg-white border border-border px-3 py-1.5 text-[12.5px] focus:outline-none focus:border-premium text-carbon rounded-none"
+                        className="flex-1 bg-white border border-[#3a66f5]/20 px-3 py-1.5 text-[12.5px] focus:outline-none focus:border-[#3a66f5] text-carbon rounded-[6px]"
                         disabled={isAuditing}
                         required
                       />
                       <button
                         type="submit"
                         disabled={isAuditing || !followUpQuery.trim()}
-                        className="bg-premium border border-premium text-white hover:bg-white hover:text-premium transition-colors px-4 py-1.5 font-mono text-[10px] font-bold uppercase select-none rounded-none cursor-pointer disabled:bg-border disabled:text-mid-concrete"
+                        className="bg-[#3a66f5] border border-none text-white hover:bg-[#254edb] transition-colors px-4 py-1.5 font-mono text-[10px] font-bold uppercase select-none rounded-[6px] cursor-pointer disabled:bg-border disabled:text-mid-concrete"
                       >
                         Submit Answers
                       </button>
@@ -1128,9 +1128,7 @@ export default function AuditorPage() {
                     
                     {/* Block A: Verdict Header */}
                     {parsedStream.verdict && (
-                      <div className="border border-carbon p-5 bg-concrete/20 relative select-text">
-                        <span className="absolute top-0 right-0 w-2.5 h-[1px] bg-carbon"></span>
-                        <span className="absolute top-0 right-0 h-2.5 w-[1px] bg-carbon"></span>
+                      <div className="border border-[#3a66f5]/20 rounded-[15px] p-5 bg-[#3a66f5]/5 relative select-text shadow-sm">
                         <div className="font-sans font-medium text-[15px] leading-relaxed text-carbon">
                           {renderAuditTextWithCitations(parsedStream.verdict)}
                         </div>
@@ -1144,30 +1142,30 @@ export default function AuditorPage() {
                     )}
 
                     {/* Block B: Per-Pillar Risk breakdown (premium tier gating check) */}
-                    <div className="border border-border p-5">
+                    <div className="border border-[#3a66f5]/15 rounded-[15px] p-5 bg-[#f8f8f8] shadow-sm">
                       <div className="flex justify-between items-baseline mb-4">
                         <span className="font-mono text-[10px] font-bold text-carbon uppercase tracking-wider">
                           Pillar Cognitive Risk ratings
                         </span>
-                        <span className="font-mono text-[9px] text-premium uppercase font-extrabold">
+                        <span className="font-mono text-[9px] text-[#3a66f5] uppercase font-extrabold">
                           PRO & TEAM TIERS
                         </span>
                       </div>
 
                       {tier === 'free' ? (
                         /* Gated layout */
-                        <div className="bg-concrete/40 border border-border p-4 text-center select-none flex flex-col items-center justify-center gap-2 animate-fade-in">
-                          <Lock className="w-5 h-5 text-premium" />
+                        <div className="bg-white border border-[#3a66f5]/15 p-4 text-center select-none flex flex-col items-center justify-center gap-2 animate-fade-in rounded-[10px]">
+                          <Lock className="w-5 h-5 text-[#3a66f5]" />
                           <p className="font-sans text-[12px] font-bold text-carbon uppercase tracking-wider">
                             Pillar Breakdown Scores Locked
                           </p>
                           <p className="font-sans text-[11px] text-mid-concrete max-w-[280px] leading-normal">
-                            Upgrade your simulated account to Pro or Team on the upper-right banner to unlock the risk score grids.
+                            Upgrade your simulated account to Pro or Team on the upper banner to unlock the risk score grids.
                           </p>
                           <button
                             type="button"
                             onClick={() => handleTierChange('pro')}
-                            className="mt-1.5 px-4 py-1.5 font-mono text-[10px] font-bold uppercase bg-premium text-white border border-premium hover:bg-white hover:text-premium transition-all cursor-pointer"
+                            className="mt-1.5 px-4 py-1.5 font-mono text-[10px] font-bold uppercase bg-[#3a66f5] text-white border border-none hover:bg-[#254edb] transition-all cursor-pointer rounded-[6px]"
                           >
                             Simulate Upgrade
                           </button>
@@ -1179,7 +1177,7 @@ export default function AuditorPage() {
                             const score = parsedStream.scores[pillar];
                             const color = PILLAR_COLORS[pillar] || '#7A7A79';
                             return (
-                              <div key={pillar} className="border border-border p-3.5 bg-white flex flex-col justify-between">
+                              <div key={pillar} className="border border-border/80 rounded-[10px] p-3.5 bg-white flex flex-col justify-between shadow-xs">
                                 <span 
                                   className="font-mono text-[9px] font-bold uppercase tracking-wider block mb-2"
                                   style={{ color }}
@@ -1218,7 +1216,7 @@ export default function AuditorPage() {
 
                     {/* Block C: Streamed, Cited Findings */}
                     {parsedStream.findings && (
-                      <div className="font-sans text-[14px] text-carbon leading-[1.7] select-text border border-border p-5 prose prose-sm max-w-none">
+                      <div className="font-sans text-[14px] text-carbon leading-[1.7] select-text border border-[#3a66f5]/15 rounded-[15px] p-5 prose prose-sm max-w-none shadow-sm">
                         <span className="font-mono text-[10px] font-bold text-mid-concrete uppercase tracking-wider block mb-3 border-b border-border pb-2">
                           ANALYSIS & FINDINGS
                         </span>
@@ -1228,7 +1226,7 @@ export default function AuditorPage() {
 
                     {/* Block D: Gap Notices */}
                     {parsedStream.gap && (
-                      <div className="bg-[#FAEEDA] border border-[#633806]/15 p-4 flex gap-2.5 items-start select-text border-l-4 border-warning animate-fade-in">
+                      <div className="bg-[#FAEEDA] border border-[#633806]/15 p-4 flex gap-2.5 items-start select-text border-l-4 border-warning animate-fade-in rounded-r-[10px] rounded-l-[4px]">
                         <AlertTriangle className="w-5 h-5 text-warning flex-shrink-0 mt-0.5" />
                         <div>
                           <span className="font-mono text-[10px] font-bold text-[#633806] uppercase tracking-wider block mb-1">
@@ -1243,9 +1241,7 @@ export default function AuditorPage() {
 
                     {/* Block E: Actionable Sprint Goal */}
                     {parsedStream.sprint && (
-                      <div className="border-2 border-carbon p-5 bg-white relative select-text shadow-[3px_3px_0px_#1A7A4A]">
-                        <span className="absolute top-0 right-0 w-2.5 h-[1px] bg-carbon"></span>
-                        <span className="absolute top-0 right-0 h-2.5 w-[1px] bg-carbon"></span>
+                      <div className="border border-none p-5 bg-white relative select-text shadow-[3px_3px_0px_#1A7A4A] rounded-[15px] border-l-4 border-l-[#1a7a4a]">
                         <span className="font-mono text-[10px] font-bold text-stable uppercase tracking-wider block mb-3">
                           One-Sprint Action Item
                         </span>
@@ -1264,7 +1260,7 @@ export default function AuditorPage() {
                         {chatLog.slice(2).map((msg, index) => {
                           if (msg.role === 'user') {
                             return (
-                              <div key={index} className="p-3 border border-border bg-concrete/30 border-l-4 border-l-carbon">
+                              <div key={index} className="p-3 border border-border bg-concrete/30 border-l-4 border-l-carbon rounded-[10px]">
                                 <span className="font-mono text-[9px] font-bold uppercase tracking-wider text-mid-concrete block mb-1">Product Query</span>
                                 <p className="font-sans text-[13px] leading-relaxed text-carbon select-text">{msg.content}</p>
                               </div>
@@ -1274,7 +1270,7 @@ export default function AuditorPage() {
                           const parsed = parseFollowUpContent(msg.content);
                           if (!parsed.hasXML) {
                             return (
-                              <div key={index} className="border border-carbon bg-white p-4">
+                              <div key={index} className="border border-carbon bg-white p-4 rounded-[15px]">
                                 <span className="font-mono text-[9px] font-bold uppercase tracking-wider text-mid-concrete block mb-2">Audit Console Response</span>
                                 <div className="font-sans text-[13px] leading-relaxed text-carbon select-text whitespace-pre-wrap">
                                   {renderAuditTextWithCitations(parsed.plainText)}
@@ -1285,7 +1281,7 @@ export default function AuditorPage() {
                           return (
                             <div key={index} className="flex flex-col gap-4">
                               {parsed.verdict && (
-                                <div className="border border-carbon p-4 bg-concrete/20">
+                                <div className="border border-[#3a66f5]/20 p-4 bg-[#3a66f5]/5 rounded-[15px]">
                                   <span className="font-mono text-[9px] font-bold text-signal uppercase tracking-wider block mb-1">Follow-up Verdict</span>
                                   <div className="font-sans text-[13.5px] leading-relaxed text-carbon select-text">
                                     {renderAuditTextWithCitations(parsed.verdict)}
@@ -1293,7 +1289,7 @@ export default function AuditorPage() {
                                 </div>
                               )}
                               {parsed.findings && (
-                                <div className="border border-border p-4">
+                                <div className="border border-border p-4 rounded-[15px]">
                                   <span className="font-mono text-[9px] font-bold text-carbon uppercase tracking-wider block mb-2 border-b border-border pb-1">Analysis &amp; Findings</span>
                                   <div className="font-sans text-[13px] leading-relaxed text-carbon select-text whitespace-pre-wrap">
                                     {renderAuditTextWithCitations(parsed.findings)}
@@ -1301,13 +1297,13 @@ export default function AuditorPage() {
                                 </div>
                               )}
                               {parsed.gap && (
-                                <div className="bg-[#FAEEDA] border border-[#633806]/15 p-3 text-[12.5px] text-[#633806] leading-relaxed">
+                                <div className="bg-[#FAEEDA] border border-[#633806]/15 p-3 text-[12.5px] text-[#633806] leading-relaxed rounded-[10px]">
                                   <span className="font-mono text-[9px] font-bold uppercase block mb-1">Coverage Gap</span>
                                   <p>{parsed.gap}</p>
                                 </div>
                               )}
                               {parsed.sprint && (
-                                <div className="border-2 border-carbon p-4 bg-white shadow-[3px_3px_0px_#1A7A4A]">
+                                <div className="border border-none p-4 bg-white shadow-[3px_3px_0px_#1A7A4A] rounded-[15px] border-l-4 border-l-[#1a7a4a]">
                                   <span className="font-mono text-[9px] font-bold text-stable uppercase tracking-wider block mb-1">One-Sprint Action Item</span>
                                   <div className="font-sans text-[13px] text-carbon leading-relaxed select-text">
                                     {renderAuditTextWithCitations(parsed.sprint)}
@@ -1322,19 +1318,19 @@ export default function AuditorPage() {
 
                     {/* Follow-up question form box */}
                     {!hasVagueClarification && (
-                      <form onSubmit={handleSendFollowUp} className="border border-carbon p-3 flex gap-3 items-center bg-concrete/10">
+                      <form onSubmit={handleSendFollowUp} className="border border-[#3a66f5]/15 p-3 flex gap-3 items-center bg-[#f8f8f8] rounded-[10px]">
                         <input
                           type="text"
                           placeholder="Ask follow-up questions to resolve design queries against these records..."
                           value={followUpQuery}
                           onChange={(e) => setFollowUpQuery(e.target.value)}
-                          className="flex-1 bg-white border border-border px-3 py-2 text-[12.5px] focus:outline-none focus:border-carbon text-carbon rounded-none"
+                          className="flex-1 bg-white border border-[#3a66f5]/20 px-3 py-2 text-[12.5px] focus:outline-none focus:border-[#3a66f5] focus:ring-1 focus:ring-[#3a66f5] text-carbon rounded-[8px]"
                           disabled={isAuditing}
                         />
                         <button
                           type="submit"
                           disabled={isAuditing || !followUpQuery.trim()}
-                          className="bg-carbon border border-carbon text-white hover:bg-white hover:text-carbon transition-colors px-4 py-2 font-mono text-[11px] font-bold uppercase select-none rounded-none cursor-pointer disabled:bg-border disabled:text-mid-concrete disabled:border-border"
+                          className="bg-[#3a66f5] border border-none text-white hover:bg-[#254edb] transition-colors px-4 py-2 font-mono text-[11px] font-bold uppercase select-none rounded-[8px] cursor-pointer disabled:bg-border disabled:text-mid-concrete"
                         >
                           Send
                         </button>
@@ -1349,8 +1345,8 @@ export default function AuditorPage() {
                         <button
                           type="button"
                           onClick={() => setAuditRating('useful')}
-                          className={`flex items-center gap-1.5 font-mono text-[10px] font-bold uppercase border border-border px-3 py-1.5 hover:bg-concrete transition-colors cursor-pointer ${
-                            auditRating === 'useful' ? 'bg-carbon text-white border-carbon' : 'text-carbon'
+                          className={`flex items-center gap-1.5 font-mono text-[10px] font-bold uppercase border border-border px-3 py-1.5 hover:bg-concrete transition-colors cursor-pointer rounded-[6px] ${
+                            auditRating === 'useful' ? 'bg-[#3a66f5] text-white border-[#3a66f5]' : 'text-carbon bg-white'
                           }`}
                         >
                           <ThumbsUp className="w-3.5 h-3.5" />
@@ -1359,8 +1355,8 @@ export default function AuditorPage() {
                         <button
                           type="button"
                           onClick={() => setAuditRating('not_relevant')}
-                          className={`flex items-center gap-1.5 font-mono text-[10px] font-bold uppercase border border-border px-3 py-1.5 hover:bg-concrete transition-colors cursor-pointer ${
-                            auditRating === 'not_relevant' ? 'bg-carbon text-white border-carbon' : 'text-carbon'
+                          className={`flex items-center gap-1.5 font-mono text-[10px] font-bold uppercase border border-border px-3 py-1.5 hover:bg-concrete transition-colors cursor-pointer rounded-[6px] ${
+                            auditRating === 'not_relevant' ? 'bg-[#3a66f5] text-white border-[#3a66f5]' : 'text-carbon bg-white'
                           }`}
                         >
                           <ThumbsDown className="w-3.5 h-3.5" />
@@ -1373,7 +1369,7 @@ export default function AuditorPage() {
                         
                         {/* Share link (premium) */}
                         {tier === 'free' ? (
-                          <div className="flex items-center gap-1 font-mono text-[10px] font-bold text-mid-concrete border border-dashed border-border px-3 py-1.5 uppercase select-none cursor-not-allowed">
+                          <div className="flex items-center gap-1 font-mono text-[10px] font-bold text-mid-concrete border border-dashed border-border px-3 py-1.5 uppercase select-none cursor-not-allowed rounded-[6px]">
                             <Lock className="w-3 h-3" />
                             Share Link
                           </div>
@@ -1381,7 +1377,7 @@ export default function AuditorPage() {
                           <button
                             type="button"
                             onClick={handleShareBrief}
-                            className="flex items-center gap-1.5 font-mono text-[10px] font-bold text-carbon uppercase border border-carbon px-3 py-1.5 hover:bg-concrete transition-colors cursor-pointer bg-white"
+                            className="flex items-center gap-1.5 font-mono text-[10px] font-bold text-carbon uppercase border border-[#3a66f5]/20 px-3 py-1.5 hover:bg-concrete transition-colors cursor-pointer bg-white rounded-[6px]"
                           >
                             {copiedLink ? <Check className="w-3.5 h-3.5 text-stable" /> : <Share2 className="w-3.5 h-3.5" />}
                             {copiedLink ? 'Copied URL!' : 'Share Brief'}
@@ -1390,7 +1386,7 @@ export default function AuditorPage() {
 
                         {/* Export PDF brief (premium) */}
                         {tier === 'free' ? (
-                          <div className="flex items-center gap-1 font-mono text-[10px] font-bold text-mid-concrete border border-dashed border-border px-3 py-1.5 uppercase select-none cursor-not-allowed">
+                          <div className="flex items-center gap-1 font-mono text-[10px] font-bold text-mid-concrete border border-dashed border-border px-3 py-1.5 uppercase select-none cursor-not-allowed rounded-[6px]">
                             <Lock className="w-3 h-3" />
                             Export brief
                           </div>
@@ -1398,7 +1394,7 @@ export default function AuditorPage() {
                           <button
                             type="button"
                             onClick={handleGeneratePDF}
-                            className="flex items-center gap-1.5 font-mono text-[10px] font-bold text-carbon uppercase border border-carbon px-3 py-1.5 hover:bg-concrete transition-colors cursor-pointer bg-white shadow-[2px_2px_0px_#0B0B0B]"
+                            className="flex items-center gap-1.5 font-mono text-[10px] font-bold text-white uppercase bg-[#3a66f5] hover:bg-[#254edb] px-3 py-1.5 transition-colors cursor-pointer rounded-[6px] shadow-sm"
                           >
                             <FileText className="w-3.5 h-3.5" />
                             Export PDF
@@ -1412,7 +1408,7 @@ export default function AuditorPage() {
             ) : (
               /* STANDBY CONSOLE LAYER */
               <div className="my-auto text-center py-16 select-none animate-fade-in">
-                <Sparkles className="w-10 h-10 text-premium/30 mx-auto mb-4" />
+                <Sparkles className="w-10 h-10 text-[#3a66f5]/35 mx-auto mb-4 animate-pulse" />
                 <span className="font-mono text-[11px] uppercase tracking-widest text-mid-concrete block mb-2">
                   Console Standby
                 </span>
@@ -1431,12 +1427,12 @@ export default function AuditorPage() {
       {isDrawerOpen && activeCitation && (
         <div className="fixed inset-0 z-50 bg-carbon/50 backdrop-blur-xs flex justify-end animate-fade-in select-text">
           <div className="absolute inset-0" onClick={() => setIsDrawerOpen(false)}></div>
-          <div className="relative w-full max-w-[540px] h-screen bg-white shadow-2xl border-l-2 border-carbon flex flex-col justify-between animate-slide-left select-text">
+          <div className="relative w-full max-w-[540px] h-screen bg-white shadow-2xl border-l border-border flex flex-col justify-between animate-slide-left select-text">
             
             {/* Header drawer */}
-            <div className="border-b border-carbon px-6 py-5 flex justify-between items-center bg-concrete">
+            <div className="border-b border-[#3a66f5]/10 px-6 py-5 flex justify-between items-center bg-[#f8f8f8]">
               <div className="flex items-center gap-2">
-                <span className="font-mono text-[13px] font-bold text-carbon">
+                <span className="font-mono text-[13px] font-bold text-[#3a66f5]">
                   #{activeCitation.code}
                 </span>
                 <span className="text-border">|</span>
@@ -1484,7 +1480,7 @@ export default function AuditorPage() {
 
               {/* Metric panel */}
               {activeCitation.metric && (
-                <div className="border border-border p-4 bg-concrete/20">
+                <div className="border border-[#3a66f5]/15 rounded-[15px] p-4 bg-[#f8f8f8] shadow-sm">
                   <span className="font-mono text-[9px] font-bold text-mid-concrete uppercase tracking-widest block mb-1">
                     Empirical Metric Recorded
                   </span>
@@ -1495,10 +1491,8 @@ export default function AuditorPage() {
               )}
 
               {/* Actionable Verdict */}
-              <div className="border border-carbon p-4 bg-white relative">
-                <span className="absolute top-0 right-0 w-2 h-[1px] bg-signal"></span>
-                <span className="absolute top-0 right-0 h-2 w-[1px] bg-signal"></span>
-                <span className="font-mono text-[9px] font-bold text-signal uppercase tracking-widest block mb-1">
+              <div className="border border-none p-4 bg-white relative shadow-[3px_3px_0px_#FF3E00] rounded-[15px] border-l-4 border-l-[#FF3E00]">
+                <span className="font-mono text-[9px] font-bold text-[#FF3E00] uppercase tracking-widest block mb-1">
                   Actionable Verdict
                 </span>
                 <p className="font-sans text-[13px] text-carbon leading-relaxed">
@@ -1508,15 +1502,15 @@ export default function AuditorPage() {
             </div>
 
             {/* Footer drawer */}
-            <div className="border-t border-border px-6 py-4 bg-concrete/20 flex justify-between items-center">
+            <div className="border-t border-border px-6 py-4 bg-[#f8f8f8]/55 flex justify-between items-center">
               {activeCitation.source_url ? (
                 <a
                   href={activeCitation.source_url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="font-mono text-[10px] font-bold text-premium hover:underline uppercase tracking-wider"
+                  className="font-mono text-[10px] font-bold text-[#3a66f5] hover:underline uppercase tracking-wider"
                 >
-                  View Original Scholar Document ↗
+                  View Scholar Document ↗
                 </a>
               ) : (
                 <span className="text-[10px] font-mono text-mid-concrete">
@@ -1526,7 +1520,7 @@ export default function AuditorPage() {
               
               <button
                 onClick={() => setIsDrawerOpen(false)}
-                className="bg-carbon text-white font-mono text-[10px] font-bold px-4 py-2 uppercase tracking-wider cursor-pointer hover:bg-concrete hover:text-carbon border border-carbon transition-colors"
+                className="bg-[#3a66f5] text-white font-mono text-[10px] font-bold px-4 py-2 uppercase tracking-wider cursor-pointer hover:bg-[#254edb] border-none transition-colors rounded-[6px]"
               >
                 Close Brief
               </button>

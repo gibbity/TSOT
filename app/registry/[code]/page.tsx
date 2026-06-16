@@ -183,16 +183,16 @@ export default async function RecordPage({ params }: PageProps) {
   return (
     <main className="py-12 max-w-[900px] mx-auto px-6">
       {/* Back Button Link */}
-      <div className="mb-8">
+      <div className="mb-8 select-none">
         <Link
           href="/registry"
-          className="font-mono text-[11px] text-mid-concrete hover:text-carbon uppercase tracking-widest transition-colors"
+          className="font-mono text-[11px] text-mid-concrete hover:text-[#3a66f5] uppercase tracking-widest transition-colors"
         >
           ← BACK TO LEDGER
         </Link>
       </div>
 
-      <article className="border border-border bg-white select-text">
+      <article className="border border-border bg-white rounded-[22px] shadow-[5px_7px_12px_0px_rgba(0,0,0,0.15)] overflow-hidden select-text">
         {/* Top Header Panel Info */}
         <div className="border-b border-border px-6 sm:px-8 py-5 flex flex-wrap justify-between items-center bg-concrete/10 gap-4">
           <div className="flex items-center gap-4">
@@ -201,7 +201,7 @@ export default async function RecordPage({ params }: PageProps) {
             </span>
             <span className="text-border">|</span>
             <span
-              className="font-sans text-[10px] font-bold uppercase tracking-wider"
+              className="font-sans text-[10.5px] font-bold uppercase tracking-wider"
               style={{ color: themeColor }}
             >
               {record.pillar}
@@ -215,7 +215,7 @@ export default async function RecordPage({ params }: PageProps) {
 
         {/* H1 Serified Title */}
         <div className="px-6 sm:px-8 pt-6 sm:pt-8 pb-6 border-b border-border">
-          <h1 className="font-gambarino text-[28px] sm:text-[34px] md:text-[40px] leading-[1.15] text-carbon font-normal">
+          <h1 className="font-gambarino text-[28px] sm:text-[34px] md:text-[38px] leading-[1.15] text-[#3a66f5] font-normal">
             {record.title}
           </h1>
         </div>
@@ -226,7 +226,7 @@ export default async function RecordPage({ params }: PageProps) {
           {/* Left Column: Human Summary */}
           <div className="p-6 sm:p-8 flex flex-col justify-between">
             <div>
-              <h3 className="font-sans text-[10px] font-bold tracking-[0.15em] text-mid-concrete uppercase mb-4">
+              <h3 className="font-sans text-[10px] font-bold tracking-[0.15em] text-mid-concrete uppercase mb-4 select-none">
                 HUMAN TRANSLATION / ANALYSIS
               </h3>
               <p className="font-sans text-[14px] text-carbon leading-[1.7] whitespace-pre-line">
@@ -235,7 +235,7 @@ export default async function RecordPage({ params }: PageProps) {
             </div>
             {record.authors && (
               <div className="mt-8 pt-4 border-t border-border/60">
-                <span className="font-sans text-[9px] font-bold uppercase tracking-wider text-mid-concrete block mb-1">
+                <span className="font-sans text-[9px] font-bold uppercase tracking-wider text-mid-concrete block mb-1 select-none">
                   RESEARCH CITATION
                 </span>
                 <span className="font-sans text-[12px] text-carbon italic block">
@@ -246,7 +246,7 @@ export default async function RecordPage({ params }: PageProps) {
                     href={record.source_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="font-mono text-[10px] text-signal hover:underline uppercase block mt-2 tracking-wider"
+                    className="font-mono text-[10px] text-signal hover:text-signal/80 hover:underline uppercase block mt-2 tracking-wider transition-colors"
                   >
                     View Original Scholar Document ↗
                   </a>
@@ -267,11 +267,11 @@ export default async function RecordPage({ params }: PageProps) {
               if (!hasMetric) return null;
               
               return (
-                <div className="border border-border p-5 bg-white">
-                  <span className="font-sans text-[10px] font-bold tracking-[0.15em] text-mid-concrete uppercase block mb-3">
+                <div className="bg-[#f8f8f8] p-5 rounded-[15px] shadow-[2px_2px_4px_0px_rgba(0,0,0,0.03)] border-none">
+                  <span className="font-sans text-[9px] font-bold tracking-[0.15em] text-mid-concrete uppercase block mb-3 select-none">
                     EMPIRICAL METRIC RECORDED
                   </span>
-                  <p className="font-sans text-[15px] font-bold text-carbon leading-snug">
+                  <p className="font-sans text-[14px] font-bold text-carbon leading-snug">
                     {record.metric}
                   </p>
                 </div>
@@ -279,37 +279,33 @@ export default async function RecordPage({ params }: PageProps) {
             })()}
 
             {/* Actionable Verdict Panel */}
-            <div className="border border-border p-5 bg-white relative">
-              {/* Signal Tick */}
-              <span className="absolute top-0 right-0 w-2 h-[1px] bg-signal"></span>
-              <span className="absolute top-0 right-0 h-2 w-[1px] bg-signal"></span>
-
-              <span className="font-sans text-[10px] font-bold tracking-[0.15em] text-signal uppercase block mb-3">
+            <div className="bg-[#f8f8f8] p-5 rounded-[15px] relative shadow-[2px_2px_4px_0px_rgba(0,0,0,0.03)] border-l-4 border-l-signal border-y-none border-r-none">
+              <span className="font-sans text-[9px] font-bold tracking-[0.15em] text-signal uppercase block mb-3 select-none">
                 ACTIONABLE VERDICT
               </span>
-              <p className="font-sans text-[14px] text-carbon leading-[1.6]">
+              <p className="font-sans text-[13px] text-carbon leading-[1.6]">
                 {record.verdict}
               </p>
             </div>
 
             {/* Structured Metadata Boxes (Methodology & Threat Vector) */}
             {methodology && (
-              <div className="border border-border p-5 bg-white">
-                <span className="font-sans text-[10px] font-bold tracking-[0.15em] text-mid-concrete uppercase block mb-2">
+              <div className="bg-[#f8f8f8] p-5 rounded-[15px] shadow-[2px_2px_4px_0px_rgba(0,0,0,0.03)] border-none">
+                <span className="font-sans text-[9px] font-bold tracking-[0.15em] text-mid-concrete uppercase block mb-2 select-none">
                   RESEARCH METHODOLOGY
                 </span>
-                <p className="font-sans text-[13px] text-carbon leading-[1.6]">
+                <p className="font-sans text-[12.5px] text-carbon leading-[1.6]">
                   {methodology}
                 </p>
               </div>
             )}
             
             {threatVector && (
-              <div className="border border-border p-5 bg-white">
-                <span className="font-sans text-[10px] font-bold tracking-[0.15em] text-mid-concrete uppercase block mb-2">
+              <div className="bg-[#f8f8f8] p-5 rounded-[15px] shadow-[2px_2px_4px_0px_rgba(0,0,0,0.03)] border-none">
+                <span className="font-sans text-[9px] font-bold tracking-[0.15em] text-mid-concrete uppercase block mb-2 select-none">
                   COGNITIVE THREAT VECTOR
                 </span>
-                <p className="font-sans text-[13px] text-carbon leading-[1.6]">
+                <p className="font-sans text-[12.5px] text-carbon leading-[1.6]">
                   {threatVector}
                 </p>
               </div>
