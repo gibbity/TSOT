@@ -5,9 +5,9 @@ const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 async function run() {
-  const { data, count, error } = await supabase.from('registry').select('code, title, human_summary, verdict', { count: 'exact' }).limit(2);
+  const { data, count, error } = await supabase.from('registry').select('code, quality_score', { count: 'exact' }).limit(2);
   if (error) {
-    console.error(error);
+    console.error('Error fetching quality_score:', error);
     return;
   }
   console.log('Total records:', count);

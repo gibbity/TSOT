@@ -1,8 +1,61 @@
 import { createClient } from '@supabase/supabase-js';
 import { fetchPapersFromOpenAlex } from '../lib/openalex/fetch';
 import { ingestPapersBatch } from '../lib/gemini/ingest';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const BATCH_SIZE = 5;
+
+async function generatePaperQualityScore(code: string, pillar: string, title: string, summary: string, verdict: string): Promise<number> {
+  const geminiApiKey = process.env.GEMINI_API_KEY;
+  if (!geminiApiKey) {
+    console.error('❌ Missing GEMINI_API_KEY for quality score evaluation.');
+    return 80;
+  }
+  
+  try {
+    const ai = new GoogleGenerativeAI(geminiApiKey);
+    const modelName = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
+    const model = ai.getGenerativeModel({
+      model: modelName,
+      generationConfig: { responseMimeType: 'application/json' }
+    });
+
+    const prompt = `You are a strict data quality auditor for a research and compliance ledger.
+Your job is to evaluate the quality of a record and assign a single quality score from 0 to 100.
+
+Evaluate the record on these four dimensions:
+1. Metric Specificity (Is there a concrete, quantitative metric? Or is it generic/vague?)
+2. Verdict Actionability (Is the verdict a concrete design constraint or specific remedy? Or is it vague general advice?)
+3. Pillar Confidence (How strongly does the summary and verdict relate to the assigned pillar/category?)
+4. Clarity (Is the summary clear and well-structured?)
+
+Record Details:
+Code: ${code}
+Title: ${title}
+Pillar/Category: ${pillar}
+Summary: ${summary}
+Verdict: ${verdict}
+
+Output rules:
+1. Return ONLY a JSON object.
+2. The JSON object must contain a single key "score" with an integer value from 0 to 100.
+3. Be highly critical. If the metric is not specified or vague (like "metric not specified"), assign a low score (<60).
+4. Output format must be EXACTLY:
+{
+  "score": 85
+}`;
+
+    const result = await model.generateContent(prompt);
+    const text = result.response.text();
+    const parsed = JSON.parse(text);
+    if (typeof parsed.score === 'number') {
+      return Math.min(Math.max(Math.round(parsed.score), 0), 100);
+    }
+  } catch (err) {
+    console.error('❌ Failed to generate quality score for paper:', err);
+  }
+  return 80;
+}
 
 function generateRandomCode(): string {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -104,6 +157,9 @@ async function run() {
           }
         }
 
+        console.log(`🤖 Evaluating quality score for ${code}...`);
+        const qualityScore = await generatePaperQualityScore(code, item.pillar, item.title, item.human_summary, item.verdict);
+
         console.log(`✍️ Inserting paper: "${item.title}" [${item.pillar}]`);
         const { error: insertErr } = await supabase.from('registry').insert({
           code,
@@ -118,6 +174,7 @@ async function run() {
           paper_year: item.original.year,
           authors: item.original.authors,
           is_premium: false, // Ingest as public/free records for development visibility
+          quality_score: qualityScore
         });
 
         if (insertErr) {

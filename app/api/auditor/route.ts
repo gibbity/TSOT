@@ -227,161 +227,162 @@ export async function POST(req: NextRequest) {
       }
 
       const supabase = await createClient();
-      let candidates: (RegistryRecord & { combined_score?: number })[] = [];
+      let candidates: RegistryRecord[] = [];
 
       // A. Fetch from HCI Research Ledger
       if (source === 'corpus' || source === 'both') {
-        const pillars: Pillar[] = [
-          'COGNITIVE OFFLOADING',
-          'FRICTION & VERIFICATION',
-          'TEMPORAL PERCEPTION',
-          'EPISTEMIC AGENCY'
-        ];
+        let vectorDocs: any[] = [];
         try {
-          const rpcPromises = pillars.map(async (pillar) => {
-            const { data, error } = await supabase.rpc('hybrid_search_registry', {
-              query_embedding: queryEmbedding,
-              query_text: prompt,
-              match_limit: 2,
-              filter_pillar: pillar
-            });
-            if (error) throw error;
-            return data || [];
+          const { data, error } = await supabase.rpc('hybrid_search_registry', {
+            query_embedding: queryEmbedding,
+            query_text: '',
+            match_limit: 20,
+            filter_pillar: null
           });
-          const rpcResults = await Promise.all(rpcPromises);
-          candidates = candidates.concat(rpcResults.flat().map(row => ({
-            id: Number(row.id),
-            code: String(row.code),
-            pillar: row.pillar as Pillar,
-            title: String(row.title),
-            human_summary: String(row.human_summary),
-            metric: String(row.metric),
-            verdict: String(row.verdict),
-            risk_level: row.risk_level as 'stable' | 'warning' | 'critical',
-            source_url: row.source_url || null,
-            source_type: row.source_type as any,
-            paper_year: row.paper_year != null ? Number(row.paper_year) : null,
-            authors: row.authors || null,
-            is_premium: Boolean(row.is_premium),
-            created_at: row.created_at || new Date().toISOString(),
-            combined_score: Number(row.combined_score ?? 0.5)
-          })));
-        } catch {
-          // Direct DB query fallback
-          try {
-            const dbPromises = pillars.map(async (pillar) => {
-              const { data } = await supabase
-                .from('registry')
-                .select('*')
-                .eq('pillar', pillar)
-                .limit(2);
-              return data || [];
-            });
-            const dbResults = await Promise.all(dbPromises);
-            candidates = candidates.concat(dbResults.flat().map(row => ({ ...row, combined_score: 0.5 })));
-          } catch {
-            // Local fallback seeds
-            candidates = candidates.concat(SEED_RECORDS.map(s => ({ ...s, combined_score: 0.5 })));
-          }
+          if (!error && data) vectorDocs = data;
+        } catch (e) {
+          console.warn('Vector search registry failed:', e);
         }
+
+        let ftsDocs: any[] = [];
+        try {
+          const { data, error } = await supabase
+            .from('registry')
+            .select('*')
+            .textSearch('fts', prompt)
+            .limit(10);
+          if (!error && data) ftsDocs = data;
+        } catch (e) {
+          console.warn('FTS registry failed:', e);
+        }
+
+        candidates = candidates.concat(vectorDocs, ftsDocs);
       }
 
       // B. Fetch from EU AI Act Articles
       if (source === 'ai_act' || source === 'both') {
-        const categories = ['PROHIBITED PRACTICE', 'HIGH RISK', 'LIMITED RISK', 'MINIMAL RISK'];
+        let vectorDocs: any[] = [];
         try {
-          const rpcPromises = categories.map(async (cat) => {
-            const { data, error } = await supabase.rpc('hybrid_search_ai_act', {
-              query_embedding: queryEmbedding,
-              query_text: prompt,
-              match_limit: 2,
-              filter_category: cat
-            });
-            if (error) throw error;
-            return data || [];
+          const { data, error } = await supabase.rpc('hybrid_search_ai_act', {
+            query_embedding: queryEmbedding,
+            query_text: '',
+            match_limit: 20,
+            filter_category: null
           });
-          const rpcResults = await Promise.all(rpcPromises);
-          candidates = candidates.concat(rpcResults.flat().map(row => ({
-            id: Number(row.id),
-            code: String(row.code),
-            pillar: row.pillar as Pillar,
-            title: String(row.title),
-            human_summary: String(row.human_summary),
-            metric: String(row.metric),
-            verdict: String(row.verdict),
-            risk_level: row.risk_level as 'stable' | 'warning' | 'critical',
-            source_url: row.source_url || null,
-            source_type: row.source_type as any,
-            paper_year: row.paper_year != null ? Number(row.paper_year) : null,
-            authors: row.authors || null,
-            is_premium: Boolean(row.is_premium),
-            created_at: row.created_at || new Date().toISOString(),
-            combined_score: Number(row.combined_score ?? 0.5)
-          })));
-        } catch {
-          // DB or JSON fallback
-          try {
-            const dbPromises = categories.map(async (cat) => {
-              const { data } = await supabase
-                .from('ai_act')
-                .select('*')
-                .eq('pillar', cat)
-                .limit(2);
-              return data || [];
-            });
-            const dbResults = await Promise.all(dbPromises);
-            if (dbResults.flat().length > 0) {
-              candidates = candidates.concat(dbResults.flat().map(row => ({ ...row, combined_score: 0.5 })));
-            } else {
-              throw new Error('Empty table');
-            }
-          } catch {
-            // Local JSON search fallback
-            const localResults = SEED_AI_ACT_RECORDS.filter(r => {
-              const searchTerms = prompt.toLowerCase().split(/\s+/).filter(Boolean);
-              if (searchTerms.length === 0) return true;
-              return searchTerms.some((term: string) => r.title.toLowerCase().includes(term) || r.human_summary.toLowerCase().includes(term));
-            });
-            candidates = candidates.concat((localResults.length > 0 ? localResults : SEED_AI_ACT_RECORDS.slice(0, 8)).map(s => ({ ...s, combined_score: 0.5 })));
-          }
+          if (!error && data) vectorDocs = data;
+        } catch (e) {
+          console.warn('Vector search AI Act failed:', e);
         }
+
+        let ftsDocs: any[] = [];
+        try {
+          const { data, error } = await supabase
+            .from('ai_act')
+            .select('*')
+            .textSearch('fts', prompt)
+            .limit(10);
+          if (!error && data) ftsDocs = data;
+        } catch (e) {
+          console.warn('FTS AI Act failed:', e);
+        }
+
+        candidates = candidates.concat(vectorDocs, ftsDocs);
       }
 
       // Merge and deduplicate candidates
-      const uniqueCandidatesMap = new Map<string, RegistryRecord & { combined_score?: number }>();
+      const uniqueCandidatesMap = new Map<string, RegistryRecord>();
       candidates.forEach(c => {
         if (!uniqueCandidatesMap.has(c.code)) {
           uniqueCandidatesMap.set(c.code, c);
-        } else {
-          const existing = uniqueCandidatesMap.get(c.code)!;
-          if ((c.combined_score ?? 0) > (existing.combined_score ?? 0)) {
-            uniqueCandidatesMap.set(c.code, c);
-          }
         }
       });
 
-      const deduplicatedCandidates = Array.from(uniqueCandidatesMap.values());
+      let deduplicatedCandidates = Array.from(uniqueCandidatesMap.values());
 
-      deduplicatedCandidates.forEach(c => {
-        if (c.combined_score === undefined) {
-          let score = 0.3;
-          const searchTerms = prompt.toLowerCase().split(/\s+/);
+      // If database yielded nothing, fall back to seeds
+      if (deduplicatedCandidates.length === 0) {
+        if (source === 'corpus') {
+          deduplicatedCandidates = SEED_RECORDS;
+        } else if (source === 'ai_act') {
+          deduplicatedCandidates = SEED_AI_ACT_RECORDS;
+        } else {
+          deduplicatedCandidates = [...SEED_RECORDS, ...SEED_AI_ACT_RECORDS];
+        }
+      }
+
+      const candidatesToReRank = deduplicatedCandidates.slice(0, 25);
+
+      // Stage 2: Gemini Re-ranking
+      const reRankModel = ai.getGenerativeModel({
+        model: modelName,
+        generationConfig: { responseMimeType: 'application/json' }
+      });
+
+      const candidatesList = candidatesToReRank.map((c, idx) => {
+        return `ID: ${idx}\nCode: ${c.code}\nTitle: ${c.title}\nSummary: ${c.human_summary}\nVerdict: ${c.verdict}`;
+      }).join('\n\n---\n\n');
+
+      const reRankPrompt = `You are a precise relevance scoring model.
+Your task is to evaluate a list of candidate research papers and/or regulatory articles and score each from 0 to 100 based on its direct relevance to the user's product query.
+
+User Query: "${prompt}"
+
+Candidates:
+${candidatesList}
+
+Output rules:
+1. Return ONLY a JSON object.
+2. The JSON object must contain a single key "scores" containing an array of objects.
+3. Each object in the array must have "code" (the candidate's Code) and "score" (an integer from 0 to 100).
+4. Be highly critical. Only give high scores (80-100) to records that directly answer or provide concrete guidance for the user's specific query. Give moderate scores (50-79) for topically relevant but less specific records. Give low scores (0-49) for unrelated or tangentially related records.
+5. Output format must be EXACTLY:
+{
+  "scores": [
+    { "code": "SOT-XXXXXX", "score": 85 },
+    ...
+  ]
+}`;
+
+      let scoresList: { code: string; score: number }[] = [];
+      try {
+        const reRankResult = await reRankModel.generateContent(reRankPrompt);
+        const reRankText = reRankResult.response.text();
+        const parsed = JSON.parse(reRankText);
+        scoresList = parsed.scores || [];
+      } catch (e) {
+        console.warn('Re-ranking call failed, falling back to simple heuristics:', e);
+        scoresList = candidatesToReRank.map(c => {
+          let score = 50;
+          const searchTerms = prompt.toLowerCase().split(/\s+/).filter(Boolean);
           searchTerms.forEach((term: string) => {
             if (c.title.toLowerCase().includes(term) || c.human_summary.toLowerCase().includes(term)) {
-              score += 0.2;
+              score += 15;
             }
           });
-          c.combined_score = Math.min(score, 1.0);
-        }
-        const scoreInt = Math.round(c.combined_score * 100);
-        reRankedScores[c.code] = Math.min(Math.max(scoreInt, 0), 100);
+          return { code: c.code, score: Math.min(score, 100) };
+        });
+      }
+
+      const scoreMap = new Map<string, number>();
+      scoresList.forEach(s => scoreMap.set(s.code, s.score));
+
+      const rankedCandidates = candidatesToReRank.map(c => ({
+        ...c,
+        reRankScore: scoreMap.get(c.code) ?? 50
+      })).sort((a, b) => b.reRankScore - a.reRankScore);
+
+      // Select top 5
+      selectedRecords = rankedCandidates.slice(0, 5);
+
+      selectedRecords.forEach(r => {
+        reRankedScores[r.code] = scoreMap.get(r.code) ?? 50;
       });
 
-      const sorted = deduplicatedCandidates.sort((a, b) => (b.combined_score ?? 0) - (a.combined_score ?? 0));
-      selectedRecords = sorted.slice(0, 10); // Grab top 10
-
-      const totalScore = selectedRecords.reduce((sum, r) => sum + (reRankedScores[r.code] || 50), 0);
-      confidenceScore = selectedRecords.length > 0 ? Math.round(totalScore / selectedRecords.length) : 80;
+      // Confidence score = average re-rank score of the selected 5
+      const totalSelectedScore = selectedRecords.reduce((sum, r) => sum + (scoreMap.get(r.code) ?? 50), 0);
+      confidenceScore = selectedRecords.length > 0
+        ? Math.round(totalSelectedScore / selectedRecords.length)
+        : 0;
     }
 
     // 4. Compute Breakdown Scores dynamically based on target source
@@ -402,124 +403,176 @@ export async function POST(req: NextRequest) {
     }
 
     selectedRecords.forEach(r => {
-      const recScore = reRankedScores[r.code] || (r.risk_level === 'critical' ? 85 : r.risk_level === 'warning' ? 65 : 35);
+      const recScore = reRankedScores[r.code] || 50;
       if (r.pillar in pillarScores) {
         const current = pillarScores[r.pillar];
         pillarScores[r.pillar] = current ? Math.max(current, recScore) : recScore;
       }
     });
 
-    // 5. Generate System Instructions
+    // Stage 3: Two-Step Generation (Step A: Synthesis JSON)
+    const synthesisModel = ai.getGenerativeModel({
+      model: modelName,
+      generationConfig: { responseMimeType: 'application/json' }
+    });
+
     const isAiActOnly = source === 'ai_act';
     const isBoth = source === 'both';
 
-    // Allow legal compliance audits when targeting the EU AI Act
-    const scopeGateOverride = isAiActOnly || isBoth
-      ? `If the user prompt covers medical diagnostics/prescription AI or purely algorithmic backend efficiency, output ONLY <disclaimer>[State clearly that TSOT Auditor covers Human-AI interaction and cannot give medical or algorithm-specific advice. Provide high-contrast safety instructions.]</disclaimer>. Note that since the user explicitly requested auditing against the EU AI Act, you ARE permitted to perform legal compliance audits under this context.`
-      : `If the user prompt covers medical diagnostics/prescription AI, legal compliance (e.g., "does this comply with the EU AI Act?"), or purely algorithmic backend efficiency, output ONLY <disclaimer>[State clearly that TSOT Auditor covers HCI/Human-AI interaction and cannot give legal, medical, or algorithm-specific advice. Provide high-contrast safety instructions.]</disclaimer>`;
+    const synthesisPrompt = `You are the Synthesis Auditor for The Sign of Times.
+Your job is to analyze the user's product description against the top 5 retrieved research/regulatory records and output a structured JSON synthesis.
 
-    const scoreFormat = JSON.stringify(pillarScores);
+User Query: "${prompt}"
 
-    const citationRule = isAiActOnly
-      ? `Every finding must have at least one inline [#EU-ACT-ART-X] citation referencing the relevant article number (e.g. [#EU-ACT-ART-5]). Do not cite SOT-COMP records under this mode.`
-      : isBoth
-      ? `Citations can be either [#SOT-COMP-XXXX] for HCI research findings or [#EU-ACT-ART-X] for EU AI Act compliance findings.`
-      : `Every finding must have at least one inline [#SOT-COMP-XXXX] citation. No citation = no claim.`;
+Retrieved Records:
+${selectedRecords.map(r => `[${r.code}] (Pillar/Category: ${r.pillar}, Risk: ${r.risk_level})\nTitle: ${r.title}\nFinding: ${r.human_summary}\nVerdict: ${r.verdict}`).join('\n\n---\n\n')}
 
-    const systemPrompt = `You are the Adversarial Design Auditor for The Sign of Times (TSOT).
-Your job: when a founder, PM, or designer describes their AI product, interface, or architecture, you audit it aggressively against real HCI research and regulatory rules. You are a rigorous, intellectually honest consultant.
+Scope Gate Rule:
+If the user query covers medical diagnostics/prescription AI, or purely algorithmic backend efficiency, this is out of scope. (Note: legal compliance audits targeting the EU AI Act are permitted under 'ai_act' or 'both' sources).
+If out of scope, set "scope_trigger" to true and provide a "scope_message" explaining that TSOT Auditor covers HCI/Human-AI interaction and cannot give medical, legal (non-AI Act), or algorithm-specific advice, and provide safety instructions.
 
-NON-NEGOTIABLE CORE RULES:
-1. ${citationRule}
-2. The verdict header (pass / concern / critical) must appear within the first 3 tokens of streaming in the verdict block.
-3. If fewer than 3 relevant records are retrieved in the context, declare confidence level explicitly in the verdict or findings.
-4. Confidence language must match retrieval confidence.
-5. The sprint action must be specific and implementable.
-6. Scope Gate: ${scopeGateOverride}
-7. Follow-up questions use the same retrieved records as context — no new retrieval per follow-up. Maintain continuity.
-8. The auditor never says "I". Speak as TSOT — "The research suggests", "TSOT corpus coverage indicates".
-9. NEVER use markdown formatting (no **bold**, no *italic*, no # headers, no bullet asterisks). Write plain prose only. Markdown syntax will appear literally to end users.
+Vagueness Gate Rule:
+If the user query is extremely short (e.g. under 100 characters) or highly ambiguous, set "vagueness_trigger" to true and provide 3 targeted clarification questions in "clarification_questions".
 
-OUTPUT STRATEGY & DYNAMIC XML TAGGING:
-You must output your complete response wrapped inside the following tags. Never add text outside these tags.
+Output rules:
+1. Output ONLY a valid JSON object.
+2. The JSON object must strictly match this structure:
+{
+  "scope_trigger": false,
+  "scope_message": null,
+  "vagueness_trigger": false,
+  "clarification_questions": null,
+  "verdict": "CRITICAL RISK" | "CONCERN" | "STABLE",
+  "verdict_reason": "A one-sentence summary verdict.",
+  "pillar_scores": ${JSON.stringify(pillarScores)},
+  "findings": [
+    {
+      "risk": "What the user's design risks (HCI/regulatory perspective).",
+      "evidence": "What the research/regulatory evidence says, citing the relevant record code(s) (e.g. [#SOT-XXXXXX] or [#EU-ACT-ART-X]).",
+      "constraint": "A specific design constraint or remedy."
+    }
+  ],
+  "gaps": "Corpus gap notice if the records are only partially applicable, or null if no gaps."
+}
+3. Evaluate the assigned pillars and risk categories. Assign scores (0-100) based on direct risk or null if not applicable.
+4. Ensure findings are directly grounded in the provided records. Do not invent any claims.`;
 
-1. SCOPE GATE:
-If triggered, output ONLY <disclaimer>...</disclaimer>.
+    let synthesisData: any = null;
+    try {
+      const synthResult = await synthesisModel.generateContent(synthesisPrompt);
+      const synthText = synthResult.response.text();
+      synthesisData = JSON.parse(synthText);
+    } catch (e) {
+      console.warn('Synthesis step failed, constructing fallback data:', e);
+      synthesisData = {
+        scope_trigger: false,
+        scope_message: null,
+        vagueness_trigger: false,
+        clarification_questions: null,
+        verdict: 'CONCERN',
+        verdict_reason: 'An audit concern is generated based on available corpus records.',
+        pillar_scores: pillarScores,
+        findings: selectedRecords.map(r => ({
+          risk: `Product design might conflict with rules on ${r.pillar}.`,
+          evidence: `Evidence in [${r.code}] shows: ${r.title}.`,
+          constraint: r.verdict
+        })),
+        gaps: null
+      };
+    }
 
-2. VAGUENESS GATE:
-If the prompt is extremely short (e.g., under 100 characters) or highly ambiguous, output ONLY:
-<clarification>
-[Acknowledge the product briefly, then ask exactly 3 targeted questions about their product type, AI feature integration, or latencies to help produce a high-fidelity audit.]
-</clarification>
+    // Stage 5: Asynchronous Logging (non-blocking)
+    try {
+      const supabase = await createClient();
+      supabase.from('audit_logs').insert({
+        query: prompt,
+        retrieved_records: selectedRecords.map(r => r.code),
+        confidence_score: confidenceScore,
+        verdict: synthesisData.verdict || 'UNKNOWN'
+      }).then(({ error }) => {
+        if (error) console.error('Failed to insert audit log:', error);
+      });
+    } catch (logErr) {
+      console.warn('Audit logging failed:', logErr);
+    }
 
-3. REGULAR AUDIT STREAM:
-If the input is valid, you must output all the following tags in sequence:
+    // Stage 4: Calibration & Stage 3: Step B (Formatting)
+    let formatPrompt = '';
 
+    if (synthesisData.scope_trigger) {
+      formatPrompt = `You are the Formatting Auditor.
+The user query triggered the Scope Gate.
+Output ONLY the disclaimer message wrapped in <disclaimer>...</disclaimer> tags. Do NOT output any other XML tags.
+Do NOT use markdown bold/italic formatting.
+
+Disclaimer Message: ${synthesisData.scope_message}`;
+    } else if (synthesisData.vagueness_trigger) {
+      const qList = (synthesisData.clarification_questions || [])
+        .map((q: string) => `- ${q}`)
+        .join('\n');
+      formatPrompt = `You are the Formatting Auditor.
+The user query was too vague or short.
+Output ONLY the clarification questions wrapped in <clarification>...</clarification> tags. Do NOT output any other XML tags.
+Do NOT use markdown bold/italic formatting.
+Acknowledge the product briefly, then present exactly 3 targeted questions to help produce a high-fidelity audit.
+
+Clarification Questions:
+${qList}`;
+    } else {
+      formatPrompt = `You are the Formatting Auditor for The Sign of Times.
+Your job is to translate a structured JSON audit synthesis into the final TSOT-voice output using exact XML tags.
+
+User Query: "${prompt}"
+Confidence Score: ${confidenceScore}%
+Number of Retrieved Records: ${selectedRecords.length}
+Synthesis JSON:
+${JSON.stringify(synthesisData, null, 2)}
+
+CALIBRATION RULES (NON-NEGOTIABLE):
+1. Verb Strength:
+   - Since Confidence Score is ${confidenceScore}%, you MUST use:
+     ${confidenceScore > 80 ? 'Strong verbs ("research shows", "studies confirm", "regulations mandate").' : confidenceScore >= 60 ? 'Moderate verbs ("research suggests", "evidence indicates", "guidance points to").' : 'Cautious verbs ("limited research suggests", "preliminary evidence points to").'}
+2. Low Record Rule:
+   - If Number of Retrieved Records (${selectedRecords.length}) is less than 2: You MUST decline to make specific claims (e.g., "TSOT does not have sufficient records in the corpus to make a definitive audit claim..."). You must NOT output any citations. Keep findings general and decline to claim.
+3. Gap Notice:
+   - If Confidence Score is < 60%, you MUST write an explicit corpus gap notice inside the <gap> tag explaining the lack of research/guidance.
+4. Formatting:
+   - Do NOT use markdown formatting (no **bold**, no *italic*, no # headers, no bullet asterisks). Output plain prose inside the XML tags.
+
+XML Structure to output:
 <scores>
-${scoreFormat}
+${JSON.stringify(synthesisData.pillar_scores)}
 </scores>
 
 <verdict>
-⬤ [CRITICAL RISK / CONCERN / STABLE] — [A one-sentence verdict. Must start within 3 tokens with the status rating. Include corpus coverage e.g. "Based on X relevant records" and retrieval confidence level].
+⬤ ${synthesisData.verdict} — [Write the one-sentence verdict. Mention that it is based on ${selectedRecords.length} relevant records with a retrieval confidence of ${confidenceScore}%].
 </verdict>
 
 <findings>
-[Present 2-4 detailed findings. Each finding must describe:
- - What the user's design risks.
- - What the research evidence says, backed by inline citations.
- - A specific "Design constraint" summarizing the remedy.]
+[Present the findings from the JSON. Each finding must describe:
+ - The design risk.
+ - The research/regulatory evidence, with inline citations (e.g. [#SOT-XXXXXX] or [#EU-ACT-ART-X]). (Remember: 0 citations if less than 2 records).
+ - Design constraint: [Remedy]]
 </findings>
 
 <gap>
-[Include a corpus gap notice if the context records are only partially applicable. If no gaps exist, you may omit this tag or output nothing inside it.]
+[Write the corpus gap notice if applicable, otherwise leave empty.]
 </gap>
 
 <sprint>
 What to ship in the next sprint:
-SPRINT GOAL — [one sentence goal]
-TICKET SCOPE — [specific component, API endpoint, or file the change lives in]
-ACCEPTANCE CRITERION — [testable condition for done]
+SPRINT GOAL — [sprint goal]
+TICKET SCOPE — [ticket scope]
+ACCEPTANCE CRITERION — [acceptance criterion]
 RESEARCH BACKING — [citations]
-[Do NOT use markdown bold or asterisks — write plain text only.]
 </sprint>`;
-
-    const contextText = selectedRecords
-      .map(r => `[${r.code}]\nPILLAR: ${r.pillar}\nTITLE: ${r.title}\nFINDING: ${r.human_summary}\nMETRIC: ${r.metric}\nVERDICT: ${r.verdict}\nRISK: ${r.risk_level}\nSOURCE: ${r.source_url}`)
-      .join('\n\n---\n\n');
-
-    const modelInstructions = `${systemPrompt}
-
-[CALCULATED METADATA FOR GENERATION CONTEXT]
-- Calculated Pillar/Risk Risk Scores: ${scoreFormat}
-- Number of relevant records retrieved: ${selectedRecords.length}
-- Calculated Confidence Score: ${confidenceScore}%
-- Selected citation records available in [CONTEXT]: ${selectedRecords.map(r => r.code).join(', ')}`;
-
-    // Build the chat history
-    const chatContents: any[] = [];
-    chatContents.push({ role: 'user', parts: [{ text: `SYSTEM INSTRUCTIONS:\n${modelInstructions}` }] });
-    chatContents.push({ role: 'model', parts: [{ text: "Acknowledged. I will strictly execute the adversarial design audit based ONLY on the provided context records and format my stream inside XML blocks." }] });
-
-    if (conversationHistory && Array.isArray(conversationHistory)) {
-      conversationHistory.forEach((msg: any) => {
-        chatContents.push({
-          role: msg.role === 'assistant' ? 'model' : 'user',
-          parts: [{ text: msg.content }]
-        });
-      });
     }
 
-    const isFollowUp = (originalRecordCodes && originalRecordCodes.length > 0) || (conversationHistory && conversationHistory.length > 0);
-    const finalUserPrompt = isFollowUp
-      ? `[CONTEXT — TSOT REGISTRY RECORDS]\n${contextText}\n\n[USER FOLLOW-UP PROMPT]\n${prompt}\n\nIMPORTANT MANDATORY RULE: You MUST evaluate the updated product query and output the COMPLETE auditing structure inside the XML tags (<scores>, <verdict>, <findings>, <gap>, <sprint>). Do NOT reply with a plain text paragraph response. Re-evaluate the updated product features, re-calculate the risk scores, and write the findings and sprint actions inside the correct tags.`
-      : `[CONTEXT — TSOT REGISTRY RECORDS]\n${contextText}\n\n[USER PRODUCT DESCRIPTION]\n${prompt}`;
-
-    chatContents.push({
-      role: 'user',
-      parts: [{ text: finalUserPrompt }]
+    const streamResult = await model.generateContentStream({
+      contents: [
+        { role: 'user', parts: [{ text: formatPrompt }] }
+      ]
     });
-
-    const streamResult = await model.generateContentStream({ contents: chatContents });
 
     const encoder = new TextEncoder();
     const responseStream = new ReadableStream({

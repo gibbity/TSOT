@@ -80,6 +80,58 @@ async function generatePaperEmbedding(title: string, summary: string, verdict: s
   }
 }
 
+async function generatePaperQualityScore(code: string, pillar: string, title: string, summary: string, verdict: string): Promise<number> {
+  const geminiApiKey = process.env.GEMINI_API_KEY;
+  if (!geminiApiKey) {
+    console.error('❌ Missing GEMINI_API_KEY for quality score evaluation.');
+    return 80;
+  }
+  
+  try {
+    const ai = new GoogleGenerativeAI(geminiApiKey);
+    const modelName = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
+    const model = ai.getGenerativeModel({
+      model: modelName,
+      generationConfig: { responseMimeType: 'application/json' }
+    });
+
+    const prompt = `You are a strict data quality auditor for a research and compliance ledger.
+Your job is to evaluate the quality of a record and assign a single quality score from 0 to 100.
+
+Evaluate the record on these four dimensions:
+1. Metric Specificity (Is there a concrete, quantitative metric? Or is it generic/vague?)
+2. Verdict Actionability (Is the verdict a concrete design constraint or specific remedy? Or is it vague general advice?)
+3. Pillar Confidence (How strongly does the summary and verdict relate to the assigned pillar/category?)
+4. Clarity (Is the summary clear and well-structured?)
+
+Record Details:
+Code: ${code}
+Title: ${title}
+Pillar/Category: ${pillar}
+Summary: ${summary}
+Verdict: ${verdict}
+
+Output rules:
+1. Return ONLY a JSON object.
+2. The JSON object must contain a single key "score" with an integer value from 0 to 100.
+3. Be highly critical. If the metric is not specified or vague (like "metric not specified"), assign a low score (<60).
+4. Output format must be EXACTLY:
+{
+  "score": 85
+}`;
+
+    const result = await model.generateContent(prompt);
+    const text = result.response.text();
+    const parsed = JSON.parse(text);
+    if (typeof parsed.score === 'number') {
+      return Math.min(Math.max(Math.round(parsed.score), 0), 100);
+    }
+  } catch (err) {
+    console.error('❌ Failed to generate quality score for paper:', err);
+  }
+  return 80;
+}
+
 async function runIngestionCycle() {
   console.log(`\n======================================================`);
   console.log(`⏰ [${new Date().toLocaleTimeString()}] STARTING MINUTELY INGESTION CYCLE`);
@@ -178,6 +230,10 @@ async function runIngestionCycle() {
         console.log(`🤖 Generating embedding for ${code}...`);
         const embedding = await generatePaperEmbedding(item.title, combinedSummary, item.verdict);
 
+        // Generate quality score
+        console.log(`🤖 Generating quality score for ${code}...`);
+        const qualityScore = await generatePaperQualityScore(code, item.pillar, item.title, combinedSummary, item.verdict);
+
         const { error: insertErr } = await supabase.from('registry').insert({
           code,
           pillar: item.pillar,
@@ -190,7 +246,8 @@ async function runIngestionCycle() {
           source_type: 'peer-reviewed',
           paper_year: item.original.year,
           authors: item.original.authors,
-          embedding: embedding
+          embedding: embedding,
+          quality_score: qualityScore
         });
 
         if (insertErr) {
@@ -270,6 +327,10 @@ async function runIngestionCycle() {
           console.log(`🤖 Generating embedding for ${code}...`);
           const embedding = await generatePaperEmbedding(item.title, combinedSummary, item.verdict);
 
+          // Generate quality score
+          console.log(`🤖 Generating quality score for ${code}...`);
+          const qualityScore = await generatePaperQualityScore(code, item.pillar, item.title, combinedSummary, item.verdict);
+
           const { error: insertErr } = await supabase.from('registry').insert({
             code,
             pillar: item.pillar,
@@ -282,7 +343,8 @@ async function runIngestionCycle() {
             source_type: 'peer-reviewed',
             paper_year: item.original.year,
             authors: item.original.authors,
-            embedding: embedding
+            embedding: embedding,
+            quality_score: qualityScore
           });
 
           if (insertErr) {
