@@ -86,33 +86,64 @@ async function fetchAllAiActRecords() {
   return data || [];
 }
 
-async function runWithConcurrencyLimit<T>(
-  items: T[],
-  limit: number,
-  fn: (item: T) => Promise<void>
-): Promise<void> {
-  const promises: Promise<void>[] = [];
-  let index = 0;
+async function evaluateQualityScoresBatch(records: any[]): Promise<Record<string, number>> {
+  const recordsList = records.map((record, index) => {
+    return `ID: ${index}\nCode: ${record.code}\nTitle: ${record.title}\nPillar/Category: ${record.pillar}\nSummary: ${record.human_summary}\nVerdict: ${record.verdict}`;
+  }).join('\n\n---\n\n');
 
-  async function worker() {
-    while (index < items.length) {
-      const currentIndex = index++;
-      const currentItem = items[currentIndex];
-      if (currentItem) {
-        try {
-          await fn(currentItem);
-        } catch (err) {
-          console.error('Worker error:', err);
-        }
+  const prompt = `You are a strict data quality auditor for a research and compliance ledger.
+Your job is to evaluate the quality of a batch of records and assign a quality score from 0 to 100 to each.
+
+Evaluate each record on these four dimensions:
+1. Metric Specificity (Is there a concrete, quantitative metric? Or is it generic/vague?)
+2. Verdict Actionability (Is the verdict a concrete design constraint or specific remedy? Or is it vague general advice?)
+3. Pillar Confidence (How strongly does the summary and verdict relate to the assigned pillar/category?)
+4. Clarity (Is the summary clear and well-structured?)
+
+Records to evaluate:
+${recordsList}
+
+Output rules:
+1. Return ONLY a JSON object.
+2. The JSON object must contain a single key "scores" with an array of objects.
+3. Each object in the array must contain "code" (string) and "score" (integer 0 to 100).
+4. Be highly critical. If the metric is not specified or vague (like "metric not specified"), assign a low score (<60).
+5. Output format must be EXACTLY:
+{
+  "scores": [
+    { "code": "SOT-XXXXXX", "score": 85 },
+    ...
+  ]
+}`;
+
+  let attempts = 0;
+  const maxAttempts = 3;
+
+  while (attempts < maxAttempts) {
+    try {
+      const result = await model.generateContent(prompt);
+      const text = result.response.text();
+      const parsed = JSON.parse(text);
+      if (parsed && Array.isArray(parsed.scores)) {
+        const resultMap: Record<string, number> = {};
+        parsed.scores.forEach((s: any) => {
+          if (s && typeof s.code === 'string' && typeof s.score === 'number') {
+            resultMap[s.code] = Math.min(Math.max(Math.round(s.score), 0), 100);
+          }
+        });
+        return resultMap;
+      }
+    } catch (err: any) {
+      attempts++;
+      console.warn(`⚠️ Warning: Failed batch scoring on attempt ${attempts}: ${err.message || err}`);
+      if (err.message?.includes('429') || err.message?.includes('quota')) {
+        await delay(15000);
+      } else {
+        await delay(2000);
       }
     }
   }
-
-  for (let i = 0; i < Math.min(limit, items.length); i++) {
-    promises.push(worker());
-  }
-
-  await Promise.all(promises);
+  return {};
 }
 
 async function evaluateQualityScore(record: any): Promise<number | null> {
@@ -194,47 +225,53 @@ async function main() {
     return;
   }
 
+  const BATCH_SIZE = 15;
   const startTime = Date.now();
   let count = 0;
 
-  for (let index = 0; index < recordsToProcess.length; index++) {
-    const record = recordsToProcess[index];
+  for (let i = 0; i < recordsToProcess.length; i += BATCH_SIZE) {
+    const batch = recordsToProcess.slice(i, i + BATCH_SIZE);
     console.log(`\n──────────────────────────────────────────────────`);
-    console.log(`Auditing record [${index + 1}/${recordsToProcess.length}] (${record.code})`);
+    console.log(`Auditing records [${i + 1}-${Math.min(i + BATCH_SIZE, recordsToProcess.length)}/${recordsToProcess.length}]`);
+    console.log(`Codes: ${batch.map(r => r.code).join(', ')}`);
 
-    const score = await evaluateQualityScore(record);
-    if (score === null) {
-      console.error(`❌ Failed to calculate quality score for ${record.code}`);
-      // Wait a bit on error before next record
-      await delay(10000);
-      continue;
+    const scoreMap = await evaluateQualityScoresBatch(batch);
+
+    for (const record of batch) {
+      let score = scoreMap[record.code];
+      if (score === undefined) {
+        console.warn(`⚠️ Warning: Record ${record.code} did not receive a score in batch. Evaluating individually...`);
+        const singleScore = await evaluateQualityScore(record);
+        if (singleScore !== null) {
+          score = singleScore;
+        } else {
+          console.error(`❌ Failed to calculate quality score for ${record.code}`);
+          continue;
+        }
+      }
+
+      const table = record.type === 'registry' ? 'registry' : 'ai_act';
+      const { error: updateError } = await supabase
+        .from(table)
+        .update({ quality_score: score })
+        .eq('code', record.code);
+
+      if (updateError) {
+        console.error(`❌ Database update failed for ${record.code}:`, updateError);
+      } else {
+        console.log(`✅ ${record.code} scored: ${score}/100`);
+        progress.add(record.code);
+        count++;
+      }
     }
 
-    const table = record.type === 'registry' ? 'registry' : 'ai_act';
-    const { error: updateError } = await supabase
-      .from(table)
-      .update({ quality_score: score })
-      .eq('code', record.code);
-
-    if (updateError) {
-      console.error(`❌ Database update failed for ${record.code}:`, updateError);
-    } else {
-      console.log(`✅ ${record.code} scored: ${score}/100`);
-      progress.add(record.code);
-      count++;
-    }
-
-    // Save progress periodically
-    if (count % 5 === 0) {
-      saveProgress(progress);
-    }
+    saveProgress(progress);
 
     const elapsedMin = ((Date.now() - startTime) / 60000).toFixed(2);
     const estRemainingMin = count > 0 ? (((Date.now() - startTime) / count) * (recordsToProcess.length - count) / 60000).toFixed(2) : 'N/A';
     console.log(`⏱️ Elapsed: ${elapsedMin}m | Est. Remaining: ${estRemainingMin}m`);
 
-    // Safety delay to stay under the 15 requests per minute limit
-    if (index < recordsToProcess.length - 1) {
+    if (i + BATCH_SIZE < recordsToProcess.length) {
       console.log(`💤 Delaying 4.5s for rate limits...`);
       await delay(4500);
     }
