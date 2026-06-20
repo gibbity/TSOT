@@ -3,24 +3,17 @@ import { Pillar } from '@/types';
 interface PillarFilterProps {
   selected: Pillar | 'ALL';
   onChange: (pillar: Pillar | 'ALL') => void;
+  options: { value: Pillar | 'ALL'; label: string }[];
 }
 
-const PILLARS: { value: Pillar | 'ALL'; label: string }[] = [
-  { value: 'ALL', label: 'All Criteria' },
-  { value: 'COGNITIVE OFFLOADING', label: 'Reasoning' },
-  { value: 'FRICTION & VERIFICATION', label: 'User Experience' },
-  { value: 'TEMPORAL PERCEPTION', label: 'Attention' },
-  { value: 'EPISTEMIC AGENCY', label: 'Ethics' },
-];
-
-export default function PillarFilter({ selected, onChange }: PillarFilterProps) {
+export default function PillarFilter({ selected, onChange, options }: PillarFilterProps) {
   return (
     <div className="w-full">
       <span className="block font-sans text-[10px] font-bold uppercase tracking-[0.1em] text-mid-concrete mb-2 lg:text-right select-none">
         Filter by Criteria
       </span>
       <div className="flex flex-wrap items-center gap-x-6 gap-y-3 lg:justify-end">
-        {PILLARS.map((p) => {
+        {options.map((p) => {
           const isActive = selected === p.value;
           return (
             <button

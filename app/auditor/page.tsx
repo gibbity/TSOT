@@ -23,6 +23,24 @@ import {
   ArrowRight
 } from 'lucide-react';
 import { RegistryRecord } from '@/types';
+import localAiActData from '@/lib/supabase/ai_act_data.json';
+
+const SEED_AI_ACT_RECORDS: RegistryRecord[] = (localAiActData as any[]).map((art, idx) => ({
+  id: 10000 + idx,
+  code: art.code,
+  pillar: art.category as any,
+  title: art.title,
+  human_summary: art.article_text,
+  metric: 'Compliance Checklist',
+  verdict: art.compliance_verdict,
+  risk_level: art.risk_level as any,
+  source_url: 'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32024R1689',
+  source_type: 'regulation',
+  paper_year: 2024,
+  authors: 'European Parliament & Council',
+  is_premium: false,
+  created_at: new Date().toISOString()
+}));
 
 // Seed records to map fallback visual citation panels instantly if database connection drops
 const BRIEF_SEEDS: Record<string, Omit<RegistryRecord, 'id' | 'created_at'>> = {
@@ -148,6 +166,10 @@ const PILLAR_COLORS: Record<string, string> = {
   'FRICTION & VERIFICATION': '#0F6E56',
   'TEMPORAL PERCEPTION': '#854F0B',
   'EPISTEMIC AGENCY': '#993C1D',
+  'PROHIBITED PRACTICE': '#C2185B',
+  'HIGH RISK': '#D32F2F',
+  'LIMITED RISK': '#F57C00',
+  'MINIMAL RISK': '#388E3C',
 };
 
 const PRESETS = [
@@ -176,6 +198,7 @@ export default function AuditorPage() {
   const [productDesc, setProductDesc] = useState('');
   const [byokKey, setByokKey] = useState('');
   const [activeTab, setActiveTab] = useState<'free_text' | 'deep_dive'>('free_text');
+  const [source, setSource] = useState<'corpus' | 'ai_act' | 'both'>('both');
 
   // Audit Status
   const [isAuditing, setIsAuditing] = useState(false);
@@ -273,13 +296,20 @@ export default function AuditorPage() {
     const disclaimerMatch = text.match(/<disclaimer>([\s\S]*?)(?:<\/disclaimer>|$)/);
     const clarificationMatch = text.match(/<clarification>([\s\S]*?)(?:<\/clarification>|$)/);
 
-    // Parse scores JSON safely
-    let scoresObj: Record<string, number | null> = {
-      'COGNITIVE OFFLOADING': null,
-      'FRICTION & VERIFICATION': null,
-      'TEMPORAL PERCEPTION': null,
-      'EPISTEMIC AGENCY': null
-    };
+    // Parse scores JSON safely based on source
+    let scoresObj: Record<string, number | null> = {};
+    if (source === 'corpus' || source === 'both') {
+      scoresObj['COGNITIVE OFFLOADING'] = null;
+      scoresObj['FRICTION & VERIFICATION'] = null;
+      scoresObj['TEMPORAL PERCEPTION'] = null;
+      scoresObj['EPISTEMIC AGENCY'] = null;
+    }
+    if (source === 'ai_act' || source === 'both') {
+      scoresObj['PROHIBITED PRACTICE'] = null;
+      scoresObj['HIGH RISK'] = null;
+      scoresObj['LIMITED RISK'] = null;
+      scoresObj['MINIMAL RISK'] = null;
+    }
 
     if (scoresMatch && scoresMatch[1].trim()) {
       try {
@@ -342,7 +372,8 @@ export default function AuditorPage() {
           byok_key: byokKey.trim() || undefined,
           tier,
           originalRecordCodes,
-          conversationHistory
+          conversationHistory,
+          source
         }),
       });
 
@@ -422,8 +453,8 @@ export default function AuditorPage() {
   const renderAuditTextWithCitations = (text: string) => {
     if (!text) return null;
 
-    // Match citations like [#SOT-COMP-2026] or #SOT-COMP-2026
-    const regex = /(\[?#SOT-[A-Z0-9-]{4,12}\]?)/g;
+    // Match citations like [#SOT-COMP-2026] or #SOT-COMP-2026 or #EU-ACT-ART-5
+    const regex = /(\[?#(?:SOT-[A-Z0-9-]{4,12}|EU-ACT-ART-\d{1,3})\]?)/g;
     const parts = text.split(regex);
 
     return parts.map((part, index) => {
@@ -449,13 +480,15 @@ export default function AuditorPage() {
   // Helper to parse citations and turn them into standard href anchors in PDF
   const renderPrintableAuditorText = (text: string) => {
     if (!text) return null;
-    const regex = /(\[?#SOT-[A-Z0-9-]{4,12}\]?)/g;
+    const regex = /(\[?#(?:SOT-[A-Z0-9-]{4,12}|EU-ACT-ART-\d{1,3})\]?)/g;
     const parts = text.split(regex);
 
     return parts.map((part, index) => {
       if (regex.test(part)) {
         const code = part.replace(/[\[#\]]/g, '').trim();
-        const matched = citations.find(c => c.code === code) || BRIEF_SEEDS[code];
+        const matched = citations.find(c => c.code === code) || 
+                        BRIEF_SEEDS[code] || 
+                        SEED_AI_ACT_RECORDS.find(r => r.code === code);
         const url = matched?.source_url || 'https://openalex.org';
         return (
           <a
@@ -475,7 +508,9 @@ export default function AuditorPage() {
 
   // Slide drawer controller
   const handleOpenCitationBrief = (code: string) => {
-    const matched = citations.find(c => c.code === code) || BRIEF_SEEDS[code];
+    const matched = citations.find(c => c.code === code) || 
+                    BRIEF_SEEDS[code] || 
+                    SEED_AI_ACT_RECORDS.find(r => r.code === code);
     if (matched) {
       setActiveCitation(matched);
       setIsDrawerOpen(true);
@@ -991,6 +1026,32 @@ export default function AuditorPage() {
                 </div>
               </div>
             )}
+
+            {/* Target Corpus Selection */}
+            <div className="border-t border-border pt-4">
+              <label className="font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-[#3a66f5] block mb-2">
+                Target Regulatory Corpus
+              </label>
+              <div className="grid grid-cols-3 gap-2 border border-[#3a66f5]/20 bg-white p-1 rounded-[10px] select-none">
+                {(['corpus', 'ai_act', 'both'] as const).map((src) => {
+                  const label = src === 'corpus' ? 'HCI Research' : src === 'ai_act' ? 'EU AI Act' : 'Unified Both';
+                  return (
+                    <button
+                      key={src}
+                      type="button"
+                      onClick={() => setSource(src)}
+                      className={`py-2 text-center font-mono text-[9px] font-bold uppercase cursor-pointer rounded-[8px] transition-colors border-none outline-none ${
+                        source === src
+                          ? 'bg-[#3a66f5] text-white'
+                          : 'bg-transparent text-mid-concrete hover:text-carbon'
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
 
             {/* Personal BYOK Key Input */}
             <div className="border-t border-border pt-4">

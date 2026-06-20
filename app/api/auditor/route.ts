@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { AUDITOR_SYSTEM_PROMPT } from '@/lib/prompts/auditor';
 import { cookies } from 'next/headers';
 import { RegistryRecord, Pillar } from '@/types';
+import localAiActData from '@/lib/supabase/ai_act_data.json';
 
 const FREE_DAILY_LIMIT = 5;
 
@@ -106,9 +106,27 @@ const SEED_RECORDS: RegistryRecord[] = [
   }
 ];
 
+// Map local EU AI Act JSON to RegistryRecord format
+const SEED_AI_ACT_RECORDS: RegistryRecord[] = (localAiActData as any[]).map((art, idx) => ({
+  id: 10000 + idx,
+  code: art.code,
+  pillar: art.category as Pillar,
+  title: art.title,
+  human_summary: art.article_text,
+  metric: 'Compliance Checklist',
+  verdict: art.compliance_verdict,
+  risk_level: art.risk_level as 'stable' | 'warning' | 'critical',
+  source_url: 'https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32024R1689',
+  source_type: 'regulation',
+  paper_year: 2024,
+  authors: 'European Parliament & Council',
+  is_premium: false,
+  created_at: new Date().toISOString()
+}));
+
 export async function POST(req: NextRequest) {
   try {
-    const { prompt, byok_key, tier, originalRecordCodes, conversationHistory } = await req.json();
+    const { prompt, byok_key, tier, originalRecordCodes, conversationHistory, source = 'both' } = await req.json();
 
     if (!prompt) {
       return NextResponse.json({ error: 'Prompt is required.' }, { status: 400 });
@@ -167,30 +185,35 @@ export async function POST(req: NextRequest) {
 
     // Check if this is a locked follow-up question
     if (originalRecordCodes && Array.isArray(originalRecordCodes) && originalRecordCodes.length > 0) {
-      // Rule 8: Locked context from follow-up query
       let dbRecords: RegistryRecord[] = [];
       try {
         const supabase = await createClient();
-        const { data } = await supabase
+        const { data: regData } = await supabase
           .from('registry')
           .select('*')
           .in('code', originalRecordCodes);
-        if (data && data.length > 0) dbRecords = data as RegistryRecord[];
+        if (regData) dbRecords = dbRecords.concat(regData as RegistryRecord[]);
+
+        const { data: actData } = await supabase
+          .from('ai_act')
+          .select('*')
+          .in('code', originalRecordCodes);
+        if (actData) dbRecords = dbRecords.concat(actData as RegistryRecord[]);
       } catch {}
 
       selectedRecords = originalRecordCodes.map(code => {
-        const matched = dbRecords.find(r => r.code === code) || SEED_RECORDS.find(r => r.code === code);
+        const matched = dbRecords.find(r => r.code === code) || 
+                        SEED_RECORDS.find(r => r.code === code) || 
+                        SEED_AI_ACT_RECORDS.find(r => r.code === code);
         return matched || SEED_RECORDS[0]; // fallback
       });
 
-      // Maintain score approximations
       selectedRecords.forEach(r => {
         reRankedScores[r.code] = r.risk_level === 'critical' ? 90 : r.risk_level === 'warning' ? 70 : 40;
       });
       confidenceScore = 85;
     } else {
-      // Normal Retrieval - Priority 1 & 2
-      // 1. Generate Query Embedding using gemini-embedding-2 (768 dimensions)
+      // Normal Retrieval
       let queryEmbedding: number[] | null = null;
       try {
         const embModel = ai.getGenerativeModel({ model: 'gemini-embedding-2' });
@@ -203,85 +226,128 @@ export async function POST(req: NextRequest) {
         console.warn('Embedding generation failed:', e);
       }
 
-      // 2. Pillar-guaranteed minimum retrieval: 4 parallel queries (top 2 each, up to 8 total)
-      const pillars: Pillar[] = [
-        'COGNITIVE OFFLOADING',
-        'FRICTION & VERIFICATION',
-        'TEMPORAL PERCEPTION',
-        'EPISTEMIC AGENCY'
-      ];
-
+      const supabase = await createClient();
       let candidates: (RegistryRecord & { combined_score?: number })[] = [];
-      let rpcFailed = false;
 
-      try {
-        const supabase = await createClient();
-        const rpcPromises = pillars.map(async (pillar) => {
-          const { data, error } = await supabase.rpc('hybrid_search_registry', {
-            query_embedding: queryEmbedding,
-            query_text: prompt,
-            match_limit: 2,
-            filter_pillar: pillar
-          });
-          
-          if (error) {
-            console.error(`RPC query failed for pillar ${pillar}:`, error);
-            throw error;
-          }
-          return data || [];
-        });
-
-        const rpcResults = await Promise.all(rpcPromises);
-        const flattenedRows = rpcResults.flat();
-
-        candidates = flattenedRows.map(row => ({
-          id: Number(row.id),
-          code: String(row.code),
-          pillar: row.pillar as Pillar,
-          title: String(row.title),
-          human_summary: String(row.human_summary),
-          metric: String(row.metric),
-          verdict: String(row.verdict),
-          risk_level: row.risk_level as 'stable' | 'warning' | 'critical',
-          source_url: row.source_url || null,
-          source_type: row.source_type as 'peer-reviewed' | 'preprint' | 'conference',
-          paper_year: row.paper_year != null ? Number(row.paper_year) : null,
-          authors: row.authors || null,
-          is_premium: Boolean(row.is_premium),
-          created_at: row.created_at || new Date().toISOString(),
-          combined_score: Number(row.combined_score ?? 0.5)
-        }));
-      } catch (rpcErr) {
-        console.warn('RPC hybrid search failed. Falling back to direct database table queries...', rpcErr);
-        rpcFailed = true;
-      }
-
-      // Fallback if RPC function is missing/fails
-      if (rpcFailed) {
+      // A. Fetch from HCI Research Ledger
+      if (source === 'corpus' || source === 'both') {
+        const pillars: Pillar[] = [
+          'COGNITIVE OFFLOADING',
+          'FRICTION & VERIFICATION',
+          'TEMPORAL PERCEPTION',
+          'EPISTEMIC AGENCY'
+        ];
         try {
-          const supabase = await createClient();
-          const fallbackPromises = pillars.map(async (pillar) => {
-            const { data, error } = await supabase
-              .from('registry')
-              .select('*')
-              .eq('pillar', pillar)
-              .limit(2);
+          const rpcPromises = pillars.map(async (pillar) => {
+            const { data, error } = await supabase.rpc('hybrid_search_registry', {
+              query_embedding: queryEmbedding,
+              query_text: prompt,
+              match_limit: 2,
+              filter_pillar: pillar
+            });
             if (error) throw error;
             return data || [];
           });
-          const fallbackResults = await Promise.all(fallbackPromises);
-          const flattenedFallback = fallbackResults.flat();
-          candidates = flattenedFallback.map(row => ({
-            ...row,
-            combined_score: 0.5
-          }));
-        } catch (fallbackErr) {
-          console.error('Database fallback queries failed:', fallbackErr);
-          candidates = [];
+          const rpcResults = await Promise.all(rpcPromises);
+          candidates = candidates.concat(rpcResults.flat().map(row => ({
+            id: Number(row.id),
+            code: String(row.code),
+            pillar: row.pillar as Pillar,
+            title: String(row.title),
+            human_summary: String(row.human_summary),
+            metric: String(row.metric),
+            verdict: String(row.verdict),
+            risk_level: row.risk_level as 'stable' | 'warning' | 'critical',
+            source_url: row.source_url || null,
+            source_type: row.source_type as any,
+            paper_year: row.paper_year != null ? Number(row.paper_year) : null,
+            authors: row.authors || null,
+            is_premium: Boolean(row.is_premium),
+            created_at: row.created_at || new Date().toISOString(),
+            combined_score: Number(row.combined_score ?? 0.5)
+          })));
+        } catch {
+          // Direct DB query fallback
+          try {
+            const dbPromises = pillars.map(async (pillar) => {
+              const { data } = await supabase
+                .from('registry')
+                .select('*')
+                .eq('pillar', pillar)
+                .limit(2);
+              return data || [];
+            });
+            const dbResults = await Promise.all(dbPromises);
+            candidates = candidates.concat(dbResults.flat().map(row => ({ ...row, combined_score: 0.5 })));
+          } catch {
+            // Local fallback seeds
+            candidates = candidates.concat(SEED_RECORDS.map(s => ({ ...s, combined_score: 0.5 })));
+          }
         }
       }
 
-      // Merge and deduplicate candidates, keeping the highest score
+      // B. Fetch from EU AI Act Articles
+      if (source === 'ai_act' || source === 'both') {
+        const categories = ['PROHIBITED PRACTICE', 'HIGH RISK', 'LIMITED RISK', 'MINIMAL RISK'];
+        try {
+          const rpcPromises = categories.map(async (cat) => {
+            const { data, error } = await supabase.rpc('hybrid_search_ai_act', {
+              query_embedding: queryEmbedding,
+              query_text: prompt,
+              match_limit: 2,
+              filter_category: cat
+            });
+            if (error) throw error;
+            return data || [];
+          });
+          const rpcResults = await Promise.all(rpcPromises);
+          candidates = candidates.concat(rpcResults.flat().map(row => ({
+            id: Number(row.id),
+            code: String(row.code),
+            pillar: row.pillar as Pillar,
+            title: String(row.title),
+            human_summary: String(row.human_summary),
+            metric: String(row.metric),
+            verdict: String(row.verdict),
+            risk_level: row.risk_level as 'stable' | 'warning' | 'critical',
+            source_url: row.source_url || null,
+            source_type: row.source_type as any,
+            paper_year: row.paper_year != null ? Number(row.paper_year) : null,
+            authors: row.authors || null,
+            is_premium: Boolean(row.is_premium),
+            created_at: row.created_at || new Date().toISOString(),
+            combined_score: Number(row.combined_score ?? 0.5)
+          })));
+        } catch {
+          // DB or JSON fallback
+          try {
+            const dbPromises = categories.map(async (cat) => {
+              const { data } = await supabase
+                .from('ai_act')
+                .select('*')
+                .eq('pillar', cat)
+                .limit(2);
+              return data || [];
+            });
+            const dbResults = await Promise.all(dbPromises);
+            if (dbResults.flat().length > 0) {
+              candidates = candidates.concat(dbResults.flat().map(row => ({ ...row, combined_score: 0.5 })));
+            } else {
+              throw new Error('Empty table');
+            }
+          } catch {
+            // Local JSON search fallback
+            const localResults = SEED_AI_ACT_RECORDS.filter(r => {
+              const searchTerms = prompt.toLowerCase().split(/\s+/).filter(Boolean);
+              if (searchTerms.length === 0) return true;
+              return searchTerms.some((term: string) => r.title.toLowerCase().includes(term) || r.human_summary.toLowerCase().includes(term));
+            });
+            candidates = candidates.concat((localResults.length > 0 ? localResults : SEED_AI_ACT_RECORDS.slice(0, 8)).map(s => ({ ...s, combined_score: 0.5 })));
+          }
+        }
+      }
+
+      // Merge and deduplicate candidates
       const uniqueCandidatesMap = new Map<string, RegistryRecord & { combined_score?: number }>();
       candidates.forEach(c => {
         if (!uniqueCandidatesMap.has(c.code)) {
@@ -294,19 +360,8 @@ export async function POST(req: NextRequest) {
         }
       });
 
-      // Ensure SEED_RECORDS are integrated to guarantee a dense retrieval pool
-      SEED_RECORDS.forEach(s => {
-        if (!uniqueCandidatesMap.has(s.code)) {
-          uniqueCandidatesMap.set(s.code, {
-            ...s,
-            combined_score: 0.5
-          });
-        }
-      });
-
       const deduplicatedCandidates = Array.from(uniqueCandidatesMap.values());
 
-      // Assign scores based on combined_score (scale 0 to 100)
       deduplicatedCandidates.forEach(c => {
         if (c.combined_score === undefined) {
           let score = 0.3;
@@ -318,55 +373,132 @@ export async function POST(req: NextRequest) {
           });
           c.combined_score = Math.min(score, 1.0);
         }
-
         const scoreInt = Math.round(c.combined_score * 100);
         reRankedScores[c.code] = Math.min(Math.max(scoreInt, 0), 100);
       });
 
-      // Sort by score descending
       const sorted = deduplicatedCandidates.sort((a, b) => (b.combined_score ?? 0) - (a.combined_score ?? 0));
+      selectedRecords = sorted.slice(0, 10); // Grab top 10
 
-      // Select top 8 (up to 8, at least 2 per pillar in candidates)
-      selectedRecords = sorted.slice(0, 8);
-
-      // Calculate confidence score from the average score of selected records
       const totalScore = selectedRecords.reduce((sum, r) => sum + (reRankedScores[r.code] || 50), 0);
       confidenceScore = selectedRecords.length > 0 ? Math.round(totalScore / selectedRecords.length) : 80;
     }
 
-    // 4. Compute Per-Pillar Breakdown Scores (Rule 7)
-    const pillarScores: Record<string, number | null> = {
-      'COGNITIVE OFFLOADING': null,
-      'FRICTION & VERIFICATION': null,
-      'TEMPORAL PERCEPTION': null,
-      'EPISTEMIC AGENCY': null
-    };
+    // 4. Compute Breakdown Scores dynamically based on target source
+    const pillarScores: Record<string, number | null> = {};
+
+    if (source === 'corpus' || source === 'both') {
+      pillarScores['COGNITIVE OFFLOADING'] = null;
+      pillarScores['FRICTION & VERIFICATION'] = null;
+      pillarScores['TEMPORAL PERCEPTION'] = null;
+      pillarScores['EPISTEMIC AGENCY'] = null;
+    }
+
+    if (source === 'ai_act' || source === 'both') {
+      pillarScores['PROHIBITED PRACTICE'] = null;
+      pillarScores['HIGH RISK'] = null;
+      pillarScores['LIMITED RISK'] = null;
+      pillarScores['MINIMAL RISK'] = null;
+    }
 
     selectedRecords.forEach(r => {
       const recScore = reRankedScores[r.code] || (r.risk_level === 'critical' ? 85 : r.risk_level === 'warning' ? 65 : 35);
-      const current = pillarScores[r.pillar];
-      pillarScores[r.pillar] = current ? Math.max(current, recScore) : recScore;
+      if (r.pillar in pillarScores) {
+        const current = pillarScores[r.pillar];
+        pillarScores[r.pillar] = current ? Math.max(current, recScore) : recScore;
+      }
     });
 
-    // 5. Generate streamed response
+    // 5. Generate System Instructions
+    const isAiActOnly = source === 'ai_act';
+    const isBoth = source === 'both';
+
+    // Allow legal compliance audits when targeting the EU AI Act
+    const scopeGateOverride = isAiActOnly || isBoth
+      ? `If the user prompt covers medical diagnostics/prescription AI or purely algorithmic backend efficiency, output ONLY <disclaimer>[State clearly that TSOT Auditor covers Human-AI interaction and cannot give medical or algorithm-specific advice. Provide high-contrast safety instructions.]</disclaimer>. Note that since the user explicitly requested auditing against the EU AI Act, you ARE permitted to perform legal compliance audits under this context.`
+      : `If the user prompt covers medical diagnostics/prescription AI, legal compliance (e.g., "does this comply with the EU AI Act?"), or purely algorithmic backend efficiency, output ONLY <disclaimer>[State clearly that TSOT Auditor covers HCI/Human-AI interaction and cannot give legal, medical, or algorithm-specific advice. Provide high-contrast safety instructions.]</disclaimer>`;
+
+    const scoreFormat = JSON.stringify(pillarScores);
+
+    const citationRule = isAiActOnly
+      ? `Every finding must have at least one inline [#EU-ACT-ART-X] citation referencing the relevant article number (e.g. [#EU-ACT-ART-5]). Do not cite SOT-COMP records under this mode.`
+      : isBoth
+      ? `Citations can be either [#SOT-COMP-XXXX] for HCI research findings or [#EU-ACT-ART-X] for EU AI Act compliance findings.`
+      : `Every finding must have at least one inline [#SOT-COMP-XXXX] citation. No citation = no claim.`;
+
+    const systemPrompt = `You are the Adversarial Design Auditor for The Sign of Times (TSOT).
+Your job: when a founder, PM, or designer describes their AI product, interface, or architecture, you audit it aggressively against real HCI research and regulatory rules. You are a rigorous, intellectually honest consultant.
+
+NON-NEGOTIABLE CORE RULES:
+1. ${citationRule}
+2. The verdict header (pass / concern / critical) must appear within the first 3 tokens of streaming in the verdict block.
+3. If fewer than 3 relevant records are retrieved in the context, declare confidence level explicitly in the verdict or findings.
+4. Confidence language must match retrieval confidence.
+5. The sprint action must be specific and implementable.
+6. Scope Gate: ${scopeGateOverride}
+7. Follow-up questions use the same retrieved records as context — no new retrieval per follow-up. Maintain continuity.
+8. The auditor never says "I". Speak as TSOT — "The research suggests", "TSOT corpus coverage indicates".
+9. NEVER use markdown formatting (no **bold**, no *italic*, no # headers, no bullet asterisks). Write plain prose only. Markdown syntax will appear literally to end users.
+
+OUTPUT STRATEGY & DYNAMIC XML TAGGING:
+You must output your complete response wrapped inside the following tags. Never add text outside these tags.
+
+1. SCOPE GATE:
+If triggered, output ONLY <disclaimer>...</disclaimer>.
+
+2. VAGUENESS GATE:
+If the prompt is extremely short (e.g., under 100 characters) or highly ambiguous, output ONLY:
+<clarification>
+[Acknowledge the product briefly, then ask exactly 3 targeted questions about their product type, AI feature integration, or latencies to help produce a high-fidelity audit.]
+</clarification>
+
+3. REGULAR AUDIT STREAM:
+If the input is valid, you must output all the following tags in sequence:
+
+<scores>
+${scoreFormat}
+</scores>
+
+<verdict>
+⬤ [CRITICAL RISK / CONCERN / STABLE] — [A one-sentence verdict. Must start within 3 tokens with the status rating. Include corpus coverage e.g. "Based on X relevant records" and retrieval confidence level].
+</verdict>
+
+<findings>
+[Present 2-4 detailed findings. Each finding must describe:
+ - What the user's design risks.
+ - What the research evidence says, backed by inline citations.
+ - A specific "Design constraint" summarizing the remedy.]
+</findings>
+
+<gap>
+[Include a corpus gap notice if the context records are only partially applicable. If no gaps exist, you may omit this tag or output nothing inside it.]
+</gap>
+
+<sprint>
+What to ship in the next sprint:
+SPRINT GOAL — [one sentence goal]
+TICKET SCOPE — [specific component, API endpoint, or file the change lives in]
+ACCEPTANCE CRITERION — [testable condition for done]
+RESEARCH BACKING — [citations]
+[Do NOT use markdown bold or asterisks — write plain text only.]
+</sprint>`;
+
     const contextText = selectedRecords
       .map(r => `[${r.code}]\nPILLAR: ${r.pillar}\nTITLE: ${r.title}\nFINDING: ${r.human_summary}\nMETRIC: ${r.metric}\nVERDICT: ${r.verdict}\nRISK: ${r.risk_level}\nSOURCE: ${r.source_url}`)
       .join('\n\n---\n\n');
 
-    // System prompt override incorporating the calculated metadata variables
-    const modelInstructions = `${AUDITOR_SYSTEM_PROMPT}
+    const modelInstructions = `${systemPrompt}
 
 [CALCULATED METADATA FOR GENERATION CONTEXT]
-- Calculated Pillar Risk Scores (strict rule: output EXACTLY this JSON in your <scores> tag):
-  ${JSON.stringify(pillarScores)}
+- Calculated Pillar/Risk Risk Scores: ${scoreFormat}
 - Number of relevant records retrieved: ${selectedRecords.length}
 - Calculated Confidence Score: ${confidenceScore}%
 - Selected citation records available in [CONTEXT]: ${selectedRecords.map(r => r.code).join(', ')}`;
 
-    // Build the chat history if a conversation is present
+    // Build the chat history
     const chatContents: any[] = [];
     chatContents.push({ role: 'user', parts: [{ text: `SYSTEM INSTRUCTIONS:\n${modelInstructions}` }] });
-    chatContents.push({ role: 'model', parts: [{ text: "Acknowledged. I will strictly execute the adversarial TSOT design audit based ONLY on the provided context records and format my stream inside XML blocks." }] });
+    chatContents.push({ role: 'model', parts: [{ text: "Acknowledged. I will strictly execute the adversarial design audit based ONLY on the provided context records and format my stream inside XML blocks." }] });
 
     if (conversationHistory && Array.isArray(conversationHistory)) {
       conversationHistory.forEach((msg: any) => {
@@ -405,12 +537,10 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // 6. Set rate limiting cookie and headers
     const remainingCount = FREE_DAILY_LIMIT - (currentCount + 1);
     const headers = new Headers({
       'Content-Type': 'text/plain; charset=utf-8',
       'X-Session-Remaining': String(Math.max(0, remainingCount)),
-      // Return metadata headers so frontend can easily capture these instantly!
       'X-Audit-Citations': encodeURIComponent(JSON.stringify(selectedRecords)),
       'X-Audit-Confidence': String(confidenceScore)
     });

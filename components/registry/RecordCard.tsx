@@ -21,6 +21,10 @@ const pillarLabels: Record<string, string> = {
   'FRICTION & VERIFICATION': 'USER EXPERIENCE',
   'TEMPORAL PERCEPTION': 'ATTENTION',
   'EPISTEMIC AGENCY': 'ETHICS',
+  'PROHIBITED PRACTICE': 'PROHIBITED',
+  'HIGH RISK': 'HIGH RISK',
+  'LIMITED RISK': 'LIMITED',
+  'MINIMAL RISK': 'MINIMAL',
 };
 
 function toSentenceCase(str: string): string {

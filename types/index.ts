@@ -2,10 +2,14 @@ export type Pillar =
   | 'COGNITIVE OFFLOADING'
   | 'FRICTION & VERIFICATION'
   | 'TEMPORAL PERCEPTION'
-  | 'EPISTEMIC AGENCY';
+  | 'EPISTEMIC AGENCY'
+  | 'PROHIBITED PRACTICE'
+  | 'HIGH RISK'
+  | 'LIMITED RISK'
+  | 'MINIMAL RISK';
 
 export type RiskLevel = 'stable' | 'warning' | 'critical';
-export type SourceType = 'peer-reviewed' | 'preprint' | 'conference';
+export type SourceType = 'peer-reviewed' | 'preprint' | 'conference' | 'regulation';
 
 export interface RegistryRecord {
   id: number;
@@ -27,6 +31,7 @@ export interface RegistryRecord {
 export interface AuditRequest {
   prompt: string;
   byok_key?: string;
+  source?: 'corpus' | 'ai_act' | 'both';
 }
 
 export interface AuditResponse {

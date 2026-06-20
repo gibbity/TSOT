@@ -1,9 +1,10 @@
 import { createClient } from '@/lib/supabase/server';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { RegistryRecord } from '@/types';
 import RiskBadge from '@/components/registry/RiskBadge';
 import SourceBadge from '@/components/registry/SourceBadge';
+
 
 const SEED_RECORDS: RegistryRecord[] = [
   {
@@ -119,8 +120,8 @@ const RISK_BORDER_COLORS: Record<string, string> = {
 
 // Generates structural metadata parameters
 export async function generateStaticParams() {
-  return SEED_RECORDS.map((rec) => ({
-    code: rec.code,
+  return SEED_RECORDS.map((r) => ({
+    code: r.code,
   }));
 }
 
@@ -130,6 +131,11 @@ interface PageProps {
 
 export default async function RecordPage({ params }: PageProps) {
   const { code } = await params;
+
+  const isAiAct = code.toUpperCase().startsWith('EU-ACT-');
+  if (isAiAct) {
+    redirect(`/ai-act/${code}`);
+  }
 
   let record: RegistryRecord | null = null;
 
@@ -143,7 +149,13 @@ export default async function RecordPage({ params }: PageProps) {
       .single();
 
     if (data) {
-      record = data as RegistryRecord;
+      record = {
+        ...data,
+        metric: data.metric || 'N/A',
+        source_type: data.source_type || 'peer-reviewed',
+        paper_year: data.paper_year || null,
+        authors: data.authors || null
+      } as RegistryRecord;
     }
   } catch (e) {
     console.warn('Failed to query record from Supabase, attempting fallback seeds.', e);
