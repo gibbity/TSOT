@@ -7,19 +7,25 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "daemon": "npx tsx --env-file=.env.local scratch/hourly_daemon.ts"
+    "daemon": "npx tsx --env-file=.env.local scratch/hourly_daemon.ts",
+    "mcp-server": "npx tsx --env-file=.env.local scratch/mcp_server.ts",
+    "mcp-http": "npx tsx --env-file=.env.local scratch/mcp_http_server.ts"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
+    "@modelcontextprotocol/sdk": "^1.29.0",
     "@supabase/ssr": "^0.10.3",
     "@supabase/supabase-js": "^2.106.0",
+    "express": "^5.2.1",
     "lucide-react": "^1.16.0",
     "next": "16.2.6",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/express": "^5.0.6",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
