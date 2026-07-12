@@ -715,7 +715,7 @@ export async function POST(request: NextRequest) {
     // Handle protocol notifications (like 'initialized') that do not expect a response
     if (body.method && !body.id) {
       console.log(`📥 Received notification: ${method}`);
-      return new Response('', { status: 204 });
+      return new Response(null, { status: 204 });
     }
 
     // 1. Handle Tools Listing
