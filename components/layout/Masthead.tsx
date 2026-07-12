@@ -8,6 +8,7 @@ const NAV = [
   { label: 'Registry', href: '/registry' },
   { label: 'AI Act', href: '/ai-act' },
   { label: 'Auditor', href: '/auditor' },
+  { label: 'MCP Server', href: '/mcp' },
   { label: 'Pricing', href: '/#pricing' },
   { label: 'About', href: '/about' },
 ];
