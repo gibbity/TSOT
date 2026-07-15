@@ -131,6 +131,52 @@ export default async function HomePage() {
           </p>
         </div>
 
+        {/* Groundedness RAG Pipeline Explanation */}
+        <div className="bg-[#fcfcfc] border border-border rounded-[24px] p-8 space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-4">
+            <div>
+              <h3 className="font-gambarino text-[18px] text-carbon">
+                Grounded RAG Audit Architecture
+              </h3>
+              <p className="font-sans text-[12.5px] text-mid-concrete mt-0.5">
+                Our AI model is strictly context-gated. It does not use general training knowledge or unverified speculation.
+              </p>
+            </div>
+            <span className="bg-emerald-100 text-emerald-700 text-[10px] font-bold font-mono px-3 py-1 rounded-full uppercase tracking-wider self-start sm:self-auto whitespace-nowrap">
+              ✓ Grounded Context Only
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-[13px] leading-relaxed">
+            {/* Step 1 */}
+            <div className="space-y-2">
+              <div className="font-mono text-[11px] font-bold text-[#3a66f5] uppercase tracking-wider">Step 1 — Hybrid Retrieval</div>
+              <h4 className="font-gambarino text-[14px] text-carbon">Database Matching</h4>
+              <p className="font-sans text-mid-concrete text-[12.5px]">
+                Your AI features are embedded and matched against our 6,300+ peer-reviewed HCI papers and official EU AI Act articles using hybrid semantic/keyword search.
+              </p>
+            </div>
+
+            {/* Step 2 */}
+            <div className="space-y-2">
+              <div className="font-mono text-[11px] font-bold text-[#3a66f5] uppercase tracking-wider">Step 2 — Strict Context Gating</div>
+              <h4 className="font-gambarino text-[14px] text-carbon">Zero-Hallucination Bubble</h4>
+              <p className="font-sans text-mid-concrete text-[12.5px]">
+                The AI is constrained to use ONLY the matched database papers. It cannot speculate. If fewer than 2 relevant documents are found, it declines to audit.
+              </p>
+            </div>
+
+            {/* Step 3 */}
+            <div className="space-y-2">
+              <div className="font-mono text-[11px] font-bold text-[#3a66f5] uppercase tracking-wider">Step 3 — Cited Synthesis</div>
+              <h4 className="font-gambarino text-[14px] text-carbon">Evidence-Backed Verdicts</h4>
+              <p className="font-sans text-mid-concrete text-[12.5px]">
+                Every audit finding must include a strict inline citation (e.g., <code>[#SOT-COMP-2026]</code> or <code>[#EU-ACT-ART-15]</code>). No citation = no claim.
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Hero Interactive Console (Preset Examples call actual endpoints) */}
         <HeroConsole />
       </div>
