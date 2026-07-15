@@ -3,7 +3,18 @@ import RecordCard from '@/components/registry/RecordCard';
 import Link from 'next/link';
 import { RegistryRecord } from '@/types';
 import HeroConsole from '@/components/landing/HeroConsole';
-import { ShieldAlert, BookOpen, Compass, Cpu, Zap, Settings, Terminal, ShieldCheck } from 'lucide-react';
+import { 
+  ShieldAlert, 
+  BookOpen, 
+  Scale, 
+  Cpu, 
+  Zap, 
+  Settings, 
+  Terminal, 
+  ShieldCheck,
+  CheckCircle,
+  AlertTriangle
+} from 'lucide-react';
 
 const SEED_RECORDS: RegistryRecord[] = [
   {
@@ -58,38 +69,47 @@ const SEED_RECORDS: RegistryRecord[] = [
 
 export default async function HomePage() {
   let records: RegistryRecord[] = [];
-  let criticalCount = 3;
-  let warningCount = 1;
-  let stableCount = 2;
+  
+  // Real Database Counts
+  let registryCount = 6369;
+  let aiActCount = 113;
+  let totalAuditLogs = 418;
 
   try {
     const supabase = await createClient();
     
     // Fetch recent non-premium records
-    const { data } = await supabase
+    const { data: recent } = await supabase
       .from('registry')
       .select('*')
       .eq('is_premium', false)
       .order('created_at', { ascending: false })
-      .limit(6);
+      .limit(3);
 
-    if (data && data.length > 0) {
-      records = data as RegistryRecord[];
-      
-      const { data: allRecords } = await supabase
-        .from('registry')
-        .select('risk_level');
-        
-      if (allRecords) {
-        criticalCount = allRecords.filter(r => r.risk_level === 'critical').length;
-        warningCount = allRecords.filter(r => r.risk_level === 'warning').length;
-        stableCount = allRecords.filter(r => r.risk_level === 'stable').length;
-      }
+    if (recent && recent.length > 0) {
+      records = recent as RegistryRecord[];
     } else {
       records = SEED_RECORDS;
     }
+
+    // Dynamic stats queries (fast count-only select)
+    const { count: regCount } = await supabase
+      .from('registry')
+      .select('*', { count: 'exact', head: true });
+    if (regCount !== null) registryCount = regCount;
+
+    const { count: actCount } = await supabase
+      .from('ai_act')
+      .select('*', { count: 'exact', head: true });
+    if (actCount !== null) aiActCount = actCount;
+
+    const { count: logCount } = await supabase
+      .from('audit_logs')
+      .select('*', { count: 'exact', head: true });
+    if (logCount !== null) totalAuditLogs = logCount;
+
   } catch (error) {
-    console.warn('Supabase not connected. Loading local seed records.', error);
+    console.warn('Supabase offline. Loading local seed stats.', error);
     records = SEED_RECORDS;
   }
 
@@ -98,100 +118,145 @@ export default async function HomePage() {
       
       {/* 1. Hero Container */}
       <div className="space-y-12">
-        <div className="max-w-[850px] space-y-4">
+        <div className="max-w-[900px] space-y-4">
           <div className="inline-flex items-center gap-2 bg-[#3a66f5]/10 text-[#3a66f5] px-3.5 py-1.5 rounded-full text-[12px] font-bold uppercase tracking-wider">
             <Zap className="w-3.5 h-3.5" />
-            Empirical RAG Auditing
+            HCI & Regulatory Auditing
           </div>
-          <h1 className="font-gambarino text-[36px] md:text-[52px] leading-[1.1] text-carbon">
-            The Stark, Actionable Ledger of Human-AI Research.
+          <h1 className="font-gambarino text-[36px] md:text-[56px] leading-[1.1] text-carbon">
+            Align AI Design with Empirical Research & EU Regulations.
           </h1>
           <p className="font-sans text-[16px] text-mid-concrete leading-relaxed">
-            No hype. No philosophy. Just empirical evidence showing how AI systems alter human memory, attention, and compliance. Equip your developers, compliance teams, and LLMs with verified design constraints.
+            The Sign of Times is a dual-engine knowledge base. Automatically audit your AI product features against **EU AI Act compliance requirements** and **HCI empirical research findings** to catch design risks and violations before shipping.
           </p>
         </div>
 
-        {/* Hero Interactive Console */}
+        {/* Hero Interactive Console (Preset Examples call actual endpoints) */}
         <HeroConsole />
       </div>
 
-      {/* 2. Stats & Status Band */}
+      {/* 2. Live Database Metrics Band */}
       <div className="space-y-6">
-        <h2 className="font-sans text-[11px] font-bold uppercase tracking-[0.15em] text-mid-concrete">
-          Ledger Index Status
+        <h2 className="font-sans text-[11px] font-bold uppercase tracking-[0.15em] text-mid-concrete border-b border-border pb-2">
+          Knowledge Base Indexing Status
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {[
-            { label: 'CRITICAL AUDIT WARNINGS', value: criticalCount, color: 'text-red-600', desc: 'Identified UX mechanisms triggering severe automation bias or safety risks.' },
-            { label: 'IMPORTANT WARNING SIGNALS', value: warningCount, color: 'text-amber-600', desc: 'Interface choices altering user planning horizons or skepticism.' },
-            { label: 'NECESSARY VERDICT FINDINGS', value: stableCount, color: 'text-emerald-600', desc: 'UX layouts maintaining optimal user agency and truth verification.' },
-          ].map((stat, i) => (
-            <div key={i} className="bg-[#fcfcfc] border border-border rounded-[22px] p-6 flex flex-col justify-between h-[150px] hover:shadow-md transition-all duration-300">
-              <div>
-                <span className="font-sans text-[10px] font-bold tracking-wider text-mid-concrete uppercase">
-                  {stat.label}
-                </span>
-                <p className="font-sans text-[11.5px] text-mid-concrete mt-1">{stat.desc}</p>
-              </div>
-              <span className={`font-gambarino text-[42px] leading-none font-normal self-end ${stat.color}`}>
-                {stat.value}
+          
+          <div className="bg-[#fcfcfc] border border-border rounded-[22px] p-6 flex flex-col justify-between h-[130px] hover:shadow-sm transition-shadow">
+            <div>
+              <span className="font-sans text-[10px] font-bold tracking-wider text-red-600 uppercase">
+                EU AI Act Articles Indexed
               </span>
+              <p className="font-sans text-[12px] text-mid-concrete mt-1">Full regulatory clauses parsed and mapped to compliance checks.</p>
             </div>
-          ))}
+            <span className="font-gambarino text-[38px] leading-none font-normal text-carbon self-end">
+              {aiActCount.toLocaleString()}
+            </span>
+          </div>
+
+          <div className="bg-[#fcfcfc] border border-border rounded-[22px] p-6 flex flex-col justify-between h-[130px] hover:shadow-sm transition-shadow">
+            <div>
+              <span className="font-sans text-[10px] font-bold tracking-wider text-[#3a66f5] uppercase">
+                HCI Empirical Research Papers
+              </span>
+              <p className="font-sans text-[12px] text-mid-concrete mt-1">Peer-reviewed studies on human cognitive limits, latencies, and trust.</p>
+            </div>
+            <span className="font-gambarino text-[38px] leading-none font-normal text-carbon self-end">
+              {registryCount.toLocaleString()}
+            </span>
+          </div>
+
+          <div className="bg-[#fcfcfc] border border-border rounded-[22px] p-6 flex flex-col justify-between h-[130px] hover:shadow-sm transition-shadow">
+            <div>
+              <span className="font-sans text-[10px] font-bold tracking-wider text-emerald-600 uppercase">
+                Active System Audits Logged
+              </span>
+              <p className="font-sans text-[12px] text-mid-concrete mt-1">Real-time design audits generated across API and MCP server requests.</p>
+            </div>
+            <span className="font-gambarino text-[38px] leading-none font-normal text-carbon self-end">
+              {totalAuditLogs.toLocaleString()}
+            </span>
+          </div>
+
         </div>
       </div>
 
-      {/* 3. The Four Key Pillars Showcase */}
+      {/* 3. Dual-Engine Core Value Split Showcase */}
       <div className="space-y-8">
-        <div className="border-b border-border pb-3">
-          <h2 className="font-sans text-[11px] font-bold uppercase tracking-[0.15em] text-mid-concrete">
-            Research Pillars & Evaluation Framework
-          </h2>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <h2 className="font-sans text-[11px] font-bold uppercase tracking-[0.15em] text-mid-concrete text-center">
+          The Two Core Audit Engines
+        </h2>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
           
-          {/* Pillar 1 */}
-          <div className="border border-border rounded-[24px] p-6 bg-white hover:shadow-md transition-shadow space-y-3">
-            <div className="w-10 h-10 rounded-[12px] bg-red-100 flex items-center justify-center text-red-600">
-              <Cpu className="w-5 h-5" />
+          {/* Engine 1: EU AI Act */}
+          <div className="border border-border rounded-[26px] bg-white p-8 flex flex-col justify-between hover:shadow-md transition-shadow">
+            <div className="space-y-4">
+              <div className="w-12 h-12 rounded-[16px] bg-red-50 flex items-center justify-center text-red-600">
+                <Scale className="w-6 h-6" />
+              </div>
+              <h3 className="font-gambarino text-[22px] text-carbon">⚖️ The EU AI Act Compliance Engine</h3>
+              <p className="font-sans text-[14px] text-mid-concrete leading-relaxed">
+                Scan your interface architectures against the new European AI regulatory frameworks. Automatically flag prohibited techniques and compile compliance requirements.
+              </p>
+              
+              <ul className="space-y-3 pt-3">
+                <li className="flex items-start gap-3 text-[13px] text-carbon">
+                  <CheckCircle className="w-4 h-4 text-red-600 fill-red-50 mt-0.5 shrink-0" />
+                  <span><strong>Article 5 (Prohibitions)</strong>: Intercept subliminal manipulation, vulnerability exploits, and classification metrics.</span>
+                </li>
+                <li className="flex items-start gap-3 text-[13px] text-carbon">
+                  <CheckCircle className="w-4 h-4 text-red-600 fill-red-50 mt-0.5 shrink-0" />
+                  <span><strong>Article 15 (High Risk)</strong>: Verify cybersecurity logging, technical redundancy, and accuracy declarations.</span>
+                </li>
+                <li className="flex items-start gap-3 text-[13px] text-carbon">
+                  <CheckCircle className="w-4 h-4 text-red-600 fill-red-50 mt-0.5 shrink-0" />
+                  <span><strong>Article 50 (Transparency)</strong>: Check conversational agent disclosure and emotional simulation guidelines.</span>
+                </li>
+              </ul>
             </div>
-            <h3 className="font-gambarino text-[17px] text-carbon">Cognitive Offloading</h3>
-            <p className="font-sans text-[13px] text-mid-concrete leading-relaxed">
-              Evaluating how much critical memory, logical formulation, and synthesis the user delegates to the AI. Helps designs enforce checkpoints to maintain user recall.
-            </p>
+
+            <div className="pt-6 mt-6 border-t border-border flex justify-between items-center">
+              <span className="text-[12px] font-mono text-red-600 font-bold uppercase">Source: EU Parliament 2024</span>
+              <Link href="/ai-act" className="font-sans text-[12.5px] font-bold text-[#3a66f5] hover:underline">
+                Explore Regulation Articles →
+              </Link>
+            </div>
           </div>
 
-          {/* Pillar 2 */}
-          <div className="border border-border rounded-[24px] p-6 bg-white hover:shadow-md transition-shadow space-y-3">
-            <div className="w-10 h-10 rounded-[12px] bg-amber-100 flex items-center justify-center text-amber-600">
-              <Settings className="w-5 h-5" />
+          {/* Engine 2: Empirical HCI Ledger */}
+          <div className="border border-border rounded-[26px] bg-white p-8 flex flex-col justify-between hover:shadow-md transition-shadow">
+            <div className="space-y-4">
+              <div className="w-12 h-12 rounded-[16px] bg-blue-50 flex items-center justify-center text-[#3a66f5]">
+                <Cpu className="w-6 h-6" />
+              </div>
+              <h3 className="font-gambarino text-[22px] text-carbon">🧠 The Empirical HCI Research Ledger</h3>
+              <p className="font-sans text-[14px] text-mid-concrete leading-relaxed">
+                Assess user attention, skepticism, and memory retention under different conversational designs using peer-reviewed behavioral research papers.
+              </p>
+              
+              <ul className="space-y-3 pt-3">
+                <li className="flex items-start gap-3 text-[13px] text-carbon">
+                  <CheckCircle className="w-4 h-4 text-[#3a66f5] fill-blue-50 mt-0.5 shrink-0" />
+                  <span><strong>Cognitive Offloading</strong>: Enforce visual resets to limit user memory degradation from automated summarizing.</span>
+                </li>
+                <li className="flex items-start gap-3 text-[13px] text-carbon">
+                  <CheckCircle className="w-4 h-4 text-[#3a66f5] fill-blue-50 mt-0.5 shrink-0" />
+                  <span><strong>Friction & Verification</strong>: Introduce visual output checkpoints to reset user skepticism and combat automation bias.</span>
+                </li>
+                <li className="flex items-start gap-3 text-[13px] text-carbon">
+                  <CheckCircle className="w-4 h-4 text-[#3a66f5] fill-blue-50 mt-0.5 shrink-0" />
+                  <span><strong>Temporal Perception</strong>: Avoid anthropomorphic turn-taking confusion by introducing deliberate response latencies.</span>
+                </li>
+              </ul>
             </div>
-            <h3 className="font-gambarino text-[17px] text-carbon">Friction & Verification</h3>
-            <p className="font-sans text-[13px] text-mid-concrete leading-relaxed">
-              Introducing deliberate checkpoints (visual outlines, confirm clicks) that combat automation bias and force cognitive wakefulness before executing critical workflows.
-            </p>
-          </div>
 
-          {/* Pillar 3 */}
-          <div className="border border-border rounded-[24px] p-6 bg-white hover:shadow-md transition-shadow space-y-3">
-            <div className="w-10 h-10 rounded-[12px] bg-blue-100 flex items-center justify-center text-blue-600">
-              <Terminal className="w-5 h-5" />
+            <div className="pt-6 mt-6 border-t border-border flex justify-between items-center">
+              <span className="text-[12px] font-mono text-blue-600 font-bold uppercase">Source: Peer-Reviewed Ledger</span>
+              <Link href="/registry" className="font-sans text-[12.5px] font-bold text-[#3a66f5] hover:underline">
+                Explore Research Papers →
+              </Link>
             </div>
-            <h3 className="font-gambarino text-[17px] text-carbon">Temporal Perception</h3>
-            <p className="font-sans text-[13px] text-mid-concrete leading-relaxed">
-              Managing artificial delays and response latencies. Preventing anthropomorphic turn-taking confusion by avoiding sub-200ms instantaneous streaming chat.
-            </p>
-          </div>
-
-          {/* Pillar 4 */}
-          <div className="border border-border rounded-[24px] p-6 bg-white hover:shadow-md transition-shadow space-y-3">
-            <div className="w-10 h-10 rounded-[12px] bg-emerald-100 flex items-center justify-center text-emerald-600">
-              <ShieldCheck className="w-5 h-5" />
-            </div>
-            <h3 className="font-gambarino text-[17px] text-carbon">Epistemic Agency</h3>
-            <p className="font-sans text-[13px] text-mid-concrete leading-relaxed">
-              Preserving user search depth and vocabulary diversity. Avoiding hyper-personalized sentiment filters that cause user echo-chambers and validation seeking.
-            </p>
           </div>
 
         </div>

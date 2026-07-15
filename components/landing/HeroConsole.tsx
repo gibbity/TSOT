@@ -1,28 +1,32 @@
 'use client';
 
 import { useState } from 'react';
-import { Play, Terminal, Check, Copy, Sparkles } from 'lucide-react';
+import { Play, Terminal, Check, Copy, Sparkles, Scale, ShieldAlert } from 'lucide-react';
 
 const EXAMPLES = [
   {
-    label: '150ms Speech Chatbot',
-    prompt: 'We are building an agentic conversational assistant with response latency under 150ms that guides the user and summarizes all daily tasks automatically.'
+    label: '⚖️ EU Act: Emotion Bot',
+    prompt: 'We are building a conversational customer support bot that simulates human emotional empathy, validates user feelings, and does not explicitly declare itself as an AI system during chat.',
+    type: 'compliance'
   },
   {
-    label: 'Hyper-personalized Search',
-    prompt: 'A search engine that automatically filters recommendations and answers based on the user’s perceived sentiment profile and preferences.'
+    label: '⚖️ EU Act: Subliminal Engagement',
+    prompt: 'An AI-driven interface that deploys subliminal audio-visual cues and engagement reminders below the user’s conscious threshold to guide habit building and retention.',
+    type: 'compliance'
   },
   {
-    label: 'Agentic Email Summarizer',
-    prompt: 'An AI copilot that automatically reads, synthesizes, and drafts replies for all incoming emails without requiring user confirmation.'
+    label: '🧠 Ledger: Cognitive Offloading',
+    prompt: 'An agentic writing assistant that reads user documents, automatically summarizes findings, and drafts replies for all tasks without requiring manual review checkpoints.',
+    type: 'design'
   }
 ];
 
 export default function HeroConsole() {
+  const [activeEx, setActiveEx] = useState(EXAMPLES[0]);
   const [prompt, setPrompt] = useState(EXAMPLES[0].prompt);
   const [auditing, setAuditing] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [consoleOutput, setConsoleOutput] = useState<string>(`// Select an example above or write your own, then click "Audit Interface"
+  const [consoleOutput, setConsoleOutput] = useState<string>(`// Select an example preset above or enter your own product details, then click "Audit Interface"
 // The RAG-backed compliance & design audit will render here in real-time...`);
 
   const handleCopy = () => {
@@ -31,16 +35,22 @@ export default function HeroConsole() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleSelectExample = (ex: typeof EXAMPLES[0]) => {
+    setActiveEx(ex);
+    setPrompt(ex.prompt);
+  };
+
   const handleAudit = async () => {
     setAuditing(true);
-    setConsoleOutput('// Initializing RAG audit...\n// Fetching empirical research & EU AI Act articles...\n// Querying moat backend services...');
+    setConsoleOutput('// Initializing RAG pipeline...\n// Querying TSOT database ledger & EU AI Act articles...\n// Performing re-ranking and synthesis...');
     
     try {
+      const toolToRun = activeEx.type === 'compliance' ? 'audit_eu_compliance' : 'optimize_hci_design';
       const response = await fetch('/api/moat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          tool: 'optimize_hci_design',
+          tool: toolToRun,
           prompt: prompt
         })
       });
@@ -66,25 +76,27 @@ export default function HeroConsole() {
       <div className="lg:col-span-5 bg-white border border-border rounded-[24px] p-6 shadow-sm flex flex-col justify-between space-y-6">
         <div className="space-y-4">
           <div className="flex items-center gap-2 text-[#3a66f5]">
-            <Sparkles className="w-5 h-5 fill-[#3a66f5]/10 animate-bounce" />
-            <span className="font-sans text-[11px] font-bold uppercase tracking-wider">Interactive Audit Simulator</span>
+            <Sparkles className="w-5 h-5 fill-[#3a66f5]/10 animate-pulse" />
+            <span className="font-sans text-[11px] font-bold uppercase tracking-wider">TSOT Audit Simulator</span>
           </div>
           <h3 className="font-gambarino text-[18px] text-carbon">
-            Test Your Design Architecture
+            Test Your AI System
           </h3>
           <p className="font-sans text-[12.5px] text-mid-concrete leading-relaxed">
-            Choose an example feature below or type your product details to test our RAG database check.
+            Select one of our preset compliance or design scenarios, or write a custom description to run a live audit.
           </p>
 
           {/* Example Pills */}
-          <div className="flex flex-wrap gap-2 pt-2">
+          <div className="flex flex-wrap gap-2 pt-1.5">
             {EXAMPLES.map((ex, i) => (
               <button
                 key={i}
-                onClick={() => setPrompt(ex.prompt)}
-                className={`px-3 py-1.5 rounded-full text-[11.5px] font-sans transition-all duration-300 border cursor-pointer ${
+                onClick={() => handleSelectExample(ex)}
+                className={`px-3 py-2 rounded-full text-[11px] font-sans transition-all duration-300 border cursor-pointer ${
                   prompt === ex.prompt
-                    ? 'bg-[#3a66f5]/10 text-[#3a66f5] border-[#3a66f5]/30 font-semibold'
+                    ? ex.type === 'compliance'
+                      ? 'bg-red-50 text-red-600 border-red-200 font-semibold'
+                      : 'bg-blue-50 text-blue-600 border-blue-200 font-semibold'
                     : 'bg-neutral-50 text-mid-concrete border-border hover:bg-neutral-100 hover:text-carbon'
                 }`}
               >
