@@ -124,10 +124,10 @@ export default async function HomePage() {
             HCI & Regulatory Auditing
           </div>
           <h1 className="font-gambarino text-[36px] md:text-[56px] leading-[1.1] text-carbon">
-            Align AI Design with Empirical Research & EU Regulations.
+            Audit AI Systems for Cognitive Safety, User Ethics, and EU AI Act Compliance.
           </h1>
           <p className="font-sans text-[16px] text-mid-concrete leading-relaxed">
-            The Sign of Times is a dual-engine knowledge base. Automatically audit your AI product features against EU AI Act compliance requirements and HCI empirical research findings to catch design risks and violations before shipping.
+            Align agentic architectures and user interfaces with empirical behavioral research and European Union AI regulations. Run automated audits to eliminate cognitive manipulation, ensure transparency, and verify cybersecurity robustness.
           </p>
         </div>
 
