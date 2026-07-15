@@ -127,7 +127,7 @@ export default async function HomePage() {
             Align AI Design with Empirical Research & EU Regulations.
           </h1>
           <p className="font-sans text-[16px] text-mid-concrete leading-relaxed">
-            The Sign of Times is a dual-engine knowledge base. Automatically audit your AI product features against **EU AI Act compliance requirements** and **HCI empirical research findings** to catch design risks and violations before shipping.
+            The Sign of Times is a dual-engine knowledge base. Automatically audit your AI product features against EU AI Act compliance requirements and HCI empirical research findings to catch design risks and violations before shipping.
           </p>
         </div>
 
