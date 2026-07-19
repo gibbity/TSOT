@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import RecordCard from '@/components/registry/RecordCard';
 import Link from 'next/link';
 import { RegistryRecord } from '@/types';
+import OpenAlexSearch from '@/components/landing/OpenAlexSearch';
 import HeroConsole from '@/components/landing/HeroConsole';
 import { 
   ShieldAlert, 
@@ -114,24 +115,37 @@ export default async function HomePage() {
   }
 
   return (
-    <main className="max-w-[1200px] mx-auto px-6 py-8 space-y-20 select-none">
+    <main className="max-w-[1200px] mx-auto px-6 py-8 space-y-24 select-none">
       
-      {/* 1. Hero Container */}
-      <div className="space-y-12">
-        <div className="max-w-[900px] space-y-4">
-          <div className="inline-flex items-center gap-2 bg-[#3a66f5]/10 text-[#3a66f5] px-3.5 py-1.5 rounded-full text-[12px] font-bold uppercase tracking-wider">
+      {/* 1. Hero Container & OpenAlex Catalog Search */}
+      <div className="space-y-12 text-center max-w-[900px] mx-auto pt-8">
+        <div className="space-y-4">
+          <div className="inline-flex items-center gap-2 bg-[#3a66f5]/10 text-[#3a66f5] px-3.5 py-1.5 rounded-full text-[12px] font-bold uppercase tracking-wider select-none">
             <Zap className="w-3.5 h-3.5" />
-            HCI & Regulatory Auditing
+            HCI & Regulatory Search Index
           </div>
           <h1 className="font-gambarino text-[36px] md:text-[56px] leading-[1.1] text-carbon">
             Audit AI Systems for Cognitive Safety, User Ethics, and EU AI Act Compliance.
           </h1>
-          <p className="font-sans text-[16px] text-mid-concrete leading-relaxed">
-            Align agentic architectures and user interfaces with empirical behavioral research and European Union AI regulations. Run automated audits to eliminate cognitive manipulation, ensure transparency, and verify cybersecurity robustness.
+          <p className="font-sans text-[16px] text-mid-concrete leading-relaxed max-w-[800px] mx-auto">
+            Search our global catalog of peer-reviewed HCI research studies and official EU AI Act compliance articles to verify and protect agentic system architectures.
           </p>
         </div>
 
-        {/* Groundedness RAG Pipeline Explanation */}
+        {/* Center Search Console Component (OpenAlex Style) */}
+        <OpenAlexSearch 
+          initialRegistryCount={registryCount}
+          initialAiActCount={aiActCount}
+          initialAuditCount={totalAuditLogs}
+        />
+      </div>
+
+      {/* 2. Groundedness RAG Pipeline Explanation */}
+      <div className="space-y-6 max-w-[950px] mx-auto">
+        <h2 className="font-sans text-[11px] font-bold uppercase tracking-[0.15em] text-mid-concrete border-b border-border pb-2 text-center">
+          How the RAG Audit Works
+        </h2>
+        
         <div className="bg-[#fcfcfc] border border-border rounded-[24px] p-8 space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-4">
             <div>
@@ -176,59 +190,18 @@ export default async function HomePage() {
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Hero Interactive Console (Preset Examples call actual endpoints) */}
+      {/* 3. Hero Console Interactive Simulator */}
+      <div className="space-y-6 max-w-[950px] mx-auto">
+        <h2 className="font-sans text-[11px] font-bold uppercase tracking-[0.15em] text-mid-concrete border-b border-border pb-2 text-center">
+          Interactive Audit Simulator
+        </h2>
         <HeroConsole />
       </div>
 
-      {/* 2. Live Database Metrics Band */}
-      <div className="space-y-6">
-        <h2 className="font-sans text-[11px] font-bold uppercase tracking-[0.15em] text-mid-concrete border-b border-border pb-2">
-          Knowledge Base Indexing Status
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          
-          <div className="bg-[#fcfcfc] border border-border rounded-[22px] p-6 flex flex-col justify-between h-[130px] hover:shadow-sm transition-shadow">
-            <div>
-              <span className="font-sans text-[10px] font-bold tracking-wider text-red-600 uppercase">
-                EU AI Act Articles Indexed
-              </span>
-              <p className="font-sans text-[12px] text-mid-concrete mt-1">Full regulatory clauses parsed and mapped to compliance checks.</p>
-            </div>
-            <span className="font-gambarino text-[38px] leading-none font-normal text-carbon self-end">
-              {aiActCount.toLocaleString()}
-            </span>
-          </div>
-
-          <div className="bg-[#fcfcfc] border border-border rounded-[22px] p-6 flex flex-col justify-between h-[130px] hover:shadow-sm transition-shadow">
-            <div>
-              <span className="font-sans text-[10px] font-bold tracking-wider text-[#3a66f5] uppercase">
-                HCI Empirical Research Papers
-              </span>
-              <p className="font-sans text-[12px] text-mid-concrete mt-1">Peer-reviewed studies on human cognitive limits, latencies, and trust.</p>
-            </div>
-            <span className="font-gambarino text-[38px] leading-none font-normal text-carbon self-end">
-              {registryCount.toLocaleString()}
-            </span>
-          </div>
-
-          <div className="bg-[#fcfcfc] border border-border rounded-[22px] p-6 flex flex-col justify-between h-[130px] hover:shadow-sm transition-shadow">
-            <div>
-              <span className="font-sans text-[10px] font-bold tracking-wider text-emerald-600 uppercase">
-                Active System Audits Logged
-              </span>
-              <p className="font-sans text-[12px] text-mid-concrete mt-1">Real-time design audits generated across API and MCP server requests.</p>
-            </div>
-            <span className="font-gambarino text-[38px] leading-none font-normal text-carbon self-end">
-              {totalAuditLogs.toLocaleString()}
-            </span>
-          </div>
-
-        </div>
-      </div>
-
-      {/* 3. Dual-Engine Core Value Split Showcase */}
-      <div className="space-y-8">
+      {/* 4. Dual-Engine Core Value Split Showcase */}
+      <div className="space-y-8 max-w-[950px] mx-auto">
         <h2 className="font-sans text-[11px] font-bold uppercase tracking-[0.15em] text-mid-concrete text-center">
           The Two Core Audit Engines
         </h2>
@@ -308,8 +281,8 @@ export default async function HomePage() {
         </div>
       </div>
 
-      {/* 4. Recent Entries Band */}
-      <div className="space-y-8">
+      {/* 5. Recent Entries Band */}
+      <div className="space-y-8 max-w-[950px] mx-auto">
         <div className="flex items-baseline justify-between border-b border-border pb-3">
           <h2 className="font-sans text-[11px] font-bold uppercase tracking-[0.15em] text-mid-concrete">
             RECENT LEDGER ENTRIES
@@ -329,8 +302,8 @@ export default async function HomePage() {
         </div>
       </div>
 
-      {/* 5. Deploy / Developers Call-To-Action Band */}
-      <div className="border border-border rounded-[24px] bg-neutral-900 text-white p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-6 shadow-md select-none">
+      {/* 6. Deploy / Developers Call-To-Action Band */}
+      <div className="border border-border rounded-[24px] bg-neutral-900 text-white p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-6 shadow-md select-none max-w-[950px] mx-auto">
         <div className="space-y-2 max-w-[650px] text-center md:text-left">
           <h3 className="font-gambarino text-[22px] md:text-[26px]">Build RAG-Backed AI Products</h3>
           <p className="font-sans text-[13.5px] text-neutral-400 leading-relaxed">
