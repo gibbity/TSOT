@@ -140,24 +140,24 @@ export default async function HomePage() {
         />
       </div>
 
-      {/* 2. Groundedness RAG Pipeline Explanation */}
+      {/* 2. Groundedness Verification Explanation */}
       <div className="space-y-6 max-w-[950px] mx-auto">
         <h2 className="font-sans text-[11px] font-bold uppercase tracking-[0.15em] text-mid-concrete border-b border-border pb-2 text-center">
-          How the RAG Audit Works
+          How the Verification Audit Works
         </h2>
         
         <div className="bg-[#fcfcfc] border border-border rounded-[24px] p-8 space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-4">
             <div>
               <h3 className="font-gambarino text-[18px] text-carbon">
-                Grounded RAG Audit Architecture
+                Evidence-Gated Verification Architecture
               </h3>
               <p className="font-sans text-[12.5px] text-mid-concrete mt-0.5">
-                Our AI model is strictly context-gated. It does not use general training knowledge or unverified speculation.
+                Our verification engine is strictly context-bounded. It does not utilize speculative training assumptions or external generalizations.
               </p>
             </div>
             <span className="bg-emerald-100 text-emerald-700 text-[10px] font-bold font-mono px-3 py-1 rounded-full uppercase tracking-wider self-start sm:self-auto whitespace-nowrap">
-              ✓ Grounded Context Only
+              Grounded Context Only
             </span>
           </div>
 
@@ -167,16 +167,16 @@ export default async function HomePage() {
               <div className="font-mono text-[11px] font-bold text-[#3a66f5] uppercase tracking-wider">Step 1 — Hybrid Retrieval</div>
               <h4 className="font-gambarino text-[14px] text-carbon">Database Matching</h4>
               <p className="font-sans text-mid-concrete text-[12.5px]">
-                Your AI features are embedded and matched against our 6,300+ peer-reviewed HCI papers and official EU AI Act articles using hybrid semantic/keyword search.
+                Your system details are mapped and queried against our 6,300+ peer-reviewed HCI papers and official EU AI Act articles using hybrid search.
               </p>
             </div>
 
             {/* Step 2 */}
             <div className="space-y-2">
-              <div className="font-mono text-[11px] font-bold text-[#3a66f5] uppercase tracking-wider">Step 2 — Strict Context Gating</div>
-              <h4 className="font-gambarino text-[14px] text-carbon">Zero-Hallucination Bubble</h4>
+              <div className="font-mono text-[11px] font-bold text-[#3a66f5] uppercase tracking-wider">Step 2 — Document Constraints</div>
+              <h4 className="font-gambarino text-[14px] text-carbon">Document-Bounded Gating</h4>
               <p className="font-sans text-mid-concrete text-[12.5px]">
-                The AI is constrained to use ONLY the matched database papers. It cannot speculate. If fewer than 2 relevant documents are found, it declines to audit.
+                The auditing model is constrained to use only the matched database papers. It cannot speculate. If fewer than 2 relevant documents are matched, it declines to issue a verdict.
               </p>
             </div>
 
@@ -214,7 +214,7 @@ export default async function HomePage() {
               <div className="w-12 h-12 rounded-[16px] bg-red-50 flex items-center justify-center text-red-600">
                 <Scale className="w-6 h-6" />
               </div>
-              <h3 className="font-gambarino text-[22px] text-carbon">⚖️ The EU AI Act Compliance Engine</h3>
+              <h3 className="font-gambarino text-[22px] text-carbon">The EU AI Act Compliance Engine</h3>
               <p className="font-sans text-[14px] text-mid-concrete leading-relaxed">
                 Scan your interface architectures against the new European AI regulatory frameworks. Automatically flag prohibited techniques and compile compliance requirements.
               </p>
@@ -249,7 +249,7 @@ export default async function HomePage() {
               <div className="w-12 h-12 rounded-[16px] bg-blue-50 flex items-center justify-center text-[#3a66f5]">
                 <Cpu className="w-6 h-6" />
               </div>
-              <h3 className="font-gambarino text-[22px] text-carbon">🧠 The Empirical HCI Research Ledger</h3>
+              <h3 className="font-gambarino text-[22px] text-carbon">The Empirical HCI Research Ledger</h3>
               <p className="font-sans text-[14px] text-mid-concrete leading-relaxed">
                 Assess user attention, skepticism, and memory retention under different conversational designs using peer-reviewed behavioral research papers.
               </p>
@@ -305,9 +305,9 @@ export default async function HomePage() {
       {/* 6. Deploy / Developers Call-To-Action Band */}
       <div className="border border-border rounded-[24px] bg-neutral-900 text-white p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-6 shadow-md select-none max-w-[950px] mx-auto">
         <div className="space-y-2 max-w-[650px] text-center md:text-left">
-          <h3 className="font-gambarino text-[22px] md:text-[26px]">Build RAG-Backed AI Products</h3>
+          <h3 className="font-gambarino text-[22px] md:text-[26px]">Integrate Compliance Audits</h3>
           <p className="font-sans text-[13.5px] text-neutral-400 leading-relaxed">
-            Expose these compliance verification and design optimization tools directly inside Cursor or Claude, or integrate our stateless REST API in your developer workflows today.
+            Expose these compliance verification and design optimization tools directly inside your IDE using MCP, or query the REST API directly in your integration workflows.
           </p>
         </div>
         <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">

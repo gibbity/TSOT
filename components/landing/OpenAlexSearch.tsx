@@ -78,8 +78,8 @@ export default function OpenAlexSearch({
         <div className="flex justify-center gap-1.5 p-1 bg-neutral-100 rounded-full w-fit mx-auto select-none">
           {[
             { id: 'all', label: 'All Catalog' },
-            { id: 'corpus', label: '🧠 HCI Papers' },
-            { id: 'ai_act', label: '⚖️ EU AI Act' }
+            { id: 'corpus', label: 'HCI Papers' },
+            { id: 'ai_act', label: 'EU AI Act' }
           ].map(tab => (
             <button
               key={tab.id}
@@ -171,7 +171,7 @@ export default function OpenAlexSearch({
                           ? 'bg-red-50 text-red-600' 
                           : 'bg-blue-50 text-[#3a66f5]'
                       }`}>
-                        {item.type === 'compliance' ? '⚖️ Regulation' : '🧠 HCI Paper'}
+                        {item.type === 'compliance' ? 'Regulation' : 'HCI Paper'}
                       </span>
                       <span className="text-neutral-300">|</span>
                       <span className="text-[11.5px] font-bold text-mid-concrete uppercase tracking-normal">

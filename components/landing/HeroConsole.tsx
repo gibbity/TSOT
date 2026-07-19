@@ -5,17 +5,17 @@ import { Play, Terminal, Check, Copy, Sparkles, Scale, ShieldAlert } from 'lucid
 
 const EXAMPLES = [
   {
-    label: '⚖️ EU Act: Emotion Bot',
+    label: 'EU Act: Emotion Bot',
     prompt: 'We are building a conversational customer support bot that simulates human emotional empathy, validates user feelings, and does not explicitly declare itself as an AI system during chat.',
     type: 'compliance'
   },
   {
-    label: '⚖️ EU Act: Subliminal Engagement',
+    label: 'EU Act: Subliminal Engagement',
     prompt: 'An AI-driven interface that deploys subliminal audio-visual cues and engagement reminders below the user’s conscious threshold to guide habit building and retention.',
     type: 'compliance'
   },
   {
-    label: '🧠 Ledger: Cognitive Offloading',
+    label: 'Ledger: Cognitive Offloading',
     prompt: 'An agentic writing assistant that reads user documents, automatically summarizes findings, and drafts replies for all tasks without requiring manual review checkpoints.',
     type: 'design'
   }
@@ -27,7 +27,7 @@ export default function HeroConsole() {
   const [auditing, setAuditing] = useState(false);
   const [copied, setCopied] = useState(false);
   const [consoleOutput, setConsoleOutput] = useState<string>(`// Select an example preset above or enter your own product details, then click "Audit Interface"
-// The RAG-backed compliance & design audit will render here in real-time...`);
+// The document-grounded compliance & design audit will render here in real-time...`);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(consoleOutput);
@@ -42,7 +42,7 @@ export default function HeroConsole() {
 
   const handleAudit = async () => {
     setAuditing(true);
-    setConsoleOutput('// Initializing RAG pipeline...\n// Querying TSOT database ledger & EU AI Act articles...\n// Performing re-ranking and synthesis...');
+    setConsoleOutput('// Initializing document-gated audit...\n// Querying research databases & EU AI Act articles...\n// Performing re-ranking and synthesis...');
     
     try {
       const toolToRun = activeEx.type === 'compliance' ? 'audit_eu_compliance' : 'optimize_hci_design';
@@ -77,10 +77,10 @@ export default function HeroConsole() {
         <div className="space-y-4">
           <div className="flex items-center gap-2 text-[#3a66f5]">
             <Sparkles className="w-5 h-5 fill-[#3a66f5]/10 animate-pulse" />
-            <span className="font-sans text-[11px] font-bold uppercase tracking-wider">TSOT Audit Simulator</span>
+            <span className="font-sans text-[11px] font-bold uppercase tracking-wider">Audit Simulator</span>
           </div>
           <h3 className="font-gambarino text-[18px] text-carbon">
-            Test Your AI System
+            Test Your System
           </h3>
           <p className="font-sans text-[12.5px] text-mid-concrete leading-relaxed">
             Select one of our preset compliance or design scenarios, or write a custom description to run a live audit.
