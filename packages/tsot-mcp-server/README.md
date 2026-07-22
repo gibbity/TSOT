@@ -30,11 +30,6 @@ You can run the server directly using `npx`:
 npx -y tsot-mcp-server
 ```
 
-For HTTP / SSE mode:
-```bash
-npx -y tsot-mcp-server --http --port 3001
-```
-
 ---
 
 ## 💻 Client Configurations

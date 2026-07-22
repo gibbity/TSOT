@@ -130,7 +130,6 @@ export default function McpIntegrationPage() {
 }`;
 
   const npmCliCommand = `npx -y tsot-mcp-server`;
-  const npmSseCommand = `npx -y tsot-mcp-server --http --port 3001`;
   const siteDomain = typeof window !== 'undefined' ? window.location.origin : 'https://your-site.vercel.app';
 
   return (
@@ -321,7 +320,7 @@ export default function McpIntegrationPage() {
                         </div>
                         <div className="flex items-center gap-3">
                           <div className="w-6 h-6 rounded-full bg-[#3a66f5] text-white flex items-center justify-center font-bold text-[12px]">2</div>
-                          <span className="font-semibold text-carbon">Supports stdio and HTTP SSE modes</span>
+                          <span className="font-semibold text-carbon">Runs via stdio for Claude Desktop, Cursor & Windsurf</span>
                         </div>
                         <div className="flex items-center gap-3">
                           <div className="w-6 h-6 rounded-full bg-[#3a66f5] text-white flex items-center justify-center font-bold text-[12px]">3</div>
@@ -358,35 +357,6 @@ export default function McpIntegrationPage() {
                           </div>
                         </div>
                       </div>
-
-                      {/* HTTP SSE command */}
-                      <div>
-                        <label className="block text-[11px] font-bold uppercase tracking-wider text-carbon mb-2">
-                          HTTP SSE Server Mode:
-                        </label>
-                        <div className="relative">
-                          <button
-                            onClick={() => handleCopy(npmSseCommand, 'npm_sse')}
-                            className="absolute right-3 top-3 z-10 bg-white hover:bg-neutral-100 text-carbon p-2 rounded-[8px] border border-border shadow-sm flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider cursor-pointer"
-                          >
-                            {copiedSection === 'npm_sse' ? (
-                              <>
-                                <Check className="w-3.5 h-3.5 text-stable" />
-                                Copied!
-                              </>
-                            ) : (
-                              <>
-                                <Copy className="w-3.5 h-3.5" />
-                                Copy Command
-                              </>
-                            )}
-                          </button>
-                          <div className="bg-[#0b0b0b] rounded-[16px] p-5 text-[#00FF66] font-mono text-[12px] overflow-auto border border-border select-all shadow-inner">
-                            {npmSseCommand}
-                          </div>
-                        </div>
-                      </div>
-
                     </div>
                   </div>
                 </div>
