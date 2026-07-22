@@ -22,7 +22,7 @@ import {
 
 export default function McpIntegrationPage() {
   const [activeTab, setActiveTab] = useState<'setup' | 'sandbox'>('setup');
-  const [setupTab, setSetupTab] = useState<'npm' | 'claude' | 'cursor' | 'vercel' | 'smithery'>('npm');
+  const [setupTab, setSetupTab] = useState<'npm' | 'claudecode' | 'claude' | 'cursor' | 'antigravity' | 'smithery'>('npm');
   const [copiedSection, setCopiedSection] = useState<string | null>(null);
 
   // Sandbox Form States
@@ -116,21 +116,20 @@ export default function McpIntegrationPage() {
   }
 }`;
 
-  const getVercelConfig = (domain: string) => `{
+  const getAntigravityConfig = () => `{
   "mcpServers": {
-    "tsot-remote": {
+    "tsot": {
       "command": "npx",
       "args": [
         "-y",
-        "mcp-remote",
-        "${domain}/api/mcp"
+        "tsot-mcp-server"
       ]
     }
   }
 }`;
 
   const npmCliCommand = `npx -y tsot-mcp-server`;
-  const siteDomain = typeof window !== 'undefined' ? window.location.origin : 'https://your-site.vercel.app';
+  const claudeCodeCommand = `claude mcp add tsot -- npx -y tsot-mcp-server`;
 
   return (
     <main className="max-w-[1200px] mx-auto px-6 py-12 select-none">
@@ -152,7 +151,7 @@ export default function McpIntegrationPage() {
           TSOT Model Context Protocol (MCP) Server
         </h1>
         <p className="font-sans text-[15px] text-mid-concrete mt-2 max-w-[850px] leading-relaxed">
-          Connect local AI agents, Claude Desktop, Cursor, Windsurf, and Roo Code directly to the TSOT Empirical HCI Ledger and EU AI Act Compliance Engine. Run compliance audits and UX optimizations straight from your AI coding assistant.
+          Connect your AI assistants (Claude Code, Antigravity, Claude Desktop, Cursor, Windsurf, and Roo Code) directly to the TSOT Empirical HCI Ledger and EU AI Act Compliance Engine. Run compliance audits and UX optimizations straight from your terminal or AI editor.
         </p>
       </div>
 
@@ -252,7 +251,27 @@ export default function McpIntegrationPage() {
                       : 'text-mid-concrete hover:text-carbon'
                   }`}
                 >
-                  NPM Standalone (Recommended)
+                  NPM Quickstart
+                </button>
+                <button
+                  onClick={() => setSetupTab('claudecode')}
+                  className={`px-3.5 py-1.5 text-[11px] font-bold rounded-[8px] uppercase tracking-wider transition-all cursor-pointer ${
+                    setupTab === 'claudecode'
+                      ? 'bg-white text-red-600 shadow-sm'
+                      : 'text-mid-concrete hover:text-carbon'
+                  }`}
+                >
+                  Claude Code CLI
+                </button>
+                <button
+                  onClick={() => setSetupTab('antigravity')}
+                  className={`px-3.5 py-1.5 text-[11px] font-bold rounded-[8px] uppercase tracking-wider transition-all cursor-pointer ${
+                    setupTab === 'antigravity'
+                      ? 'bg-white text-blue-600 shadow-sm'
+                      : 'text-mid-concrete hover:text-carbon'
+                  }`}
+                >
+                  Antigravity / Gemini
                 </button>
                 <button
                   onClick={() => setSetupTab('claude')}
@@ -275,16 +294,6 @@ export default function McpIntegrationPage() {
                   Cursor / Windsurf
                 </button>
                 <button
-                  onClick={() => setSetupTab('vercel')}
-                  className={`px-3.5 py-1.5 text-[11px] font-bold rounded-[8px] uppercase tracking-wider transition-all cursor-pointer ${
-                    setupTab === 'vercel'
-                      ? 'bg-white text-carbon shadow-sm'
-                      : 'text-mid-concrete hover:text-carbon'
-                  }`}
-                >
-                  Vercel Remote Bridge
-                </button>
-                <button
                   onClick={() => setSetupTab('smithery')}
                   className={`px-3.5 py-1.5 text-[11px] font-bold rounded-[8px] uppercase tracking-wider transition-all cursor-pointer ${
                     setupTab === 'smithery'
@@ -298,16 +307,16 @@ export default function McpIntegrationPage() {
             </div>
 
             <div className="p-8">
-              {/* TAB 1: NPM STANDALONE */}
+              {/* TAB 1: NPM QUICKSTART */}
               {setupTab === 'npm' && (
                 <div className="space-y-6">
                   <div className="space-y-2">
                     <span className="bg-[#3a66f5] text-white px-3 py-1 text-[10px] font-bold rounded-full uppercase tracking-wider">
-                      Official Package
+                      Published NPM Package
                     </span>
-                    <h4 className="font-gambarino text-[18px] text-carbon">Standalone NPM Package (`tsot-mcp-server`)</h4>
+                    <h4 className="font-gambarino text-[18px] text-carbon">Official NPM Package (`tsot-mcp-server`)</h4>
                     <p className="font-sans text-[13.5px] text-mid-concrete leading-relaxed max-w-[900px]">
-                      The official published NPM package runs out-of-the-box with zero configuration required. It includes all 124 EU AI Act articles and empirical research records directly embedded for offline execution.
+                      The official published package runs out-of-the-box via <code className="font-mono text-[12px] bg-white px-1.5 py-0.5 rounded border">npx</code> with zero configuration required. It includes all 124 EU AI Act articles and empirical research records directly embedded for offline execution.
                     </p>
                   </div>
 
@@ -316,11 +325,11 @@ export default function McpIntegrationPage() {
                       <div className="bg-[#f9f9f9] border border-border p-5 rounded-[16px] space-y-3 font-sans text-[13px]">
                         <div className="flex items-center gap-3">
                           <div className="w-6 h-6 rounded-full bg-[#3a66f5] text-white flex items-center justify-center font-bold text-[12px]">1</div>
-                          <span className="font-semibold text-carbon">Zero installation required via <code className="font-mono text-[11px] bg-white px-1.5 py-0.5 rounded border">npx</code></span>
+                          <span className="font-semibold text-carbon">Zero local installation required via <code className="font-mono text-[11px] bg-white px-1.5 py-0.5 rounded border">npx</code></span>
                         </div>
                         <div className="flex items-center gap-3">
                           <div className="w-6 h-6 rounded-full bg-[#3a66f5] text-white flex items-center justify-center font-bold text-[12px]">2</div>
-                          <span className="font-semibold text-carbon">Runs via stdio for Claude Desktop, Cursor & Windsurf</span>
+                          <span className="font-semibold text-carbon">Runs standard stdio transport for AI agents</span>
                         </div>
                         <div className="flex items-center gap-3">
                           <div className="w-6 h-6 rounded-full bg-[#3a66f5] text-white flex items-center justify-center font-bold text-[12px]">3</div>
@@ -330,10 +339,9 @@ export default function McpIntegrationPage() {
                     </div>
 
                     <div className="lg:col-span-7 space-y-4">
-                      {/* Stdio command */}
                       <div>
                         <label className="block text-[11px] font-bold uppercase tracking-wider text-carbon mb-2">
-                          1-Line Stdio Command:
+                          1-Line Stdio Launcher Command:
                         </label>
                         <div className="relative">
                           <button
@@ -362,7 +370,81 @@ export default function McpIntegrationPage() {
                 </div>
               )}
 
-              {/* TAB 2: CLAUDE DESKTOP */}
+              {/* TAB 2: CLAUDE CODE CLI */}
+              {setupTab === 'claudecode' && (
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <span className="bg-red-600 bg-opacity-10 text-red-600 px-3 py-1 text-[10px] font-bold rounded-full uppercase tracking-wider">
+                      Claude Code CLI
+                    </span>
+                    <h4 className="font-gambarino text-[18px] text-carbon">Claude Code Terminal Integration</h4>
+                    <p className="font-sans text-[13.5px] text-mid-concrete leading-relaxed max-w-[900px]">
+                      Add the TSOT MCP server directly into your Claude Code terminal agent by running this 1-line command in your terminal:
+                    </p>
+                  </div>
+
+                  <div className="relative">
+                    <button
+                      onClick={() => handleCopy(claudeCodeCommand, 'claude_code')}
+                      className="absolute right-3 top-3 z-10 bg-white hover:bg-neutral-100 text-carbon p-2 rounded-[8px] border border-border shadow-sm flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider cursor-pointer"
+                    >
+                      {copiedSection === 'claude_code' ? (
+                        <>
+                          <Check className="w-3.5 h-3.5 text-stable" />
+                          Copied!
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3.5 h-3.5" />
+                          Copy Command
+                        </>
+                      )}
+                    </button>
+                    <div className="bg-[#0b0b0b] rounded-[16px] p-6 text-[#00FF66] font-mono text-[12px] overflow-auto border border-border select-all shadow-inner">
+                      {claudeCodeCommand}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 3: ANTIGRAVITY / GEMINI */}
+              {setupTab === 'antigravity' && (
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <span className="bg-blue-600 bg-opacity-10 text-blue-600 px-3 py-1 text-[10px] font-bold rounded-full uppercase tracking-wider">
+                      Antigravity Agent
+                    </span>
+                    <h4 className="font-gambarino text-[18px] text-carbon">Antigravity / Gemini Agent Configuration</h4>
+                    <p className="font-sans text-[13.5px] text-mid-concrete leading-relaxed max-w-[900px]">
+                      Add the configuration block below to your MCP configuration in your agent settings or <code className="font-mono text-[11px] bg-white px-1.5 py-0.5 rounded border">.agents/skills.json</code>:
+                    </p>
+                  </div>
+
+                  <div className="relative">
+                    <button
+                      onClick={() => handleCopy(getAntigravityConfig(), 'antigravity')}
+                      className="absolute right-3 top-3 z-10 bg-white hover:bg-neutral-100 text-carbon p-2 rounded-[8px] border border-border shadow-sm flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider cursor-pointer"
+                    >
+                      {copiedSection === 'antigravity' ? (
+                        <>
+                          <Check className="w-3.5 h-3.5 text-stable" />
+                          Copied!
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3.5 h-3.5" />
+                          Copy JSON Config
+                        </>
+                      )}
+                    </button>
+                    <div className="bg-[#0b0b0b] rounded-[16px] p-6 text-[#00FF66] font-mono text-[11.5px] overflow-auto max-h-[300px] border border-border select-all shadow-inner">
+                      <pre>{getAntigravityConfig()}</pre>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 4: CLAUDE DESKTOP */}
               {setupTab === 'claude' && (
                 <div className="space-y-6">
                   <div className="space-y-2">
@@ -401,7 +483,7 @@ export default function McpIntegrationPage() {
                 </div>
               )}
 
-              {/* TAB 3: CURSOR & WINDSURF */}
+              {/* TAB 5: CURSOR & WINDSURF */}
               {setupTab === 'cursor' && (
                 <div className="space-y-6">
                   <div className="space-y-2">
@@ -418,7 +500,7 @@ export default function McpIntegrationPage() {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div className="bg-white p-4 rounded-[12px] border border-border">
                         <span className="text-[11px] font-bold text-mid-concrete uppercase block mb-1">Server Name</span>
-                        <code className="font-mono font-bold text-carbon text-[13px]">tsot-mcp-server</code>
+                        <code className="font-mono font-bold text-carbon text-[13px]">tsot</code>
                       </div>
                       <div className="bg-white p-4 rounded-[12px] border border-border">
                         <span className="text-[11px] font-bold text-mid-concrete uppercase block mb-1">Transport Type</span>
@@ -433,51 +515,14 @@ export default function McpIntegrationPage() {
                 </div>
               )}
 
-              {/* TAB 4: VERCEL REMOTE */}
-              {setupTab === 'vercel' && (
-                <div className="space-y-6">
-                  <div className="space-y-2">
-                    <span className="bg-carbon text-white px-3 py-1 text-[10px] font-bold rounded-full uppercase tracking-wider">
-                      Stateless Web Endpoint
-                    </span>
-                    <h4 className="font-gambarino text-[18px] text-carbon">Vercel Production Bridge Endpoint</h4>
-                    <p className="font-sans text-[13.5px] text-mid-concrete leading-relaxed max-w-[900px]">
-                      Route MCP tool calls directly to the hosted Next.js production endpoint (`/api/mcp`) using `mcp-remote`.
-                    </p>
-                  </div>
-
-                  <div className="relative">
-                    <button
-                      onClick={() => handleCopy(getVercelConfig(siteDomain), 'vercel')}
-                      className="absolute right-3 top-3 z-10 bg-white hover:bg-neutral-100 text-carbon p-2 rounded-[8px] border border-border shadow-sm flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider cursor-pointer"
-                    >
-                      {copiedSection === 'vercel' ? (
-                        <>
-                          <Check className="w-3.5 h-3.5 text-stable" />
-                          Copied!
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-3.5 h-3.5" />
-                          Copy Remote JSON
-                        </>
-                      )}
-                    </button>
-                    <div className="bg-[#0b0b0b] rounded-[16px] p-6 text-[#00FF66] font-mono text-[11.5px] overflow-auto max-h-[300px] border border-border select-all shadow-inner">
-                      <pre>{getVercelConfig(siteDomain)}</pre>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* TAB 5: SMITHERY */}
+              {/* TAB 6: SMITHERY */}
               {setupTab === 'smithery' && (
                 <div className="space-y-6">
                   <div className="space-y-2">
                     <span className="bg-emerald-600 bg-opacity-10 text-emerald-600 px-3 py-1 text-[10px] font-bold rounded-full uppercase tracking-wider">
                       Marketplace Manifest
                     </span>
-                    <h4 className="font-gambarino text-[18px] text-carbon">Smithery.ai Marketplace Manifest</h4>
+                    <h4 className="font-gambarino text-[18px] text-carbon">Smithery.ai Marketplace Installation</h4>
                     <p className="font-sans text-[13.5px] text-mid-concrete leading-relaxed max-w-[900px]">
                       `tsot-mcp-server` includes a pre-configured `smithery.yaml` manifest. You can install it directly via the Smithery CLI:
                     </p>
