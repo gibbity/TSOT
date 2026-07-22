@@ -304,10 +304,13 @@ export default async function HomePage() {
 
       {/* 6. Deploy / Developers Call-To-Action Band */}
       <div className="border border-border rounded-[24px] bg-neutral-900 text-white p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-6 shadow-md select-none max-w-[950px] mx-auto">
-        <div className="space-y-2 max-w-[650px] text-center md:text-left">
-          <h3 className="font-gambarino text-[22px] md:text-[26px]">Integrate Compliance Audits</h3>
+        <div className="space-y-3 max-w-[650px] text-center md:text-left">
+          <div className="inline-flex items-center gap-2 bg-[#3a66f5]/20 text-[#6085ff] px-3 py-1 rounded-full text-[11px] font-mono font-bold">
+            <span>npm: tsot-mcp-server</span>
+          </div>
+          <h3 className="font-gambarino text-[22px] md:text-[26px]">Integrate Compliance Audits via MCP</h3>
           <p className="font-sans text-[13.5px] text-neutral-400 leading-relaxed">
-            Expose these compliance verification and design optimization tools directly inside your IDE using MCP, or query the REST API directly in your integration workflows.
+            Expose compliance verification and HCI design tools directly inside Claude Desktop, Cursor, and Windsurf using our published NPM package (<code className="text-[#00FF66] font-mono text-[12px]">npx tsot-mcp-server</code>), or query our REST API directly.
           </p>
         </div>
         <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
@@ -315,7 +318,7 @@ export default async function HomePage() {
             href="/mcp"
             className="bg-[#3a66f5] hover:bg-[#254edb] text-white text-center font-sans text-[12px] font-bold uppercase tracking-wider px-6 py-3.5 rounded-[12px] transition-colors shadow-sm whitespace-nowrap"
           >
-            Setup MCP Server
+            MCP Server Config
           </Link>
           <Link
             href="/api-docs"

@@ -14,12 +14,15 @@ import {
   Zap,
   HelpCircle,
   Search,
-  BookOpen
+  BookOpen,
+  Package,
+  Globe,
+  Code
 } from 'lucide-react';
 
 export default function McpIntegrationPage() {
   const [activeTab, setActiveTab] = useState<'setup' | 'sandbox'>('setup');
-  const [setupTab, setSetupTab] = useState<'vercel' | 'cursor' | 'claude'>('vercel');
+  const [setupTab, setSetupTab] = useState<'npm' | 'claude' | 'cursor' | 'vercel' | 'smithery'>('npm');
   const [copiedSection, setCopiedSection] = useState<string | null>(null);
 
   // Sandbox Form States
@@ -101,9 +104,21 @@ export default function McpIntegrationPage() {
   };
 
   // Copyable Config Text Generators
+  const getClaudeConfig = () => `{
+  "mcpServers": {
+    "tsot": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "tsot-mcp-server"
+      ]
+    }
+  }
+}`;
+
   const getVercelConfig = (domain: string) => `{
   "mcpServers": {
-    "tsot-mcp-server": {
+    "tsot-remote": {
       "command": "npx",
       "args": [
         "-y",
@@ -114,40 +129,31 @@ export default function McpIntegrationPage() {
   }
 }`;
 
-  const getClaudeConfig = () => `{
-  "mcpServers": {
-    "tsot-mcp-server": {
-      "command": "npx",
-      "args": [
-        "tsx",
-        "c:/Users/kushr/.gemini/antigravity/scratch/tsot/scratch/mcp_server.ts"
-      ],
-      "env": {
-        "NEXT_PUBLIC_SUPABASE_URL": "${process.env.NEXT_PUBLIC_SUPABASE_URL || 'YOUR_SUPABASE_URL'}",
-        "SUPABASE_SERVICE_ROLE_KEY": "YOUR_SUPABASE_SERVICE_ROLE_KEY",
-        "GEMINI_API_KEY": "YOUR_GEMINI_API_KEY"
-      }
-    }
-  }
-}`;
-
-  const cursorLocalCommand = `npx tsx --env-file="c:/Users/kushr/.gemini/antigravity/scratch/tsot/.env.local" "c:/Users/kushr/.gemini/antigravity/scratch/tsot/scratch/mcp_server.ts"`;
-
+  const npmCliCommand = `npx -y tsot-mcp-server`;
+  const npmSseCommand = `npx -y tsot-mcp-server --http --port 3001`;
   const siteDomain = typeof window !== 'undefined' ? window.location.origin : 'https://your-site.vercel.app';
 
   return (
     <main className="max-w-[1200px] mx-auto px-6 py-12 select-none">
       {/* Editorial Header */}
       <div className="border-b border-border pb-8 mb-10">
-        <div className="flex items-center gap-2.5 text-[#3a66f5] mb-2">
-          <Cpu className="w-6 h-6 animate-pulse" />
-          <span className="font-sans text-[12px] font-bold uppercase tracking-widest">Model Context Protocol</span>
+        <div className="flex items-center justify-between flex-wrap gap-4 mb-3">
+          <div className="flex items-center gap-2.5 text-[#3a66f5]">
+            <Cpu className="w-6 h-6 animate-pulse" />
+            <span className="font-sans text-[12px] font-bold uppercase tracking-widest">Model Context Protocol</span>
+          </div>
+          
+          <div className="flex items-center gap-2 bg-[#3a66f5]/10 text-[#3a66f5] px-3.5 py-1.5 rounded-full text-[11px] font-mono font-bold">
+            <Package className="w-4 h-4" />
+            <span>npm: tsot-mcp-server@1.0.0</span>
+          </div>
         </div>
+
         <h1 className="font-gambarino text-[32px] md:text-[44px] leading-tight text-carbon">
-          Moat MCP Server Portal
+          TSOT Model Context Protocol (MCP) Server
         </h1>
-        <p className="font-sans text-[15px] text-mid-concrete mt-2 max-w-[800px] leading-relaxed">
-          Connect your local AI instances, editors, and workflows directly to the TSOT Research Moat. Your LLMs can now verify regulations compliance, optimize UX designs, and resolve interaction dilemmas instantly.
+        <p className="font-sans text-[15px] text-mid-concrete mt-2 max-w-[850px] leading-relaxed">
+          Connect local AI agents, Claude Desktop, Cursor, Windsurf, and Roo Code directly to the TSOT Empirical HCI Ledger and EU AI Act Compliance Engine. Run compliance audits and UX optimizations straight from your AI coding assistant.
         </p>
       </div>
 
@@ -162,7 +168,7 @@ export default function McpIntegrationPage() {
           }`}
         >
           <Settings className="w-4 h-4" />
-          Setup & Deployment
+          Setup & Marketplace Installation
         </button>
         <button
           onClick={() => setActiveTab('sandbox')}
@@ -173,7 +179,7 @@ export default function McpIntegrationPage() {
           }`}
         >
           <Terminal className="w-4 h-4" />
-          Interactive Sandbox
+          Interactive MCP Sandbox
         </button>
       </div>
 
@@ -183,11 +189,11 @@ export default function McpIntegrationPage() {
       {activeTab === 'setup' && (
         <div className="space-y-12">
           
-          {/* Core Core Capabilities Cards */}
+          {/* Capabilities Cards */}
           <div>
             <h3 className="font-gambarino text-[20px] text-carbon mb-6 flex items-center gap-2">
               <Zap className="w-5 h-5 text-amber-500 fill-amber-500" />
-              What your AI can do with the TSOT MCP
+              Supported Live Tools & Capabilities
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               
@@ -196,9 +202,9 @@ export default function McpIntegrationPage() {
                 <div className="w-10 h-10 rounded-[12px] bg-red-100 flex items-center justify-center text-red-600 mb-4">
                   <ShieldCheck className="w-5 h-5" />
                 </div>
-                <h4 className="font-gambarino text-[16px] text-carbon mb-2">1. Check EU Regulations</h4>
+                <h4 className="font-gambarino text-[16px] text-carbon mb-2">1. EU AI Act Auditor</h4>
                 <p className="font-sans text-[13px] text-mid-concrete leading-relaxed">
-                  Call the <code className="bg-[#f5f5f5] px-1 py-0.5 rounded font-mono text-[11px] text-red-600 font-semibold">audit_eu_compliance</code> tool to parse product descriptions and automatically flag EU AI Act violations.
+                  Call <code className="bg-[#f5f5f5] px-1 py-0.5 rounded font-mono text-[11px] text-red-600 font-semibold">audit_eu_compliance</code> to parse product designs against 124 EU AI Act articles with cited risk findings.
                 </p>
               </div>
 
@@ -207,9 +213,9 @@ export default function McpIntegrationPage() {
                 <div className="w-10 h-10 rounded-[12px] bg-blue-100 flex items-center justify-center text-blue-600 mb-4">
                   <Cpu className="w-5 h-5" />
                 </div>
-                <h4 className="font-gambarino text-[16px] text-carbon mb-2">2. Optimize HCI Designs</h4>
+                <h4 className="font-gambarino text-[16px] text-carbon mb-2">2. HCI Design Optimizer</h4>
                 <p className="font-sans text-[13px] text-mid-concrete leading-relaxed">
-                  Call the <code className="bg-[#f5f5f5] px-1 py-0.5 rounded font-mono text-[11px] text-blue-600 font-semibold">optimize_hci_design</code> tool to evaluate cognitive friction, anthropomorphism, and response latencies.
+                  Call <code className="bg-[#f5f5f5] px-1 py-0.5 rounded font-mono text-[11px] text-blue-600 font-semibold">optimize_hci_design</code> to evaluate cognitive offloading, friction checkpoints, and response latencies.
                 </p>
               </div>
 
@@ -218,9 +224,9 @@ export default function McpIntegrationPage() {
                 <div className="w-10 h-10 rounded-[12px] bg-emerald-100 flex items-center justify-center text-emerald-600 mb-4">
                   <BookOpen className="w-5 h-5" />
                 </div>
-                <h4 className="font-gambarino text-[16px] text-carbon mb-2">3. Solve Moat Queries</h4>
+                <h4 className="font-gambarino text-[16px] text-carbon mb-2">3. Moat & Dilemma Solver</h4>
                 <p className="font-sans text-[13px] text-mid-concrete leading-relaxed">
-                  Call the <code className="bg-[#f5f5f5] px-1 py-0.5 rounded font-mono text-[11px] text-emerald-600 font-semibold">query_research_moat</code> tool to ask questions and receive empirical design recommendations.
+                  Call <code className="bg-[#f5f5f5] px-1 py-0.5 rounded font-mono text-[11px] text-emerald-600 font-semibold">query_research_moat</code> to resolve design trade-offs backed by peer-reviewed research papers.
                 </p>
               </div>
 
@@ -231,37 +237,27 @@ export default function McpIntegrationPage() {
           <div className="border border-border rounded-[24px] bg-white overflow-hidden shadow-sm">
             <div className="bg-[#fcfcfc] border-b border-border p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
-                <h3 className="font-gambarino text-[18px] text-carbon">Client Configuration Guide</h3>
+                <h3 className="font-gambarino text-[18px] text-carbon">Installation & Integration Guide</h3>
                 <p className="font-sans text-[12px] text-mid-concrete mt-1">
-                  Choose your connection method and follow the copy-paste instructions to link your AI agent.
+                  Select your client environment below to copy the 1-line installation configuration.
                 </p>
               </div>
               
               {/* Pill Selectors */}
-              <div className="flex bg-[#f2f2f2] p-1.5 rounded-[12px] self-start md:self-auto">
+              <div className="flex flex-wrap bg-[#f2f2f2] p-1.5 rounded-[14px]">
                 <button
-                  onClick={() => setSetupTab('vercel')}
-                  className={`px-4 py-2 text-[12px] font-bold rounded-[8px] uppercase tracking-wider transition-all ${
-                    setupTab === 'vercel'
-                      ? 'bg-white text-carbon shadow-sm'
+                  onClick={() => setSetupTab('npm')}
+                  className={`px-3.5 py-1.5 text-[11px] font-bold rounded-[8px] uppercase tracking-wider transition-all cursor-pointer ${
+                    setupTab === 'npm'
+                      ? 'bg-[#3a66f5] text-white shadow-sm'
                       : 'text-mid-concrete hover:text-carbon'
                   }`}
                 >
-                  Vercel Bridge (Fastest)
-                </button>
-                <button
-                  onClick={() => setSetupTab('cursor')}
-                  className={`px-4 py-2 text-[12px] font-bold rounded-[8px] uppercase tracking-wider transition-all ${
-                    setupTab === 'cursor'
-                      ? 'bg-white text-[#8124ff] shadow-sm'
-                      : 'text-mid-concrete hover:text-carbon'
-                  }`}
-                >
-                  Cursor IDE
+                  NPM Standalone (Recommended)
                 </button>
                 <button
                   onClick={() => setSetupTab('claude')}
-                  className={`px-4 py-2 text-[12px] font-bold rounded-[8px] uppercase tracking-wider transition-all ${
+                  className={`px-3.5 py-1.5 text-[11px] font-bold rounded-[8px] uppercase tracking-wider transition-all cursor-pointer ${
                     setupTab === 'claude'
                       ? 'bg-white text-orange-600 shadow-sm'
                       : 'text-mid-concrete hover:text-carbon'
@@ -269,118 +265,83 @@ export default function McpIntegrationPage() {
                 >
                   Claude Desktop
                 </button>
+                <button
+                  onClick={() => setSetupTab('cursor')}
+                  className={`px-3.5 py-1.5 text-[11px] font-bold rounded-[8px] uppercase tracking-wider transition-all cursor-pointer ${
+                    setupTab === 'cursor'
+                      ? 'bg-white text-purple-600 shadow-sm'
+                      : 'text-mid-concrete hover:text-carbon'
+                  }`}
+                >
+                  Cursor / Windsurf
+                </button>
+                <button
+                  onClick={() => setSetupTab('vercel')}
+                  className={`px-3.5 py-1.5 text-[11px] font-bold rounded-[8px] uppercase tracking-wider transition-all cursor-pointer ${
+                    setupTab === 'vercel'
+                      ? 'bg-white text-carbon shadow-sm'
+                      : 'text-mid-concrete hover:text-carbon'
+                  }`}
+                >
+                  Vercel Remote Bridge
+                </button>
+                <button
+                  onClick={() => setSetupTab('smithery')}
+                  className={`px-3.5 py-1.5 text-[11px] font-bold rounded-[8px] uppercase tracking-wider transition-all cursor-pointer ${
+                    setupTab === 'smithery'
+                      ? 'bg-white text-emerald-600 shadow-sm'
+                      : 'text-mid-concrete hover:text-carbon'
+                  }`}
+                >
+                  Smithery.ai
+                </button>
               </div>
             </div>
 
             <div className="p-8">
-              {/* TAB: VERCEL BRIDGE */}
-              {setupTab === 'vercel' && (
+              {/* TAB 1: NPM STANDALONE */}
+              {setupTab === 'npm' && (
                 <div className="space-y-6">
                   <div className="space-y-2">
-                    <span className="bg-carbon text-white px-3 py-1 text-[10px] font-bold rounded-full uppercase tracking-wider">
-                      Zero Local Config
+                    <span className="bg-[#3a66f5] text-white px-3 py-1 text-[10px] font-bold rounded-full uppercase tracking-wider">
+                      Official Package
                     </span>
-                    <h4 className="font-gambarino text-[18px] text-carbon">Option A: Stateless Online Bridge</h4>
+                    <h4 className="font-gambarino text-[18px] text-carbon">Standalone NPM Package (`tsot-mcp-server`)</h4>
                     <p className="font-sans text-[13.5px] text-mid-concrete leading-relaxed max-w-[900px]">
-                      The simplest way to use MCP. It routes requests statelessly to your production Vercel deployment. You do not need to install local databases, run script environments, or share Gemini API keys.
+                      The official published NPM package runs out-of-the-box with zero configuration required. It includes all 124 EU AI Act articles and empirical research records directly embedded for offline execution.
                     </p>
                   </div>
 
                   <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                     <div className="lg:col-span-5 space-y-4">
-                      <div className="bg-[#f9f9f9] border border-border p-5 rounded-[16px] space-y-3">
+                      <div className="bg-[#f9f9f9] border border-border p-5 rounded-[16px] space-y-3 font-sans text-[13px]">
                         <div className="flex items-center gap-3">
-                          <div className="w-6 h-6 rounded-full bg-carbon text-white flex items-center justify-center font-bold text-[12px]">1</div>
-                          <span className="font-sans text-[13px] font-semibold text-carbon">Copy the configuration JSON</span>
+                          <div className="w-6 h-6 rounded-full bg-[#3a66f5] text-white flex items-center justify-center font-bold text-[12px]">1</div>
+                          <span className="font-semibold text-carbon">Zero installation required via <code className="font-mono text-[11px] bg-white px-1.5 py-0.5 rounded border">npx</code></span>
                         </div>
                         <div className="flex items-center gap-3">
-                          <div className="w-6 h-6 rounded-full bg-carbon text-white flex items-center justify-center font-bold text-[12px]">2</div>
-                          <span className="font-sans text-[13px] font-semibold text-carbon">Paste it in your client config file</span>
+                          <div className="w-6 h-6 rounded-full bg-[#3a66f5] text-white flex items-center justify-center font-bold text-[12px]">2</div>
+                          <span className="font-semibold text-carbon">Supports stdio and HTTP SSE modes</span>
                         </div>
                         <div className="flex items-center gap-3">
-                          <div className="w-6 h-6 rounded-full bg-carbon text-white flex items-center justify-center font-bold text-[12px]">3</div>
-                          <span className="font-sans text-[13px] font-semibold text-carbon">Your local AI does the synthesis for $0</span>
+                          <div className="w-6 h-6 rounded-full bg-[#3a66f5] text-white flex items-center justify-center font-bold text-[12px]">3</div>
+                          <span className="font-semibold text-carbon">Automatic offline fallback with embedded seeds</span>
                         </div>
                       </div>
                     </div>
 
-                    <div className="lg:col-span-7 space-y-3">
-                      <div className="relative">
-                        <div className="absolute right-3 top-3 z-10">
+                    <div className="lg:col-span-7 space-y-4">
+                      {/* Stdio command */}
+                      <div>
+                        <label className="block text-[11px] font-bold uppercase tracking-wider text-carbon mb-2">
+                          1-Line Stdio Command:
+                        </label>
+                        <div className="relative">
                           <button
-                            onClick={() => handleCopy(getVercelConfig(siteDomain), 'vercel')}
-                            className="bg-white hover:bg-neutral-100 text-carbon p-2 rounded-[8px] border border-border shadow-sm flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider cursor-pointer"
+                            onClick={() => handleCopy(npmCliCommand, 'npm_cli')}
+                            className="absolute right-3 top-3 z-10 bg-white hover:bg-neutral-100 text-carbon p-2 rounded-[8px] border border-border shadow-sm flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider cursor-pointer"
                           >
-                            {copiedSection === 'vercel' ? (
-                              <>
-                                <Check className="w-3.5 h-3.5 text-stable" />
-                                Copied!
-                              </>
-                            ) : (
-                              <>
-                                <Copy className="w-3.5 h-3.5" />
-                                Copy JSON
-                              </>
-                            )}
-                          </button>
-                        </div>
-                        <div className="bg-[#0b0b0b] rounded-[16px] p-6 text-[#00FF66] font-mono text-[11px] overflow-auto max-h-[300px] border border-border select-all shadow-inner">
-                          <pre>{getVercelConfig(siteDomain)}</pre>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* TAB: CURSOR */}
-              {setupTab === 'cursor' && (
-                <div className="space-y-6">
-                  <div className="space-y-2">
-                    <span className="bg-purple-600 bg-opacity-10 text-[#8124ff] px-3 py-1 text-[10px] font-bold rounded-full uppercase tracking-wider">
-                      Cursor IDE Settings
-                    </span>
-                    <h4 className="font-gambarino text-[18px] text-carbon">Option B: Local Cursor Integration</h4>
-                    <p className="font-sans text-[13.5px] text-mid-concrete leading-relaxed max-w-[900px]">
-                      Connect Cursor to your local code repository using Stdio. Cursor will spawn a background node runner to connect the AI directly.
-                    </p>
-                  </div>
-
-                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                    <div className="lg:col-span-6 space-y-4">
-                      <div className="bg-[#f9f9f9] border border-border p-6 rounded-[16px] space-y-4 font-sans text-[13px] text-carbon">
-                        <div className="flex items-start gap-3">
-                          <span className="bg-purple-600 text-white w-5 h-5 rounded-full flex items-center justify-center font-bold text-[11px] mt-0.5">1</span>
-                          <div>
-                            <span className="font-bold">Open Settings:</span> Go to **Cursor Settings &gt; Features &gt; MCP**.
-                          </div>
-                        </div>
-                        <div className="flex items-start gap-3">
-                          <span className="bg-purple-600 text-white w-5 h-5 rounded-full flex items-center justify-center font-bold text-[11px] mt-0.5">2</span>
-                          <div>
-                            <span className="font-bold">Add Server:</span> Click **+ Add New MCP Server**.
-                          </div>
-                        </div>
-                        <div className="flex items-start gap-3">
-                          <span className="bg-purple-600 text-white w-5 h-5 rounded-full flex items-center justify-center font-bold text-[11px] mt-0.5">3</span>
-                          <div>
-                            <span className="font-bold">Enter Parameters:</span> Name: <code className="bg-[#eee] px-1 py-0.5 rounded font-mono">tsot-local</code>, Type: <code className="bg-[#eee] px-1 py-0.5 rounded font-mono">command</code>, and copy the Command below.
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="lg:col-span-6 space-y-3">
-                      <label className="block text-[11px] font-bold uppercase tracking-wider text-carbon">
-                        Copy Cursor Command:
-                      </label>
-                      <div className="relative">
-                        <div className="absolute right-3 top-3 z-10">
-                          <button
-                            onClick={() => handleCopy(cursorLocalCommand, 'cursor_cmd')}
-                            className="bg-white hover:bg-neutral-100 text-carbon p-2 rounded-[8px] border border-border shadow-sm flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider cursor-pointer"
-                          >
-                            {copiedSection === 'cursor_cmd' ? (
+                            {copiedSection === 'npm_cli' ? (
                               <>
                                 <Check className="w-3.5 h-3.5 text-stable" />
                                 Copied!
@@ -392,59 +353,23 @@ export default function McpIntegrationPage() {
                               </>
                             )}
                           </button>
-                        </div>
-                        <div className="bg-[#0b0b0b] rounded-[16px] p-6 text-[#00FF66] font-mono text-[11.5px] overflow-auto max-h-[300px] border border-border select-all shadow-inner leading-relaxed break-all">
-                          {cursorLocalCommand}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* TAB: CLAUDE */}
-              {setupTab === 'claude' && (
-                <div className="space-y-6">
-                  <div className="space-y-2">
-                    <span className="bg-orange-500 bg-opacity-10 text-orange-600 px-3 py-1 text-[10px] font-bold rounded-full uppercase tracking-wider">
-                      Claude Desktop Config
-                    </span>
-                    <h4 className="font-gambarino text-[18px] text-carbon">Option C: Local Claude Desktop Setup</h4>
-                    <p className="font-sans text-[13.5px] text-mid-concrete leading-relaxed max-w-[900px]">
-                      Register the local Stdio server inside your Claude Desktop JSON config file.
-                    </p>
-                  </div>
-
-                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-                    <div className="lg:col-span-5 space-y-4">
-                      <div className="bg-[#f9f9f9] border border-border p-6 rounded-[16px] space-y-4 font-sans text-[13px] text-carbon">
-                        <div className="flex items-start gap-3">
-                          <span className="bg-orange-600 text-white w-5 h-5 rounded-full flex items-center justify-center font-bold text-[11px] mt-0.5">1</span>
-                          <div>
-                            <span className="font-bold">Locate configuration file:</span>
-                            <br />
-                            <span className="text-mid-concrete">Windows:</span> <code className="bg-[#eee] px-1 py-0.5 rounded font-mono text-[11px] break-all">%APPDATA%\Claude\claude_desktop_config.json</code>
-                            <br />
-                            <span className="text-mid-concrete">Mac:</span> <code className="bg-[#eee] px-1 py-0.5 rounded font-mono text-[11px] break-all">~/Library/Application Support/Claude/claude_desktop_config.json</code>
-                          </div>
-                        </div>
-                        <div className="flex items-start gap-3">
-                          <span className="bg-orange-600 text-white w-5 h-5 rounded-full flex items-center justify-center font-bold text-[11px] mt-0.5">2</span>
-                          <div>
-                            <span className="font-bold">Merge JSON:</span> Insert the block on the right into the config file and restart Claude Desktop.
+                          <div className="bg-[#0b0b0b] rounded-[16px] p-5 text-[#00FF66] font-mono text-[12px] overflow-auto border border-border select-all shadow-inner">
+                            {npmCliCommand}
                           </div>
                         </div>
                       </div>
-                    </div>
 
-                    <div className="lg:col-span-7 space-y-3">
-                      <div className="relative">
-                        <div className="absolute right-3 top-3 z-10">
+                      {/* HTTP SSE command */}
+                      <div>
+                        <label className="block text-[11px] font-bold uppercase tracking-wider text-carbon mb-2">
+                          HTTP SSE Server Mode:
+                        </label>
+                        <div className="relative">
                           <button
-                            onClick={() => handleCopy(getClaudeConfig(), 'claude_config')}
-                            className="bg-white hover:bg-neutral-100 text-carbon p-2 rounded-[8px] border border-border shadow-sm flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider cursor-pointer"
+                            onClick={() => handleCopy(npmSseCommand, 'npm_sse')}
+                            className="absolute right-3 top-3 z-10 bg-white hover:bg-neutral-100 text-carbon p-2 rounded-[8px] border border-border shadow-sm flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider cursor-pointer"
                           >
-                            {copiedSection === 'claude_config' ? (
+                            {copiedSection === 'npm_sse' ? (
                               <>
                                 <Check className="w-3.5 h-3.5 text-stable" />
                                 Copied!
@@ -452,132 +377,257 @@ export default function McpIntegrationPage() {
                             ) : (
                               <>
                                 <Copy className="w-3.5 h-3.5" />
-                                Copy JSON
+                                Copy Command
                               </>
                             )}
                           </button>
+                          <div className="bg-[#0b0b0b] rounded-[16px] p-5 text-[#00FF66] font-mono text-[12px] overflow-auto border border-border select-all shadow-inner">
+                            {npmSseCommand}
+                          </div>
                         </div>
-                        <div className="bg-[#0b0b0b] rounded-[16px] p-6 text-[#00FF66] font-mono text-[11px] overflow-auto max-h-[300px] border border-border select-all shadow-inner">
-                          <pre>{getClaudeConfig()}</pre>
-                        </div>
+                      </div>
+
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 2: CLAUDE DESKTOP */}
+              {setupTab === 'claude' && (
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <span className="bg-orange-600 bg-opacity-10 text-orange-600 px-3 py-1 text-[10px] font-bold rounded-full uppercase tracking-wider">
+                      Claude Desktop Integration
+                    </span>
+                    <h4 className="font-gambarino text-[18px] text-carbon">Claude Desktop Config (`claude_desktop_config.json`)</h4>
+                    <p className="font-sans text-[13.5px] text-mid-concrete leading-relaxed max-w-[900px]">
+                      Add the configuration block below to your local Claude Desktop configuration file (`%APPDATA%\Claude\claude_desktop_config.json` on Windows or `~/Library/Application Support/Claude/claude_desktop_config.json` on macOS).
+                    </p>
+                  </div>
+
+                  <div className="relative">
+                    <div className="absolute right-3 top-3 z-10">
+                      <button
+                        onClick={() => handleCopy(getClaudeConfig(), 'claude')}
+                        className="bg-white hover:bg-neutral-100 text-carbon p-2 rounded-[8px] border border-border shadow-sm flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider cursor-pointer"
+                      >
+                        {copiedSection === 'claude' ? (
+                          <>
+                            <Check className="w-3.5 h-3.5 text-stable" />
+                            Copied!
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-3.5 h-3.5" />
+                            Copy JSON Config
+                          </>
+                        )}
+                      </button>
+                    </div>
+                    <div className="bg-[#0b0b0b] rounded-[16px] p-6 text-[#00FF66] font-mono text-[11.5px] overflow-auto max-h-[350px] border border-border select-all shadow-inner leading-relaxed">
+                      <pre>{getClaudeConfig()}</pre>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 3: CURSOR & WINDSURF */}
+              {setupTab === 'cursor' && (
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <span className="bg-purple-600 bg-opacity-10 text-purple-600 px-3 py-1 text-[10px] font-bold rounded-full uppercase tracking-wider">
+                      Editor Extension
+                    </span>
+                    <h4 className="font-gambarino text-[18px] text-carbon">Cursor, Windsurf, Roo Code & Cline</h4>
+                    <p className="font-sans text-[13.5px] text-mid-concrete leading-relaxed max-w-[900px]">
+                      In your IDE settings (**Features &gt; MCP** in Cursor or **Roo Code Settings &gt; MCP**), add a new Stdio server:
+                    </p>
+                  </div>
+
+                  <div className="bg-[#f9f9f9] border border-border p-6 rounded-[16px] space-y-4 font-sans text-[13px]">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="bg-white p-4 rounded-[12px] border border-border">
+                        <span className="text-[11px] font-bold text-mid-concrete uppercase block mb-1">Server Name</span>
+                        <code className="font-mono font-bold text-carbon text-[13px]">tsot-mcp-server</code>
+                      </div>
+                      <div className="bg-white p-4 rounded-[12px] border border-border">
+                        <span className="text-[11px] font-bold text-mid-concrete uppercase block mb-1">Transport Type</span>
+                        <code className="font-mono font-bold text-purple-600 text-[13px]">stdio</code>
+                      </div>
+                      <div className="bg-white p-4 rounded-[12px] border border-border">
+                        <span className="text-[11px] font-bold text-mid-concrete uppercase block mb-1">Command</span>
+                        <code className="font-mono font-bold text-emerald-600 text-[13px]">npx -y tsot-mcp-server</code>
                       </div>
                     </div>
                   </div>
                 </div>
               )}
+
+              {/* TAB 4: VERCEL REMOTE */}
+              {setupTab === 'vercel' && (
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <span className="bg-carbon text-white px-3 py-1 text-[10px] font-bold rounded-full uppercase tracking-wider">
+                      Stateless Web Endpoint
+                    </span>
+                    <h4 className="font-gambarino text-[18px] text-carbon">Vercel Production Bridge Endpoint</h4>
+                    <p className="font-sans text-[13.5px] text-mid-concrete leading-relaxed max-w-[900px]">
+                      Route MCP tool calls directly to the hosted Next.js production endpoint (`/api/mcp`) using `mcp-remote`.
+                    </p>
+                  </div>
+
+                  <div className="relative">
+                    <button
+                      onClick={() => handleCopy(getVercelConfig(siteDomain), 'vercel')}
+                      className="absolute right-3 top-3 z-10 bg-white hover:bg-neutral-100 text-carbon p-2 rounded-[8px] border border-border shadow-sm flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider cursor-pointer"
+                    >
+                      {copiedSection === 'vercel' ? (
+                        <>
+                          <Check className="w-3.5 h-3.5 text-stable" />
+                          Copied!
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3.5 h-3.5" />
+                          Copy Remote JSON
+                        </>
+                      )}
+                    </button>
+                    <div className="bg-[#0b0b0b] rounded-[16px] p-6 text-[#00FF66] font-mono text-[11.5px] overflow-auto max-h-[300px] border border-border select-all shadow-inner">
+                      <pre>{getVercelConfig(siteDomain)}</pre>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 5: SMITHERY */}
+              {setupTab === 'smithery' && (
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <span className="bg-emerald-600 bg-opacity-10 text-emerald-600 px-3 py-1 text-[10px] font-bold rounded-full uppercase tracking-wider">
+                      Marketplace Manifest
+                    </span>
+                    <h4 className="font-gambarino text-[18px] text-carbon">Smithery.ai Marketplace Manifest</h4>
+                    <p className="font-sans text-[13.5px] text-mid-concrete leading-relaxed max-w-[900px]">
+                      `tsot-mcp-server` includes a pre-configured `smithery.yaml` manifest. You can install it directly via the Smithery CLI:
+                    </p>
+                  </div>
+
+                  <div className="relative">
+                    <button
+                      onClick={() => handleCopy('npx -y @smithery/cli install tsot-mcp-server --client claude', 'smithery_cmd')}
+                      className="absolute right-3 top-3 z-10 bg-white hover:bg-neutral-100 text-carbon p-2 rounded-[8px] border border-border shadow-sm flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider cursor-pointer"
+                    >
+                      {copiedSection === 'smithery_cmd' ? (
+                        <>
+                          <Check className="w-3.5 h-3.5 text-stable" />
+                          Copied!
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3.5 h-3.5" />
+                          Copy Command
+                        </>
+                      )}
+                    </button>
+                    <div className="bg-[#0b0b0b] rounded-[16px] p-6 text-[#00FF66] font-mono text-[12px] overflow-auto border border-border select-all shadow-inner">
+                      npx -y @smithery/cli install tsot-mcp-server --client claude
+                    </div>
+                  </div>
+                </div>
+              )}
+
             </div>
           </div>
         </div>
       )}
 
       {/* ======================================================== */}
-      {/* TAB CONTENT: SANDBOX */}
+      {/* TAB CONTENT: INTERACTIVE SANDBOX */}
       {/* ======================================================== */}
       {activeTab === 'sandbox' && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* Sandbox Configurator (Left Side) */}
-          <div className="lg:col-span-5 bg-white border border-border rounded-[24px] p-6 shadow-sm space-y-6">
+          
+          {/* Controls Column (5 cols) */}
+          <div className="lg:col-span-5 border border-border rounded-[24px] bg-white p-6 shadow-sm space-y-6">
             <div>
-              <h3 className="font-gambarino text-[18px] text-carbon mb-1">Live Tool Tester</h3>
-              <p className="font-sans text-[12.5px] text-mid-concrete leading-relaxed">
-                Test the live API endpoint by triggering actual JSON-RPC calls. View the response returned from your backend.
+              <span className="bg-[#3a66f5]/10 text-[#3a66f5] px-3 py-1 text-[10px] font-bold rounded-full uppercase tracking-wider">
+                Live Tool Playground
+              </span>
+              <h3 className="font-gambarino text-[20px] text-carbon mt-2">Execute Live MCP Tools</h3>
+              <p className="font-sans text-[12.5px] text-mid-concrete mt-1 leading-relaxed">
+                Test how the MCP server responds to live JSON-RPC requests via `/api/mcp`.
               </p>
             </div>
 
-            {/* Select Tool */}
+            {/* Tool Selector */}
             <div className="space-y-2">
-              <label className="block text-[11px] font-bold uppercase tracking-wider text-[#3a66f5]">
-                Select Tool to Execute
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-carbon">
+                Select Tool Function:
               </label>
               <select
                 value={selectedTool}
                 onChange={(e) => setSelectedTool(e.target.value as any)}
-                className="w-full bg-[#fcfcfc] border border-border p-3.5 rounded-[12px] text-[13px] text-carbon font-semibold focus:outline-none transition-all focus:border-[#3a66f5]"
+                className="w-full bg-[#f9f9f9] border border-border rounded-[12px] p-3 font-mono text-[12.5px] text-carbon focus:outline-none focus:border-[#3a66f5]"
               >
-                <option value="audit_eu_compliance">audit_eu_compliance (RAG Compliance Check)</option>
-                <option value="optimize_hci_design">optimize_hci_design (RAG Design Optimize)</option>
-                <option value="query_research_moat">query_research_moat (Moat QA Solving)</option>
-                <option value="search_registry">search_registry (Raw Papers Search)</option>
-                <option value="search_ai_act">search_ai_act (Raw Compliance Search)</option>
-                <option value="get_record">get_record (Detailed Code Fetch)</option>
+                <option value="audit_eu_compliance">audit_eu_compliance (Check EU AI Act)</option>
+                <option value="optimize_hci_design">optimize_hci_design (HCI Optimization)</option>
+                <option value="query_research_moat">query_research_moat (Dilemma Solver)</option>
+                <option value="search_registry">search_registry (Search HCI Ledger)</option>
+                <option value="search_ai_act">search_ai_act (Search EU AI Act)</option>
+                <option value="get_record">get_record (Fetch Single Article)</option>
               </select>
             </div>
 
-            {/* Inputs depending on selected tool */}
-            {selectedTool === 'audit_eu_compliance' && (
-              <div className="space-y-4">
+            {/* Tool Parameters Dynamic Form */}
+            <div className="space-y-4 pt-2 border-t border-border">
+              {(selectedTool === 'audit_eu_compliance' || selectedTool === 'optimize_hci_design') && (
                 <div className="space-y-2">
                   <label className="block text-[11px] font-bold uppercase tracking-wider text-carbon">
-                    Design Prompt (prompt)
+                    Prompt / Product Description:
                   </label>
                   <textarea
+                    rows={4}
                     value={auditPrompt}
                     onChange={(e) => setAuditPrompt(e.target.value)}
-                    rows={4}
-                    className="w-full bg-[#fcfcfc] border border-border p-3.5 rounded-[12px] text-[13px] text-carbon resize-none font-sans focus:outline-none transition-all focus:border-[#3a66f5]"
-                    placeholder="Describe the UI flow, risks, or compliance factors..."
+                    className="w-full bg-[#f9f9f9] border border-border rounded-[12px] p-3 font-sans text-[13px] text-carbon focus:outline-none focus:border-[#3a66f5] leading-relaxed"
                   />
                 </div>
-              </div>
-            )}
+              )}
 
-            {selectedTool === 'optimize_hci_design' && (
-              <div className="space-y-4">
+              {selectedTool === 'query_research_moat' && (
                 <div className="space-y-2">
                   <label className="block text-[11px] font-bold uppercase tracking-wider text-carbon">
-                    Design Prompt (prompt)
-                  </label>
-                  <textarea
-                    value={auditPrompt}
-                    onChange={(e) => setAuditPrompt(e.target.value)}
-                    rows={4}
-                    className="w-full bg-[#fcfcfc] border border-border p-3.5 rounded-[12px] text-[13px] text-carbon resize-none font-sans focus:outline-none transition-all focus:border-[#3a66f5]"
-                    placeholder="Describe the latency metrics, conversational turns, or Offloading friction..."
-                  />
-                </div>
-              </div>
-            )}
-
-            {selectedTool === 'query_research_moat' && (
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <label className="block text-[11px] font-bold uppercase tracking-wider text-carbon">
-                    Dilemma Question (query)
+                    Design Dilemma Query:
                   </label>
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="e.g. How does response timing affect user anthropomorphism?"
-                    className="w-full bg-[#fcfcfc] border border-border p-3.5 rounded-[12px] text-[13px] text-carbon focus:outline-none transition-all focus:border-[#3a66f5]"
+                    placeholder="e.g., Should we add latency to streaming AI responses?"
+                    className="w-full bg-[#f9f9f9] border border-border rounded-[12px] p-3 font-sans text-[13px] text-carbon focus:outline-none focus:border-[#3a66f5]"
                   />
                 </div>
-              </div>
-            )}
+              )}
 
-            {selectedTool === 'search_registry' && (
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <label className="block text-[11px] font-bold uppercase tracking-wider text-carbon">
-                    Keyword Query (query)
-                  </label>
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="e.g. Cognitive offloading"
-                    className="w-full bg-[#fcfcfc] border border-border p-3.5 rounded-[12px] text-[13px] text-carbon focus:outline-none transition-all focus:border-[#3a66f5]"
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
+              {selectedTool === 'search_registry' && (
+                <>
                   <div className="space-y-2">
-                    <label className="block text-[11px] font-bold uppercase tracking-wider text-carbon">
-                      Filter Pillar
-                    </label>
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-carbon">Search Query:</label>
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="e.g., cognitive offloading"
+                      className="w-full bg-[#f9f9f9] border border-border rounded-[12px] p-3 font-sans text-[13px] text-carbon focus:outline-none focus:border-[#3a66f5]"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-carbon">Pillar Filter:</label>
                     <select
                       value={searchPillar}
                       onChange={(e) => setSearchPillar(e.target.value)}
-                      className="w-full bg-[#fcfcfc] border border-border p-3 rounded-[12px] text-[13px] text-carbon focus:outline-none"
+                      className="w-full bg-[#f9f9f9] border border-border rounded-[12px] p-3 font-sans text-[12.5px] text-carbon"
                     >
                       <option value="ALL">ALL PILLARS</option>
                       <option value="COGNITIVE OFFLOADING">COGNITIVE OFFLOADING</option>
@@ -586,152 +636,94 @@ export default function McpIntegrationPage() {
                       <option value="EPISTEMIC AGENCY">EPISTEMIC AGENCY</option>
                     </select>
                   </div>
+                </>
+              )}
+
+              {selectedTool === 'search_ai_act' && (
+                <>
                   <div className="space-y-2">
-                    <label className="block text-[11px] font-bold uppercase tracking-wider text-carbon">
-                      Max Limit
-                    </label>
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-carbon">Search Query:</label>
                     <input
-                      type="number"
-                      value={searchLimit}
-                      onChange={(e) => setSearchLimit(Number(e.target.value))}
-                      min="1"
-                      max="10"
-                      className="w-full bg-[#fcfcfc] border border-border p-3 rounded-[12px] text-[13px] text-carbon"
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="e.g., facial recognition"
+                      className="w-full bg-[#f9f9f9] border border-border rounded-[12px] p-3 font-sans text-[13px] text-carbon focus:outline-none focus:border-[#3a66f5]"
                     />
                   </div>
-                </div>
-              </div>
-            )}
-
-            {selectedTool === 'search_ai_act' && (
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <label className="block text-[11px] font-bold uppercase tracking-wider text-carbon">
-                    Keyword Query (query)
-                  </label>
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="e.g. prohibited practice"
-                    className="w-full bg-[#fcfcfc] border border-border p-3.5 rounded-[12px] text-[13px] text-carbon focus:outline-none transition-all focus:border-[#3a66f5]"
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <label className="block text-[11px] font-bold uppercase tracking-wider text-carbon">
-                      Risk category
-                    </label>
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-carbon">Risk Category:</label>
                     <select
                       value={searchCategory}
                       onChange={(e) => setSearchCategory(e.target.value)}
-                      className="w-full bg-[#fcfcfc] border border-border p-3 rounded-[12px] text-[13px] text-carbon focus:outline-none"
+                      className="w-full bg-[#f9f9f9] border border-border rounded-[12px] p-3 font-sans text-[12.5px] text-carbon"
                     >
-                      <option value="ALL">ALL RISK CATEGORIES</option>
+                      <option value="ALL">ALL CATEGORIES</option>
                       <option value="PROHIBITED PRACTICE">PROHIBITED PRACTICE</option>
                       <option value="HIGH RISK">HIGH RISK</option>
                       <option value="LIMITED RISK">LIMITED RISK</option>
                       <option value="MINIMAL RISK">MINIMAL RISK</option>
                     </select>
                   </div>
-                  <div className="space-y-2">
-                    <label className="block text-[11px] font-bold uppercase tracking-wider text-carbon">
-                      Max Limit
-                    </label>
-                    <input
-                      type="number"
-                      value={searchLimit}
-                      onChange={(e) => setSearchLimit(Number(e.target.value))}
-                      min="1"
-                      max="10"
-                      className="w-full bg-[#fcfcfc] border border-border p-3 rounded-[12px] text-[13px] text-carbon"
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
+                </>
+              )}
 
-            {selectedTool === 'get_record' && (
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="block text-[11px] font-bold uppercase tracking-wider text-carbon">
-                      Record Code (code)
-                    </label>
-                    <input
-                      type="text"
-                      value={recordCode}
-                      onChange={(e) => setRecordCode(e.target.value)}
-                      placeholder="e.g. SOT-COMP-2026"
-                      className="w-full bg-[#fcfcfc] border border-border p-3.5 rounded-[12px] text-[13px] text-carbon focus:outline-none transition-all focus:border-[#3a66f5]"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="block text-[11px] font-bold uppercase tracking-wider text-carbon">
-                      Ledger Source
-                    </label>
-                    <select
-                      value={recordSource}
-                      onChange={(e) => setRecordSource(e.target.value)}
-                      className="w-full bg-[#fcfcfc] border border-border p-3.5 rounded-[12px] text-[13px] text-carbon focus:outline-none"
-                    >
-                      <option value="both">Both Ledgers</option>
-                      <option value="corpus">HCI Research</option>
-                      <option value="ai_act">EU AI Act</option>
-                    </select>
-                  </div>
+              {selectedTool === 'get_record' && (
+                <div className="space-y-2">
+                  <label className="block text-[11px] font-bold uppercase tracking-wider text-carbon">Record Code:</label>
+                  <input
+                    type="text"
+                    value={recordCode}
+                    onChange={(e) => setRecordCode(e.target.value)}
+                    placeholder="e.g., SOT-COMP-2026 or EU-ACT-ART-5"
+                    className="w-full bg-[#f9f9f9] border border-border rounded-[12px] p-3 font-mono text-[13px] text-carbon focus:outline-none focus:border-[#3a66f5]"
+                  />
                 </div>
-              </div>
-            )}
+              )}
+            </div>
 
-            {/* Execute Button */}
+            {/* Run Button */}
             <button
               onClick={handleExecute}
-              disabled={
-                executing || 
-                (selectedTool === 'query_research_moat' && !searchQuery.trim()) ||
-                (selectedTool === 'search_registry' && !searchQuery.trim()) || 
-                (selectedTool === 'search_ai_act' && !searchQuery.trim())
-              }
-              className="w-full flex items-center justify-center gap-2 bg-[#3a66f5] hover:bg-[#254edb] disabled:bg-[#d0d0d0] text-white py-4 rounded-[12px] text-[12px] font-bold uppercase tracking-wider transition-all duration-300 shadow-sm cursor-pointer"
+              disabled={executing}
+              className="w-full bg-[#3a66f5] hover:bg-[#254edb] disabled:bg-neutral-400 text-white font-sans text-[13px] font-bold uppercase tracking-wider py-4 rounded-[14px] transition-all flex items-center justify-center gap-2 shadow-sm cursor-pointer"
             >
-              <Play className="w-4 h-4 fill-white" />
-              {executing ? 'Invoking RPC Endpoint...' : 'Run Live Tool Request'}
+              {executing ? (
+                <span>Executing RPC Request...</span>
+              ) : (
+                <>
+                  <Play className="w-4 h-4 fill-white" />
+                  <span>Run Live Tool Request</span>
+                </>
+              )}
             </button>
           </div>
 
-          {/* Stdio Terminal Output (Right Side) */}
-          <div className="lg:col-span-7 flex flex-col h-[560px]">
-            <div className="flex items-center justify-between bg-carbon text-[#a0a0a0] px-5 py-4 rounded-t-[16px] border-b border-carbon border-opacity-10 font-mono text-[12px]">
-              <div className="flex items-center gap-2">
-                <div className="w-2.5 h-2.5 rounded-full bg-[#FF3E00]" />
-                <div className="w-2.5 h-2.5 rounded-full bg-[#E8A020]" />
-                <div className="w-2.5 h-2.5 rounded-full bg-[#1A7A4A]" />
-                <span className="ml-3 font-bold tracking-wider text-concrete">TSOT-MCP-STDIO-SHELL</span>
+          {/* Output Display Column (7 cols) */}
+          <div className="lg:col-span-7 border border-border rounded-[24px] bg-[#0b0b0b] text-white p-6 shadow-md space-y-4 font-mono text-[12px] overflow-hidden min-h-[520px] flex flex-col justify-between">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between border-b border-neutral-800 pb-3">
+                <div className="flex items-center gap-2 text-emerald-400">
+                  <Terminal className="w-4 h-4" />
+                  <span className="font-bold text-[11px] uppercase tracking-wider">Response Stream</span>
+                </div>
+                <span className="text-[10px] text-neutral-500 font-sans">Endpoint: /api/mcp</span>
               </div>
-              <button
-                onClick={() => handleCopy(output, 'sandbox_output')}
-                className="hover:text-white flex items-center gap-1.5 transition-colors cursor-pointer"
-              >
-                {copiedSection === 'sandbox_output' ? (
-                  <>
-                    <Check className="w-3.5 h-3.5 text-stable" />
-                    Copied!
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-3.5 h-3.5" />
-                    Copy Response
-                  </>
-                )}
-              </button>
+
+              <div className="text-[#00FF66] leading-relaxed whitespace-pre-wrap max-h-[480px] overflow-auto p-2">
+                {output}
+              </div>
             </div>
-            <div className="flex-grow bg-[#0B0B0B] text-[#00FF66] font-mono text-[12px] p-6 rounded-b-[16px] overflow-auto select-text shadow-inner">
-              <pre className="whitespace-pre-wrap leading-relaxed">{output}</pre>
+
+            <div className="text-[10px] text-neutral-500 border-t border-neutral-800 pt-3 flex justify-between items-center font-sans">
+              <span>JSON-RPC 2.0 Compliant</span>
+              <span>Model Context Protocol v1.29.0</span>
             </div>
           </div>
+
         </div>
       )}
+
     </main>
   );
 }
