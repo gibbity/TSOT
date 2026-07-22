@@ -1,8 +1,8 @@
-# @tsot/mcp-server
+# tsot-mcp-server
 
 > Standalone **Model Context Protocol (MCP) Server** providing real-time cognitive research registry queries, EU AI Act compliance auditing, and empirical human-AI interaction benchmarks.
 
-[![npm version](https://img.shields.io/npm/v/@tsot/mcp-server.svg)](https://www.npmjs.com/package/@tsot/mcp-server)
+[![npm version](https://img.shields.io/npm/v/tsot-mcp-server.svg)](https://www.npmjs.com/package/tsot-mcp-server)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![MCP Protocol Version](https://img.shields.io/badge/MCP-1.29.0-blue.svg)](https://modelcontextprotocol.io)
 
@@ -10,7 +10,7 @@
 
 ## 🌟 Overview
 
-`@tsot/mcp-server` allows AI assistants (Claude Desktop, Cursor, Roo Code, Windsurf, Cline) to query empirical Human-Computer Interaction (HCI) research and audit product designs against the **EU AI Act legislation (Regulation EU 2024/1689)**.
+`tsot-mcp-server` allows AI assistants (Claude Desktop, Cursor, Roo Code, Windsurf, Cline) to query empirical Human-Computer Interaction (HCI) research and audit product designs against the **EU AI Act legislation (Regulation EU 2024/1689)**.
 
 ### Key Capabilities
 
@@ -27,12 +27,12 @@
 You can run the server directly using `npx`:
 
 ```bash
-npx -y @tsot/mcp-server
+npx -y tsot-mcp-server
 ```
 
 For HTTP / SSE mode:
 ```bash
-npx -y @tsot/mcp-server --http --port 3001
+npx -y tsot-mcp-server --http --port 3001
 ```
 
 ---
@@ -48,7 +48,7 @@ Add this block to your `claude_desktop_config.json` (located at `%APPDATA%\Claud
   "mcpServers": {
     "tsot": {
       "command": "npx",
-      "args": ["-y", "@tsot/mcp-server"],
+      "args": ["-y", "tsot-mcp-server"],
       "env": {
         "SUPABASE_URL": "optional_your_supabase_url",
         "SUPABASE_ANON_KEY": "optional_your_supabase_key",
@@ -64,7 +64,7 @@ Add this block to your `claude_desktop_config.json` (located at `%APPDATA%\Claud
 In your editor MCP settings, configure a Stdio MCP server:
 
 - **Command**: `npx`
-- **Args**: `-y @tsot/mcp-server`
+- **Args**: `-y tsot-mcp-server`
 
 ---
 

@@ -8,7 +8,7 @@ startCommand:
     command: npx
     args:
       - "-y"
-      - "@tsot/mcp-server"
+      - "tsot-mcp-server"
 env:
   SUPABASE_URL:
     description: Optional Supabase project URL for live vector database queries.

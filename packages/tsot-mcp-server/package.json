@@ -1,5 +1,5 @@
 {
-  "name": "@tsot/mcp-server",
+  "name": "tsot-mcp-server",
   "version": "1.0.0",
   "type": "module",
   "description": "Standalone Model Context Protocol (MCP) Server providing real-time cognitive research registry queries, EU AI Act compliance auditing, and adversarial human-AI interaction benchmarks.",
