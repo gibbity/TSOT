@@ -1,0 +1,58 @@
+{
+  "name": "@tsot/mcp-server",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Standalone Model Context Protocol (MCP) Server providing real-time cognitive research registry queries, EU AI Act compliance auditing, and adversarial human-AI interaction benchmarks.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "tsot-mcp": "./bin/cli.js",
+    "tsot-mcp-server": "./bin/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
+    "start": "node dist/index.js",
+    "start:http": "node dist/index.js --http",
+    "dev": "tsx src/index.ts",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "ai-act",
+    "eu-ai-act",
+    "cognitive-offloading",
+    "human-ai-interaction",
+    "claude-desktop",
+    "cursor",
+    "smithery"
+  ],
+  "author": "TSOT Framework Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tsot/mcp-server.git"
+  },
+  "bugs": {
+    "url": "https://github.com/tsot/mcp-server/issues"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "@supabase/supabase-js": "^2.106.0",
+    "dotenv": "^16.4.7",
+    "express": "^5.2.1",
+    "tsot": "file:../..",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^20.17.19",
+    "tsx": "^4.22.3",
+    "typescript": "^5.7.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

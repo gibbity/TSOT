@@ -57,7 +57,7 @@ async function fetchAllPapers() {
   while (hasMore) {
     const { data, error } = await supabase
       .from('registry')
-      .select('id, code, title, human_summary, verdict, pillar')
+      .select('id, code, title, human_summary, verdict, pillar, quality_score')
       .order('created_at', { ascending: true })
       .range(from, from + step - 1);
 
@@ -81,7 +81,7 @@ async function fetchAllPapers() {
 async function fetchAllAiActRecords() {
   const { data, error } = await supabase
     .from('ai_act')
-    .select('id, code, title, human_summary, verdict, pillar');
+    .select('id, code, title, human_summary, verdict, pillar, quality_score');
   if (error) throw error;
   return data || [];
 }

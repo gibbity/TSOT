@@ -9,7 +9,9 @@
     "lint": "eslint",
     "daemon": "npx tsx --env-file=.env.local scratch/hourly_daemon.ts",
     "mcp-server": "npx tsx --env-file=.env.local scratch/mcp_server.ts",
-    "mcp-http": "npx tsx --env-file=.env.local scratch/mcp_http_server.ts"
+    "mcp-http": "npx tsx --env-file=.env.local scratch/mcp_http_server.ts",
+    "mcp:build": "npm --prefix packages/tsot-mcp-server run build",
+    "mcp:start": "npm --prefix packages/tsot-mcp-server start"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",

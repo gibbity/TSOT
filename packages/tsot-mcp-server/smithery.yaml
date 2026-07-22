@@ -1,0 +1,21 @@
+# Smithery MCP Server Manifest
+name: tsot-mcp-server
+version: 1.0.0
+description: Empirical HCI research ledger & EU AI Act compliance auditor MCP server.
+startCommand:
+  type: stdio
+  config:
+    command: npx
+    args:
+      - "-y"
+      - "@tsot/mcp-server"
+env:
+  SUPABASE_URL:
+    description: Optional Supabase project URL for live vector database queries.
+    required: false
+  SUPABASE_ANON_KEY:
+    description: Optional Supabase anonymous key.
+    required: false
+  GEMINI_API_KEY:
+    description: Optional Gemini API Key for vector embedding generation.
+    required: false
