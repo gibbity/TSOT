@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import AiActClient from '@/components/registry/AiActClient';
 import { RegistryRecord, Pillar } from '@/types';
 import localAiActData from '@/lib/supabase/ai_act_data.json';
+import { Scale } from 'lucide-react';
 
 const SEED_AI_ACT_RECORDS: RegistryRecord[] = (localAiActData as any[]).map((art, idx) => ({
   id: 10000 + idx,
@@ -20,6 +21,14 @@ const SEED_AI_ACT_RECORDS: RegistryRecord[] = (localAiActData as any[]).map((art
   created_at: new Date().toISOString()
 }));
 
+const GRID_STYLE = {
+  backgroundImage: `
+    linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)
+  `,
+  backgroundSize: '48px 48px',
+};
+
 export default async function AiActPage() {
   let records: RegistryRecord[] = [];
   let totalCount = 0;
@@ -29,7 +38,7 @@ export default async function AiActPage() {
     const { data, count } = await supabase
       .from('ai_act')
       .select('*', { count: 'exact' })
-      .order('id', { ascending: true }) // Order sequentially by ID
+      .order('id', { ascending: true })
       .range(0, 29);
 
     if (data && data.length > 0) {
@@ -61,23 +70,36 @@ export default async function AiActPage() {
   }
 
   return (
-    <main className="max-w-[1200px] mx-auto px-6 py-6">
-      {/* Title & Description side-by-side */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-baseline pb-6 border-b border-border mb-8">
-        <div className="md:col-span-1">
-          <h1 className="font-gambarino text-[32px] sm:text-[38px] md:text-[42px] text-[#3a66f5] font-normal leading-none">
-            EU AI Act
+    <main className="min-h-screen bg-[#0a0a0c] text-white selection:bg-emerald-900 selection:text-emerald-100 font-sans">
+      {/* Editorial Header */}
+      <section className="border-b border-white/8 relative overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none" style={GRID_STYLE} />
+        <div
+          className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[250px] pointer-events-none"
+          style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(0,60,51,0.25) 0%, transparent 70%)' }}
+        />
+        <div className="relative max-w-[1200px] mx-auto px-6 pt-16 pb-12 space-y-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11.5px] font-mono font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+            <Scale className="w-3.5 h-3.5" />
+            <span>Statutory Regulation</span>
+            <span className="text-neutral-600">|</span>
+            <span className="text-neutral-300 font-normal">Regulation (EU) 2024/1689</span>
+          </div>
+
+          <h1 className="font-['Plus_Jakarta_Sans'] text-[34px] sm:text-[46px] font-normal leading-[1.08] tracking-[-1.2px] text-white">
+            EU AI Act Explorer
           </h1>
-        </div>
-        <div className="md:col-span-2">
-          <p className="font-gambarino text-[13px] sm:text-[14px] md:text-[15px] text-[#3a66f5] leading-relaxed max-w-[700px]">
-            Official Regulation (EU) 2024/1689. Complete database of all 113 articles, compliance requirements, and risk level designations.
+
+          <p className="text-neutral-400 text-[15px] sm:text-[16.5px] leading-relaxed max-w-[760px]">
+            Official statutory database of all 113 articles and recitals under Regulation (EU) 2024/1689, parsed into statutory compliance requirements and structured risk classifications.
           </p>
         </div>
-      </div>
+      </section>
 
-      {/* Render AI Act index search client */}
-      <AiActClient initialRecords={records} initialCount={totalCount} />
+      {/* Main EU AI Act Content */}
+      <div className="max-w-[1200px] mx-auto px-6 py-10">
+        <AiActClient initialRecords={records} initialCount={totalCount} />
+      </div>
     </main>
   );
 }

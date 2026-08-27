@@ -1,6 +1,6 @@
 # Smithery MCP Server Manifest
 name: tsot-mcp-server
-version: 1.0.0
+version: 1.0.1
 description: Empirical HCI research ledger & EU AI Act compliance auditor MCP server.
 startCommand:
   type: stdio

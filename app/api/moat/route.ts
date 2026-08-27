@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import * as crypto from 'crypto';
 import localAiActData from '@/lib/supabase/ai_act_data.json';
 
 // Seed records for offline fallback
@@ -147,7 +148,45 @@ async function getQueryEmbedding(text: string, aiInstance: GoogleGenerativeAI | 
 
 export async function POST(request: NextRequest) {
   try {
-    const { tool, prompt, byok_key } = await request.json();
+    const authHeader = request.headers.get('authorization') || '';
+    const headerKey = request.headers.get('x-api-key') || '';
+    const bodyJson = await request.json().catch(() => ({}));
+    const { tool, prompt, byok_key, apiKey: bodyKey } = bodyJson;
+
+    const apiKey = headerKey || (authHeader.startsWith('Bearer ') ? authHeader.replace('Bearer ', '').trim() : (bodyKey || ''));
+
+    let usageMetadata: any = null;
+    if (apiKey && apiKey.startsWith('tsot_live_') && supabase) {
+      const keyHash = crypto.createHash('sha256').update(apiKey).digest('hex');
+      const { data: usage, error: usageErr } = await supabase.rpc('check_and_increment_usage', {
+        p_key_hash: keyHash
+      });
+
+      if (usageErr || !usage || usage.valid === false) {
+        return NextResponse.json({ error: 'Invalid or inactive API Key.' }, { status: 401 });
+      }
+
+      if (usage.allowed === false) {
+        return NextResponse.json({
+          error: 'Daily API request quota exceeded.',
+          tier: usage.tier,
+          count: usage.count,
+          limit: usage.limit,
+          remaining: 0,
+          upgradeRequired: true,
+          message: 'You have reached your daily quota. Upgrade to Pro for 500 requests/day or Enterprise for custom limits.'
+        }, {
+          status: 429,
+          headers: {
+            'X-RateLimit-Limit': String(usage.limit),
+            'X-RateLimit-Remaining': '0',
+            'X-RateLimit-Reset': '00:00 UTC'
+          }
+        });
+      }
+
+      usageMetadata = usage;
+    }
 
     if (!tool) {
       return NextResponse.json({ error: 'Missing parameter: "tool" is required.' }, { status: 400 });
@@ -528,6 +567,7 @@ Run the query resolution now, and output the response wrapped in the XML tags ab
       tool,
       prompt: promptForClient,
       result: synthesizedResult,
+      usage: usageMetadata,
       retrieved_records: selectedRecords.map(r => ({
         code: r.code,
         title: r.title,

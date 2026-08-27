@@ -5,8 +5,9 @@ import { RegistryRecord, Pillar } from '@/types';
 import SearchBar from './SearchBar';
 import PillarFilter from './PillarFilter';
 import RecordCard from './RecordCard';
-import { Sparkles, X, Send, ArrowRight } from 'lucide-react';
+import { Sparkles, X, Send } from 'lucide-react';
 import { parseMarkdownToReact } from './MarkdownRenderer';
+
 const CORPUS_OPTIONS = [
   { value: 'ALL', label: 'All Criteria' },
   { value: 'COGNITIVE OFFLOADING', label: 'Reasoning' },
@@ -14,7 +15,6 @@ const CORPUS_OPTIONS = [
   { value: 'TEMPORAL PERCEPTION', label: 'Attention' },
   { value: 'EPISTEMIC AGENCY', label: 'Ethics' },
 ] as { value: Pillar | 'ALL'; label: string }[];
-
 
 interface RegistryClientProps {
   initialRecords: RegistryRecord[];
@@ -29,7 +29,6 @@ interface ChatMessage {
 const PAGE_SIZE = 30;
 
 export default function RegistryClient({ initialRecords, initialCount }: RegistryClientProps) {
-  const source = 'corpus';
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedPillar, setSelectedPillar] = useState<Pillar | 'ALL'>('ALL');
   const [records, setRecords] = useState<RegistryRecord[]>(initialRecords);
@@ -48,7 +47,6 @@ export default function RegistryClient({ initialRecords, initialCount }: Registr
   const isMounted = useRef(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll follow-up chat to bottom
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatThread, isSynthesizing]);
@@ -68,8 +66,7 @@ export default function RegistryClient({ initialRecords, initialCount }: Registr
       setIsFallback(false);
     } catch (err) {
       console.warn('API search query failed, falling back to local filtration:', err);
-      const fallbackSource = initialRecords;
-      const filtered = fallbackSource.filter((record) => {
+      const filtered = initialRecords.filter((record) => {
         if (pillar !== 'ALL' && record.pillar !== pillar) return false;
         if (search.trim() !== '') {
           const q = search.toLowerCase();
@@ -77,21 +74,18 @@ export default function RegistryClient({ initialRecords, initialCount }: Registr
           const matchSummary = record.human_summary.toLowerCase().includes(q);
           const matchVerdict = record.verdict.toLowerCase().includes(q);
           const matchCode = record.code.toLowerCase().includes(q);
-          const matchMetric = record.metric.toLowerCase().includes(q);
-          return matchTitle || matchSummary || matchVerdict || matchCode || matchMetric;
+          return matchTitle || matchSummary || matchVerdict || matchCode;
         }
         return true;
       });
       setRecords(filtered);
       setTotalCount(filtered.length);
-      setPage(0);
       setIsFallback(true);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Debounced search trigger (skip on initial render since server delivered initial state)
   useEffect(() => {
     if (!isMounted.current) {
       isMounted.current = true;
@@ -132,7 +126,6 @@ export default function RegistryClient({ initialRecords, initialCount }: Registr
     }
   };
 
-  // Trigger RAG Synthesis
   const handleTriggerSynthesis = async () => {
     setIsSynthesisDrawerOpen(true);
     setIsSynthesizing(true);
@@ -145,7 +138,7 @@ export default function RegistryClient({ initialRecords, initialCount }: Registr
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          records: records.slice(0, 10), // send top 10 matched records
+          records: records.slice(0, 10),
           queryText: searchQuery
         })
       });
@@ -178,7 +171,6 @@ export default function RegistryClient({ initialRecords, initialCount }: Registr
     }
   };
 
-  // Handle follow-up chat submit
   const handleFollowUpSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!chatInput.trim() || isSynthesizing) return;
@@ -210,7 +202,6 @@ export default function RegistryClient({ initialRecords, initialCount }: Registr
       let done = false;
       let text = '';
 
-      // Set empty baseline for streaming answer
       setChatThread([...updatedHistory, { role: 'assistant', content: '' }]);
 
       while (!done) {
@@ -233,12 +224,10 @@ export default function RegistryClient({ initialRecords, initialCount }: Registr
     }
   };
 
-
-
   return (
     <div className="flex flex-col gap-10 relative">
-      {/* Search & Filter Header Strip */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 pb-6 border-b border-border select-none">
+      {/* Search & Filter Strip */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8 pb-6 border-b border-white/8 select-none">
         <div className="w-full lg:max-w-[450px]">
           <SearchBar value={searchQuery} onChange={setSearchQuery} />
         </div>
@@ -253,33 +242,33 @@ export default function RegistryClient({ initialRecords, initialCount }: Registr
 
       {/* Synthesis Trigger Button Band */}
       {searchQuery.trim() !== '' && records.length > 0 && (
-        <div className="flex flex-wrap items-center justify-between gap-4 border border-premium/20 bg-[#EEEDFE]/20 p-4 -mt-6">
+        <div className="flex flex-wrap items-center justify-between gap-4 border border-emerald-500/25 bg-[#0f1a14] p-4 -mt-6 rounded-[14px]">
           <div className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-premium animate-pulse" />
-            <span className="font-sans text-[12.5px] font-medium text-premium">
+            <Sparkles className="w-4 h-4 text-emerald-400 animate-pulse" />
+            <span className="font-sans text-[13px] font-medium text-emerald-300">
               Fuzzy semantic query matched {totalCount} findings. Let AI compile a research brief for you.
             </span>
           </div>
           <button
             onClick={handleTriggerSynthesis}
-            className="px-4 py-2 border border-premium bg-white text-premium hover:bg-premium hover:text-white font-mono text-[10px] font-bold tracking-widest uppercase transition-all duration-200 cursor-pointer shadow-[2px_2px_0px_#534AB7] whitespace-nowrap select-none"
+            className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-[#0a0a0c] font-mono text-[11px] font-bold tracking-wider uppercase transition-all cursor-pointer rounded-full whitespace-nowrap select-none shadow-sm"
           >
             Synthesize Findings
           </button>
         </div>
       )}
 
-      {/* Results Title Banner */}
-      <div className="flex justify-between items-baseline border-b border-border pb-2">
-        <h3 className="font-sans text-[11px] font-bold uppercase tracking-[0.15em] text-mid-concrete">
-          Registry Ledger ({totalCount} Records{isLoading && ' - Synchronizing...'})
+      {/* Results Header */}
+      <div className="flex justify-between items-baseline border-b border-white/8 pb-2">
+        <h3 className="font-mono text-[11px] font-bold uppercase tracking-widest text-neutral-500">
+          Registry Ledger ({totalCount.toLocaleString()} Records{isLoading && ' · Syncing...'})
         </h3>
-        <span className="font-mono text-[10px] text-mid-concrete uppercase tracking-[0.08em]">
+        <span className="font-mono text-[10.5px] text-neutral-600 uppercase tracking-wider">
           Sort: {searchQuery.trim() !== '' ? 'Semantic Relevance' : 'Chronological'}
         </span>
       </div>
 
-      {/* Grid container */}
+      {/* Grid Container */}
       {records.length > 0 ? (
         <div className="flex flex-col gap-12">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 bg-transparent">
@@ -294,7 +283,7 @@ export default function RegistryClient({ initialRecords, initialCount }: Registr
               <button
                 onClick={handleLoadMore}
                 disabled={isLoading}
-                className="px-8 py-3.5 border border-border bg-white text-carbon hover:bg-carbon hover:text-white font-mono text-[11px] font-bold tracking-widest uppercase transition-colors duration-200 cursor-pointer disabled:bg-concrete disabled:text-mid-concrete disabled:border-border disabled:cursor-not-allowed select-none"
+                className="px-8 py-3.5 border border-white/10 bg-white/5 hover:bg-white/10 text-neutral-300 hover:text-white font-mono text-[11.5px] font-bold tracking-widest uppercase transition-all rounded-full cursor-pointer disabled:opacity-40 select-none"
               >
                 {isLoading ? 'LOADING ADDITIONAL ENTRIES...' : 'LOAD MORE LEDGER ENTRIES'}
               </button>
@@ -302,11 +291,11 @@ export default function RegistryClient({ initialRecords, initialCount }: Registr
           )}
         </div>
       ) : (
-        <div className="border border-dashed border-border py-20 text-center bg-white mb-20">
-          <p className="font-mono text-[12px] uppercase text-mid-concrete tracking-widest mb-2">
+        <div className="border border-dashed border-white/10 py-20 text-center bg-white/[0.02] rounded-[20px] mb-20">
+          <p className="font-mono text-[12px] uppercase text-neutral-400 tracking-widest mb-2">
             No Records Located
           </p>
-          <p className="font-sans text-[13px] text-mid-concrete max-w-[400px] mx-auto leading-relaxed">
+          <p className="text-[13.5px] text-neutral-500 max-w-[400px] mx-auto leading-relaxed font-sans">
             {isLoading ? 'Searching database ledger...' : 'The search query did not match any findings in the index ledger. Refine your filters or search terms.'}
           </p>
         </div>
@@ -314,25 +303,25 @@ export default function RegistryClient({ initialRecords, initialCount }: Registr
 
       {/* DUAL SLIDE-OUT PANEL (AI Search Synthesis Drawer) */}
       {isSynthesisDrawerOpen && (
-        <div className="fixed inset-0 z-50 bg-carbon/50 backdrop-blur-xs flex justify-end animate-fade-in select-text">
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex justify-end animate-fade-in select-text">
           <div className="absolute inset-0" onClick={() => setIsSynthesisDrawerOpen(false)}></div>
-          <div className="relative w-full max-w-[580px] h-screen bg-white shadow-2xl border-l-2 border-carbon flex flex-col justify-between animate-slide-left select-text">
+          <div className="relative w-full max-w-[600px] h-screen bg-[#111114] shadow-2xl border-l border-white/10 flex flex-col justify-between animate-slide-left select-text">
             
             {/* Drawer Header */}
-            <div className="border-b border-carbon px-6 py-5 flex justify-between items-center bg-concrete">
+            <div className="border-b border-white/10 px-6 py-5 flex justify-between items-center bg-white/[0.02]">
               <div className="flex items-center gap-2.5">
-                <Sparkles className="w-4 h-4 text-premium animate-pulse" />
-                <span className="font-mono text-[11px] font-bold text-premium uppercase tracking-[0.15em]">
+                <Sparkles className="w-4 h-4 text-emerald-400 animate-pulse" />
+                <span className="font-mono text-[11px] font-bold text-emerald-400 uppercase tracking-[0.15em]">
                   AI Research Synthesis
                 </span>
-                <span className="text-border">|</span>
-                <span className="font-mono text-[10px] text-mid-concrete uppercase">
+                <span className="text-white/15">|</span>
+                <span className="font-mono text-[10px] text-neutral-500 uppercase">
                   Topic: {searchQuery.slice(0, 20)}{searchQuery.length > 20 && '...'}
                 </span>
               </div>
               <button 
                 onClick={() => setIsSynthesisDrawerOpen(false)}
-                className="text-mid-concrete hover:text-carbon cursor-pointer"
+                className="text-neutral-400 hover:text-white cursor-pointer p-1 rounded-md hover:bg-white/5"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -342,20 +331,20 @@ export default function RegistryClient({ initialRecords, initialCount }: Registr
             <div className="flex-1 p-6 md:p-8 overflow-y-auto flex flex-col gap-6">
               
               {/* Primary Synthesis Content */}
-              <div className="prose prose-neutral max-w-none text-carbon font-sans leading-relaxed text-[13.5px]">
+              <div className="prose prose-invert max-w-none text-neutral-200 font-sans leading-relaxed text-[14px]">
                 {synthesisResult ? (
-                  <div className="border border-border p-5 bg-white select-text">
-                    <span className="font-mono text-[9px] font-bold text-mid-concrete uppercase tracking-widest block mb-3 border-b border-border pb-1">
+                  <div className="border border-white/10 p-5 bg-white/[0.025] rounded-[14px] select-text">
+                    <span className="font-mono text-[9.5px] font-bold text-neutral-500 uppercase tracking-widest block mb-3 border-b border-white/10 pb-1">
                       Aggregated Summary
                     </span>
-                    <div className="select-text font-normal font-sans text-carbon leading-[1.7]">
+                    <div className="select-text font-normal font-sans text-neutral-200 leading-[1.7]">
                       {parseMarkdownToReact(synthesisResult)}
                     </div>
                   </div>
                 ) : isSynthesizing && chatThread.length === 0 ? (
                   <div className="flex flex-col gap-3 py-16 text-center select-none animate-pulse">
-                    <Sparkles className="w-8 h-8 text-premium/30 mx-auto animate-spin" />
-                    <span className="font-mono text-[10px] uppercase text-mid-concrete tracking-widest">
+                    <Sparkles className="w-8 h-8 text-emerald-400/40 mx-auto animate-spin" />
+                    <span className="font-mono text-[10px] uppercase text-neutral-500 tracking-widest">
                       Synthesizing findings across matched papers...
                     </span>
                   </div>
@@ -364,27 +353,26 @@ export default function RegistryClient({ initialRecords, initialCount }: Registr
 
               {/* Follow-up chat thread */}
               {chatThread.length > 0 && (
-                <div className="border-t border-border pt-6 flex flex-col gap-5 select-text">
-                  <span className="font-mono text-[10px] font-bold text-mid-concrete uppercase tracking-wider block mb-1">
+                <div className="border-t border-white/10 pt-6 flex flex-col gap-5 select-text">
+                  <span className="font-mono text-[10.5px] font-bold text-neutral-500 uppercase tracking-wider block mb-1">
                     Follow-up Discussion
                   </span>
                   
-                  {/* Skip first model element as it is already displayed in Aggregated Summary above */}
                   {chatThread.map((msg, idx) => {
-                    if (idx === 0 && msg.role === 'assistant') return null; // skip initial summary as it's rendered above
+                    if (idx === 0 && msg.role === 'assistant') return null;
                     return (
                       <div 
                         key={idx} 
-                        className={`p-4 border select-text ${
+                        className={`p-4 border select-text rounded-[12px] ${
                           msg.role === 'user' 
-                            ? 'bg-concrete/45 border-border border-l-4 border-l-carbon' 
-                            : 'bg-white border-carbon border-l-4 border-l-premium'
+                            ? 'bg-white/[0.04] border-white/10 border-l-4 border-l-neutral-400 text-white' 
+                            : 'bg-[#0f1a14] border-emerald-500/20 border-l-4 border-l-emerald-500 text-neutral-200'
                         }`}
                       >
-                        <span className="font-mono text-[9px] font-bold uppercase tracking-wider text-mid-concrete block mb-2 select-none">
+                        <span className="font-mono text-[9.5px] font-bold uppercase tracking-wider text-neutral-500 block mb-2 select-none">
                           {msg.role === 'user' ? 'Research Question' : 'Librarian Answer'}
                         </span>
-                        <div className="font-sans text-[13px] leading-relaxed text-carbon select-text">
+                        <div className="font-sans text-[13.5px] leading-relaxed select-text">
                           {parseMarkdownToReact(msg.content)}
                         </div>
                       </div>
@@ -393,14 +381,14 @@ export default function RegistryClient({ initialRecords, initialCount }: Registr
                   
                   {/* Loading dot state */}
                   {isSynthesizing && chatThread.length > 0 && (
-                    <div className="p-4 border bg-white border-carbon border-l-4 border-l-premium animate-pulse select-none">
-                      <span className="font-mono text-[9px] font-bold uppercase tracking-wider text-mid-concrete block mb-2">
+                    <div className="p-4 border bg-white/[0.02] border-white/10 border-l-4 border-l-emerald-500 animate-pulse select-none rounded-[12px]">
+                      <span className="font-mono text-[9.5px] font-bold uppercase tracking-wider text-neutral-500 block mb-2">
                         Librarian responding...
                       </span>
                       <div className="flex gap-1.5 items-center py-1">
-                        <span className="w-2 h-2 rounded-full bg-premium animate-bounce"></span>
-                        <span className="w-2 h-2 rounded-full bg-premium animate-bounce [animation-delay:0.2s]"></span>
-                        <span className="w-2 h-2 rounded-full bg-premium animate-bounce [animation-delay:0.4s]"></span>
+                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-bounce"></span>
+                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-bounce [animation-delay:0.2s]"></span>
+                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-bounce [animation-delay:0.4s]"></span>
                       </div>
                     </div>
                   )}
@@ -411,21 +399,21 @@ export default function RegistryClient({ initialRecords, initialCount }: Registr
             </div>
 
             {/* Drawer Footer / Input Box */}
-            <div className="border-t border-border p-4 bg-concrete/20">
+            <div className="border-t border-white/10 p-4 bg-white/[0.02]">
               <form onSubmit={handleFollowUpSubmit} className="flex gap-2 items-center">
                 <input
                   type="text"
                   placeholder={isSynthesizing ? "Generating response..." : "Ask follow-up questions about these findings..."}
                   value={chatInput}
                   onChange={(e) => setChatInput(e.target.value)}
-                  className="flex-grow bg-white border border-border px-3 py-2 text-[12.5px] focus:outline-none focus:border-premium text-carbon rounded-none"
+                  className="flex-grow bg-white/[0.04] border border-white/10 px-4 py-2.5 text-[13px] focus:outline-none focus:border-emerald-500/50 text-white rounded-[10px] placeholder:text-neutral-600"
                   disabled={isSynthesizing}
                   required
                 />
                 <button
                   type="submit"
                   disabled={isSynthesizing || !chatInput.trim()}
-                  className="bg-premium border border-premium text-white hover:bg-white hover:text-premium transition-colors px-4 py-2.5 font-mono text-[10px] font-bold uppercase select-none rounded-none cursor-pointer disabled:bg-border disabled:text-mid-concrete"
+                  className="bg-emerald-500 hover:bg-emerald-600 text-[#0a0a0c] transition-all px-4 py-2.5 font-mono text-[10.5px] font-bold uppercase select-none rounded-[10px] cursor-pointer disabled:opacity-40"
                 >
                   <Send className="w-3.5 h-3.5" />
                 </button>

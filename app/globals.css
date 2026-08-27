@@ -1,5 +1,29 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: 'Google Sans';
+  src: local('Google Sans'), local('GoogleSans-Regular'), local('Product Sans'), url('https://fonts.gstatic.com/s/googlesans/v58/4UaGrENHsxJlGDuGo1OIlL3Kwp5MKg.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Google Sans';
+  src: local('Google Sans Medium'), local('GoogleSans-Medium'), local('Product Sans Medium'), url('https://fonts.gstatic.com/s/googlesans/v58/4UaErENHsxJlGDuGo1OIlL3J3q4.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Google Sans';
+  src: local('Google Sans Bold'), local('GoogleSans-Bold'), local('Product Sans Bold'), url('https://fonts.gstatic.com/s/googlesans/v58/4UaErENHsxJlGDuGo1OIlL3N2a4.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 @theme {
   --color-carbon: #0B0B0B;
   --color-concrete: #F2F0EB;
@@ -9,10 +33,11 @@
   --color-warning: #E8A020;
   --color-critical: #FF3E00;
   --color-border: #E0DED8;
-  --color-premium: #534AB7;
+  --color-premium: #5a018a;
 
-  --font-gambarino: var(--font-gambarino), Georgia, serif;
-  --font-sans: var(--font-dm-sans), "DM Sans", sans-serif;
+  --font-google-sans: 'Google Sans', 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-gambarino: var(--font-gambarino), 'Google Sans', 'Plus Jakarta Sans', Georgia, serif;
+  --font-sans: 'Google Sans', 'Plus Jakarta Sans', var(--font-dm-sans), "DM Sans", sans-serif;
   --font-mono: monospace;
 }
 

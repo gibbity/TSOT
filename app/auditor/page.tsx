@@ -22,6 +22,7 @@ import {
   BookOpen,
   ArrowRight
 } from 'lucide-react';
+import UpgradeModal from '@/components/UpgradeModal';
 import { RegistryRecord } from '@/types';
 import localAiActData from '@/lib/supabase/ai_act_data.json';
 
@@ -224,6 +225,7 @@ export default function AuditorPage() {
   // Toast / Copy Feedback State
   const [copiedLink, setCopiedLink] = useState(false);
   const [auditRating, setAuditRating] = useState<'useful' | 'not_relevant' | null>(null);
+  const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
 
   // Structured Form States
   const [productCategory, setProductCategory] = useState('Writing assistant');
@@ -379,6 +381,9 @@ export default function AuditorPage() {
 
       if (!response.ok) {
         const errorData = await response.json();
+        if (response.status === 429 || errorData.error?.includes('limit')) {
+          setIsUpgradeModalOpen(true);
+        }
         throw new Error(errorData.error || 'Failed to generate audit.');
       }
 
@@ -756,6 +761,19 @@ export default function AuditorPage() {
   return (
     <main className="max-w-[1280px] mx-auto px-6 py-12 select-text font-sans relative">
       
+      {/* Rate Limit & Upgrade Popup Modal */}
+      <UpgradeModal
+        isOpen={isUpgradeModalOpen}
+        onClose={() => setIsUpgradeModalOpen(false)}
+        limit={5}
+        currentCount={5}
+        tier={tier}
+        onUpgradeSuccess={() => {
+          handleTierChange('pro');
+          setSessionRemaining(500);
+        }}
+      />
+
       {/* Editorial Title Header */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-baseline pb-6 border-b border-border mb-10">
         <div className="md:col-span-1">

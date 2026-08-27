@@ -19,21 +19,21 @@ export function parseMarkdownToReact(text: string): React.ReactNode[] {
     return parts.map((part, i) => {
       if (part.startsWith('***') && part.endsWith('***')) {
         return (
-          <strong key={i} className="font-extrabold italic text-carbon">
+          <strong key={i} className="font-extrabold italic text-white">
             {part.slice(3, -3)}
           </strong>
         );
       }
       if (part.startsWith('**') && part.endsWith('**')) {
         return (
-          <strong key={i} className="font-bold text-carbon">
+          <strong key={i} className="font-bold text-white">
             {part.slice(2, -2)}
           </strong>
         );
       }
       if (part.startsWith('*') && part.endsWith('*')) {
         return (
-          <em key={i} className="italic text-carbon/90">
+          <em key={i} className="italic text-neutral-200">
             {part.slice(1, -1)}
           </em>
         );
@@ -49,7 +49,7 @@ export function parseMarkdownToReact(text: string): React.ReactNode[] {
             href={href}
             target="_blank"
             rel="noopener noreferrer"
-            className="px-1.5 py-0.5 mx-0.5 inline-flex items-center gap-0.5 rounded bg-[#EEEDFE] hover:bg-[#534AB7] hover:text-white transition-colors duration-150 font-mono text-[10.5px] font-bold text-[#534AB7] border border-[#534AB7]/15 align-baseline cursor-pointer"
+            className="px-1.5 py-0.5 mx-0.5 inline-flex items-center gap-1 rounded bg-emerald-500/10 hover:bg-emerald-500 hover:text-[#0a0a0c] transition-colors duration-150 font-mono text-[11px] font-bold text-emerald-400 border border-emerald-500/20 align-baseline cursor-pointer"
             title={`View detail brief for #${code}`}
           >
             #{code}
@@ -80,7 +80,7 @@ export function parseMarkdownToReact(text: string): React.ReactNode[] {
       const listElement = last.type === 'ul' ? (
         <ul
           key={`list-group-${elements.length}-${listStack.length}`}
-          className={`list-disc pl-5 my-2 space-y-2 ${
+          className={`list-disc pl-5 my-2.5 space-y-2 text-neutral-300 ${
             last.depth > 0 ? 'list-[circle]' : 'list-outside'
           }`}
         >
@@ -89,7 +89,7 @@ export function parseMarkdownToReact(text: string): React.ReactNode[] {
       ) : (
         <ol
           key={`list-group-${elements.length}-${listStack.length}`}
-          className="list-decimal pl-5 my-2 space-y-2 list-outside"
+          className="list-decimal pl-5 my-2.5 space-y-2 text-neutral-300 list-outside"
         >
           {last.items}
         </ol>
@@ -144,7 +144,7 @@ export function parseMarkdownToReact(text: string): React.ReactNode[] {
       }
 
       listStack[depth].items.push(
-        <li key={`li-${lineIdx}`} className="text-[13px] text-carbon/90 leading-[1.65] pl-1">
+        <li key={`li-${lineIdx}`} className="text-[13.5px] text-neutral-300 leading-[1.7] pl-1">
           {formatInlineText(content)}
         </li>
       );
@@ -157,7 +157,7 @@ export function parseMarkdownToReact(text: string): React.ReactNode[] {
       }
 
       listStack[depth].items.push(
-        <li key={`li-${lineIdx}`} className="text-[13px] text-carbon/90 leading-[1.65] pl-1">
+        <li key={`li-${lineIdx}`} className="text-[13.5px] text-neutral-300 leading-[1.7] pl-1">
           {formatInlineText(content)}
         </li>
       );
@@ -178,7 +178,7 @@ export function parseMarkdownToReact(text: string): React.ReactNode[] {
                   ? prevElement.props.children
                   : prevItem}
               </div>
-              <p className="text-[13px] text-carbon/80 leading-[1.5] mt-1 pl-1">
+              <p className="text-[13.5px] text-neutral-300 leading-[1.6] mt-1 pl-1">
                 {formatInlineText(trimmed)}
               </p>
             </li>
@@ -188,7 +188,7 @@ export function parseMarkdownToReact(text: string): React.ReactNode[] {
         }
       } else {
         elements.push(
-          <p key={`p-${lineIdx}`} className="text-[13.5px] text-carbon/90 leading-[1.7] my-3">
+          <p key={`p-${lineIdx}`} className="text-[14px] text-neutral-300 leading-[1.75] my-2.5">
             {formatInlineText(trimmed)}
           </p>
         );
@@ -202,7 +202,7 @@ export function parseMarkdownToReact(text: string): React.ReactNode[] {
 
 export default function MarkdownRenderer({ text }: MarkdownRendererProps) {
   return (
-    <div className="prose prose-neutral max-w-none font-sans text-[13.5px] leading-relaxed text-carbon">
+    <div className="prose prose-invert max-w-none font-sans text-[13.5px] leading-relaxed text-neutral-300">
       {parseMarkdownToReact(text)}
     </div>
   );

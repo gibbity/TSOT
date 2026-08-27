@@ -138,6 +138,28 @@ export function createMcpServer(config: ServerConfig = {}): Server {
             },
             required: ['code']
           }
+        },
+        {
+          name: 'export_compliance_dossier',
+          description: 'Generate an Article 11 & Annex IV technical compliance documentation dossier for an AI system under Regulation (EU) 2024/1689.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              system_name: {
+                type: 'string',
+                description: 'The formal name of the AI product or system.'
+              },
+              system_description: {
+                type: 'string',
+                description: 'Detailed description of the AI model architecture, capabilities, and data flows.'
+              },
+              intended_purpose: {
+                type: 'string',
+                description: 'The specific intended purpose, operational boundaries, and target user group.'
+              }
+            },
+            required: ['system_name', 'system_description']
+          }
         }
       ]
     };
@@ -240,6 +262,22 @@ export function createMcpServer(config: ServerConfig = {}): Server {
             {
               type: 'text',
               text: JSON.stringify(record, null, 2)
+            }
+          ]
+        };
+      }
+
+      if (name === 'export_compliance_dossier') {
+        const systemName = (args?.system_name as string) || 'AI System';
+        const systemDescription = (args?.system_description as string) || '';
+        const intendedPurpose = (args?.intended_purpose as string) || '';
+
+        const dossier = await db.exportComplianceDossier(systemName, systemDescription, intendedPurpose);
+        return {
+          content: [
+            {
+              type: 'text',
+              text: dossier
             }
           ]
         };

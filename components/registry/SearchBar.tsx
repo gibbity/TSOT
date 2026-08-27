@@ -10,21 +10,21 @@ export default function SearchBar({ value, onChange }: SearchBarProps) {
     <div className="w-full">
       <label
         htmlFor="registry-search"
-        className="block font-sans text-[10px] font-bold uppercase tracking-[0.1em] text-mid-concrete mb-2"
+        className="block font-mono text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-2"
       >
         Free Text Query
       </label>
       <div className="relative w-full">
         <span className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-          <Search className="w-4.5 h-4.5 text-carbon" />
+          <Search className="w-4 h-4 text-neutral-500" />
         </span>
         <input
           id="registry-search"
           type="text"
-          placeholder="SEARCH THE LEDGER..."
+          placeholder="SEARCH BY KEYWORD, ARTICLE, OR DILEMMA..."
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="w-full bg-white border border-border pl-12 pr-4 py-3 font-mono text-[12px] tracking-wider uppercase placeholder:text-mid-concrete/40 transition-colors focus:border-carbon focus:ring-0 rounded-[10px] text-carbon shadow-sm"
+          className="w-full bg-white/[0.04] border border-white/10 pl-11 pr-4 py-3 font-mono text-[12px] tracking-wider uppercase text-white placeholder:text-neutral-600 transition-colors focus:outline-none focus:border-emerald-500/50 focus:bg-white/[0.06] rounded-[12px]"
         />
       </div>
     </div>

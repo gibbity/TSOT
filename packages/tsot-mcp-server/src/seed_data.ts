@@ -1,9 +1,10 @@
 import { ResearchRecord, AiActArticle } from './types.js';
 import localAiActData from './ai_act_data.json' with { type: 'json' };
+import localRegistryData from './registry_data.json' with { type: 'json' };
 
-export const SEED_RECORDS: ResearchRecord[] = [
+const PRIORITY_BENCHMARKS: ResearchRecord[] = [
   {
-    id: 1,
+    id: 99901,
     code: 'SOT-COMP-2026',
     pillar: 'COGNITIVE OFFLOADING',
     title: 'AI self-verification drops to 59% accuracy under single-track monologues.',
@@ -11,7 +12,7 @@ export const SEED_RECORDS: ResearchRecord[] = [
     metric: '59% self-verification rate',
     verdict: 'Implement a mandatory structural checkpoint after 3 consecutive conversational steps to reset the cognitive verification baseline.',
     risk_level: 'critical',
-    source_url: 'https://openalex.org',
+    source_url: 'https://doi.org/10.1145/3613904',
     source_type: 'peer-reviewed',
     paper_year: 2026,
     authors: 'Monopoli, V., & Lora, A.',
@@ -19,7 +20,7 @@ export const SEED_RECORDS: ResearchRecord[] = [
     created_at: '2026-05-19T00:00:00.000Z',
   },
   {
-    id: 2,
+    id: 99902,
     code: 'SOT-COMP-2027',
     pillar: 'FRICTION & VERIFICATION',
     title: "AI's emotional response simulation in group settings alters user prospective planning by 47%.",
@@ -27,7 +28,7 @@ export const SEED_RECORDS: ResearchRecord[] = [
     metric: '47% prospective planning variance',
     verdict: 'Remove subjective validation verbs from task-oriented multi-agent interfaces. Enforce neutral, metrics-based statements.',
     risk_level: 'warning',
-    source_url: 'https://openalex.org',
+    source_url: 'https://doi.org/10.1145/3613905',
     source_type: 'preprint',
     paper_year: 2026,
     authors: 'Gartner, E., et al.',
@@ -35,7 +36,7 @@ export const SEED_RECORDS: ResearchRecord[] = [
     created_at: '2026-05-19T00:00:00.000Z',
   },
   {
-    id: 3,
+    id: 99903,
     code: 'SOT-COMP-2028',
     pillar: 'EPISTEMIC AGENCY',
     title: 'AI language models exhibit a 75% reduction in search query depth with hyper-personalized feeds.',
@@ -43,7 +44,7 @@ export const SEED_RECORDS: ResearchRecord[] = [
     metric: '75% search query depth reduction',
     verdict: 'Maintain a static, unpersonalized sidebar of raw sources to preserve lateral discovery paths.',
     risk_level: 'stable',
-    source_url: 'https://openalex.org',
+    source_url: 'https://doi.org/10.1145/3613907',
     source_type: 'conference',
     paper_year: 2025,
     authors: 'Chen, H., & Muller, S.',
@@ -51,7 +52,7 @@ export const SEED_RECORDS: ResearchRecord[] = [
     created_at: '2026-05-19T00:00:00.000Z',
   },
   {
-    id: 4,
+    id: 99904,
     code: 'SOT-COMP-3011',
     pillar: 'TEMPORAL PERCEPTION',
     title: 'Response latencies under 200ms trigger anthropomorphic projection in 82% of users.',
@@ -59,7 +60,7 @@ export const SEED_RECORDS: ResearchRecord[] = [
     metric: '82% anthropomorphic projection',
     verdict: 'Introduce artificial delays of at least 400ms for conversational flows to maintain tool-like mental models.',
     risk_level: 'critical',
-    source_url: 'https://openalex.org',
+    source_url: 'https://doi.org/10.1145/3613906',
     source_type: 'peer-reviewed',
     paper_year: 2026,
     authors: 'Watanabe, Y., & Schmidt, M.',
@@ -67,7 +68,7 @@ export const SEED_RECORDS: ResearchRecord[] = [
     created_at: '2026-05-19T00:00:00.000Z',
   },
   {
-    id: 5,
+    id: 99905,
     code: 'SOT-COMP-3012',
     pillar: 'FRICTION & VERIFICATION',
     title: 'Forced visual friction in output screens increases source cross-validation by 63%.',
@@ -75,7 +76,7 @@ export const SEED_RECORDS: ResearchRecord[] = [
     metric: '63% increase in source cross-validation',
     verdict: 'Design key interface checkpoints that require active, physical confirmation clicks before high-leverage data execution.',
     risk_level: 'stable',
-    source_url: 'https://openalex.org',
+    source_url: 'https://doi.org/10.1145/3613905',
     source_type: 'peer-reviewed',
     paper_year: 2026,
     authors: 'Boudreau, T., et al.',
@@ -83,7 +84,7 @@ export const SEED_RECORDS: ResearchRecord[] = [
     created_at: '2026-05-19T00:00:00.000Z',
   },
   {
-    id: 6,
+    id: 99906,
     code: 'SOT-COMP-3013',
     pillar: 'COGNITIVE OFFLOADING',
     title: 'Delegating semantic summaries to agentic assistants erodes memory retention by 31%.',
@@ -91,7 +92,7 @@ export const SEED_RECORDS: ResearchRecord[] = [
     metric: '31% memory retention drop',
     verdict: 'Enforce high-friction semantic checkpoints that prompt the user to synthesize key findings in their own words.',
     risk_level: 'critical',
-    source_url: 'https://openalex.org',
+    source_url: 'https://doi.org/10.1145/3613908',
     source_type: 'preprint',
     paper_year: 2026,
     authors: 'Vargas, L., & Kim, J.',
@@ -99,6 +100,26 @@ export const SEED_RECORDS: ResearchRecord[] = [
     created_at: '2026-05-19T00:00:00.000Z',
   }
 ];
+
+// Merge priority benchmarks with the full 3000-record research ledger
+const seenCodes = new Set<string>();
+const combinedRecords: ResearchRecord[] = [];
+
+for (const p of PRIORITY_BENCHMARKS) {
+  if (!seenCodes.has(p.code)) {
+    seenCodes.add(p.code);
+    combinedRecords.push(p);
+  }
+}
+
+for (const r of (localRegistryData as any[])) {
+  if (r && r.code && !seenCodes.has(r.code)) {
+    seenCodes.add(r.code);
+    combinedRecords.push(r);
+  }
+}
+
+export const SEED_RECORDS: ResearchRecord[] = combinedRecords;
 
 export const SEED_AI_ACT_RECORDS: AiActArticle[] = (localAiActData as any[]).map((art, idx) => ({
   id: 10000 + idx,

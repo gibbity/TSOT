@@ -69,13 +69,13 @@ export default function OpenAlexSearch({
   }, [query, source]);
 
   return (
-    <div className="w-full space-y-10">
+    <div className="w-full space-y-6">
       
       {/* Search Console Area */}
-      <div className="max-w-[800px] mx-auto text-center space-y-6">
+      <div className="max-w-[700px] mx-auto text-center space-y-4">
         
         {/* Entity Tabs */}
-        <div className="flex justify-center gap-1.5 p-1 bg-neutral-100 rounded-full w-fit mx-auto select-none">
+        <div className="flex justify-center gap-1 p-1 bg-neutral-100 rounded-full w-fit mx-auto select-none">
           {[
             { id: 'all', label: 'All Catalog' },
             { id: 'corpus', label: 'HCI Papers' },
@@ -84,9 +84,9 @@ export default function OpenAlexSearch({
             <button
               key={tab.id}
               onClick={() => setSource(tab.id as any)}
-              className={`px-4 py-1.5 rounded-full text-[12px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
+              className={`px-3.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
                 source === tab.id
-                  ? 'bg-white text-carbon shadow-sm'
+                  ? 'bg-white text-carbon shadow-xs'
                   : 'text-mid-concrete hover:text-carbon'
               }`}
             >
@@ -96,12 +96,12 @@ export default function OpenAlexSearch({
         </div>
 
         {/* Main Search Input */}
-        <div className="relative shadow-md rounded-[20px] overflow-hidden border border-border bg-white group focus-within:ring-2 focus-within:ring-[#3a66f5]/20 focus-within:border-[#3a66f5] transition-all">
-          <div className="absolute left-5 top-1/2 -translate-y-1/2 text-mid-concrete group-focus-within:text-[#3a66f5] transition-colors">
+        <div className="relative shadow-xs rounded-[14px] overflow-hidden border border-border bg-white group focus-within:ring-2 focus-within:ring-[#5a018a]/20 focus-within:border-[#5a018a] transition-all">
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-mid-concrete group-focus-within:text-[#5a018a] transition-colors">
             {loading ? (
-              <Loader2 className="w-5 h-5 animate-spin" />
+              <Loader2 className="w-4 h-4 animate-spin" />
             ) : (
-              <Search className="w-5 h-5" />
+              <Search className="w-4 h-4" />
             )}
           </div>
           <input
@@ -109,29 +109,29 @@ export default function OpenAlexSearch({
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search 6,400+ HCI studies, cognitive pillars, risk levels, or EU AI Act articles..."
-            className="w-full pl-14 pr-6 py-5 text-[15px] font-sans text-carbon focus:outline-none placeholder-mid-concrete bg-transparent"
+            className="w-full pl-11 pr-5 py-3 text-[13.5px] font-['Google_Sans'] text-carbon focus:outline-none placeholder-mid-concrete bg-transparent"
           />
         </div>
 
         {/* Entity Counters Band */}
-        <div className="grid grid-cols-3 divide-x divide-border pt-4 text-center select-none">
+        <div className="grid grid-cols-3 divide-x divide-border pt-2 text-center select-none">
           <div>
-            <div className="font-gambarino text-[24px] sm:text-[30px] text-carbon font-semibold">
+            <div className="font-['Google_Sans'] text-[19px] sm:text-[22px] text-carbon font-semibold">
               {initialRegistryCount.toLocaleString()}
             </div>
-            <div className="text-[11px] font-bold uppercase text-mid-concrete tracking-wider">HCI Papers</div>
+            <div className="text-[10px] font-bold uppercase text-mid-concrete tracking-wider">HCI Papers</div>
           </div>
           <div>
-            <div className="font-gambarino text-[24px] sm:text-[30px] text-carbon font-semibold">
+            <div className="font-['Google_Sans'] text-[19px] sm:text-[22px] text-carbon font-semibold">
               {initialAiActCount.toLocaleString()}
             </div>
-            <div className="text-[11px] font-bold uppercase text-mid-concrete tracking-wider">EU AI Act Articles</div>
+            <div className="text-[10px] font-bold uppercase text-mid-concrete tracking-wider">EU AI Act Articles</div>
           </div>
           <div>
-            <div className="font-gambarino text-[24px] sm:text-[30px] text-carbon font-semibold">
+            <div className="font-['Google_Sans'] text-[19px] sm:text-[22px] text-carbon font-semibold">
               {initialAuditCount.toLocaleString()}
             </div>
-            <div className="text-[11px] font-bold uppercase text-mid-concrete tracking-wider">System Audits Logged</div>
+            <div className="text-[10px] font-bold uppercase text-mid-concrete tracking-wider">System Audits Logged</div>
           </div>
         </div>
 

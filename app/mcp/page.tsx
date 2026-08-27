@@ -19,16 +19,20 @@ import {
   Globe,
   Code
 } from 'lucide-react';
+import UpgradeModal from '@/components/UpgradeModal';
 
 export default function McpIntegrationPage() {
   const [activeTab, setActiveTab] = useState<'setup' | 'sandbox'>('setup');
   const [setupTab, setSetupTab] = useState<'npm' | 'claudecode' | 'claude' | 'cursor' | 'antigravity' | 'smithery'>('npm');
   const [copiedSection, setCopiedSection] = useState<string | null>(null);
+  const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
 
   // Sandbox Form States
   const [selectedTool, setSelectedTool] = useState<
-    'audit_eu_compliance' | 'optimize_hci_design' | 'query_research_moat' | 'search_registry' | 'search_ai_act' | 'get_record'
+    'audit_eu_compliance' | 'optimize_hci_design' | 'query_research_moat' | 'search_registry' | 'search_ai_act' | 'get_record' | 'export_compliance_dossier'
   >('audit_eu_compliance');
+  const [systemName, setSystemName] = useState('Nexus AI Co-pilot');
+  const [intendedPurpose, setIntendedPurpose] = useState('Enterprise document processing and auxiliary decision support');
   const [searchQuery, setSearchQuery] = useState('');
   const [searchPillar, setSearchPillar] = useState('ALL');
   const [searchCategory, setSearchCategory] = useState('ALL');
@@ -71,6 +75,12 @@ export default function McpIntegrationPage() {
         args = { query: searchQuery, category: searchCategory, limit: searchLimit };
       } else if (selectedTool === 'get_record') {
         args = { code: recordCode, source: recordSource };
+      } else if (selectedTool === 'export_compliance_dossier') {
+        args = {
+          system_name: systemName,
+          system_description: auditPrompt,
+          intended_purpose: intendedPurpose
+        };
       }
 
       const response = await fetch('/api/mcp', {
@@ -89,7 +99,10 @@ export default function McpIntegrationPage() {
 
       const data = await response.json();
       
-      if (data.error) {
+      if (response.status === 429 || data.upgradeRequired) {
+        setIsUpgradeModalOpen(true);
+        setOutput(`// 🛑 HTTP 429 RATE LIMIT EXCEEDED:\n${JSON.stringify(data, null, 2)}`);
+      } else if (data.error) {
         setOutput(`// RPC Server Error:\n${JSON.stringify(data.error, null, 2)}`);
       } else if (data.result?.content?.[0]?.text) {
         setOutput(data.result.content[0].text);
@@ -132,37 +145,69 @@ export default function McpIntegrationPage() {
   const claudeCodeCommand = `claude mcp add tsot -- npx -y tsot-mcp-server`;
 
   return (
-    <main className="max-w-[1200px] mx-auto px-6 py-12 select-none">
-      {/* Editorial Header */}
-      <div className="border-b border-border pb-8 mb-10">
-        <div className="flex items-center justify-between flex-wrap gap-4 mb-3">
-          <div className="flex items-center gap-2.5 text-[#3a66f5]">
-            <Cpu className="w-6 h-6 animate-pulse" />
-            <span className="font-sans text-[12px] font-bold uppercase tracking-widest">Model Context Protocol</span>
-          </div>
-          
-          <div className="flex items-center gap-2 bg-[#3a66f5]/10 text-[#3a66f5] px-3.5 py-1.5 rounded-full text-[11px] font-mono font-bold">
-            <Package className="w-4 h-4" />
-            <span>npm: tsot-mcp-server@1.0.0</span>
-          </div>
-        </div>
+    <main className="min-h-screen bg-[#0a0a0c] text-white select-none">
 
-        <h1 className="font-gambarino text-[32px] md:text-[44px] leading-tight text-carbon">
-          TSOT Model Context Protocol (MCP) Server
-        </h1>
-        <p className="font-sans text-[15px] text-mid-concrete mt-2 max-w-[850px] leading-relaxed">
-          Connect your AI assistants (Claude Code, Antigravity, Claude Desktop, Cursor, Windsurf, and Roo Code) directly to the TSOT Empirical HCI Ledger and EU AI Act Compliance Engine. Run compliance audits and UX optimizations straight from your terminal or AI editor.
-        </p>
+      {/* Rate Limit & Upgrade Popup Modal */}
+      <UpgradeModal
+        isOpen={isUpgradeModalOpen}
+        onClose={() => setIsUpgradeModalOpen(false)}
+        limit={5}
+        tier="free"
+      />
+
+      {/* Page Header */}
+      <div className="border-b border-white/8 bg-[#0a0a0c] relative overflow-hidden">
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            backgroundImage: `linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)`,
+            backgroundSize: '48px 48px'
+          }}
+        />
+        <div
+          className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[250px] pointer-events-none"
+          style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(0,60,51,0.25) 0%, transparent 70%)' }}
+        />
+        <div className="relative max-w-[1200px] mx-auto px-6 pt-14 pb-10">
+          <div className="flex items-center justify-between flex-wrap gap-4 mb-5">
+            <div className="flex items-center gap-2 text-[11.5px] font-mono text-neutral-500 bg-white/5 border border-white/10 px-3.5 py-1 rounded-full">
+              <Cpu className="w-4 h-4 text-emerald-500" />
+              <span className="uppercase tracking-widest">Model Context Protocol</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 bg-white/5 border border-white/10 text-neutral-300 px-3.5 py-1.5 rounded-full text-[11px] font-mono">
+                <Package className="w-3.5 h-3.5 text-emerald-500" />
+                <span>tsot-mcp-server@1.0.1</span>
+              </div>
+              <button
+                onClick={() => setIsUpgradeModalOpen(true)}
+                className="flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/20 text-amber-400 px-3.5 py-1.5 rounded-full text-[11px] font-mono font-bold uppercase tracking-wider cursor-pointer hover:bg-amber-500/15 transition-colors"
+              >
+                <Zap className="w-3.5 h-3.5" />
+                <span>Pro Cloud</span>
+              </button>
+            </div>
+          </div>
+
+          <h1 className="font-['Plus_Jakarta_Sans'] text-[32px] md:text-[46px] leading-tight tracking-tight text-white font-normal">
+            TSOT MCP Server
+          </h1>
+          <p className="text-[15px] text-neutral-400 mt-3 max-w-[760px] leading-relaxed">
+            Connect Cursor, Claude Desktop, Windsurf, and Roo Code directly to the TSOT Empirical HCI Ledger and EU AI Act Compliance Engine. Run compliance audits straight from your editor.
+          </p>
+        </div>
       </div>
 
+      <div className="max-w-[1200px] mx-auto px-6 py-10">
+
       {/* Tab Selectors */}
-      <div className="flex border-b border-border mb-8">
+      <div className="flex border-b border-white/10 mb-8">
         <button
           onClick={() => setActiveTab('setup')}
-          className={`flex items-center gap-2 py-4 px-6 font-gambarino text-[16px] border-b-2 tracking-wide transition-all duration-300 ${
+          className={`flex items-center gap-2 py-3.5 px-5 font-sans text-[14px] border-b-2 tracking-wide transition-all duration-200 ${
             activeTab === 'setup'
-              ? 'border-[#3a66f5] text-[#3a66f5]'
-              : 'border-transparent text-carbon hover:text-[#3a66f5]'
+              ? 'border-emerald-500 text-emerald-400 font-semibold'
+              : 'border-transparent text-neutral-500 hover:text-neutral-200'
           }`}
         >
           <Settings className="w-4 h-4" />
@@ -170,10 +215,10 @@ export default function McpIntegrationPage() {
         </button>
         <button
           onClick={() => setActiveTab('sandbox')}
-          className={`flex items-center gap-2 py-4 px-6 font-gambarino text-[16px] border-b-2 tracking-wide transition-all duration-300 ${
+          className={`flex items-center gap-2 py-3.5 px-5 font-sans text-[14px] border-b-2 tracking-wide transition-all duration-200 ${
             activeTab === 'sandbox'
-              ? 'border-[#3a66f5] text-[#3a66f5]'
-              : 'border-transparent text-carbon hover:text-[#3a66f5]'
+              ? 'border-emerald-500 text-emerald-400 font-semibold'
+              : 'border-transparent text-neutral-500 hover:text-neutral-200'
           }`}
         >
           <Terminal className="w-4 h-4" />
@@ -247,7 +292,7 @@ export default function McpIntegrationPage() {
                   onClick={() => setSetupTab('npm')}
                   className={`px-3.5 py-1.5 text-[11px] font-bold rounded-[8px] uppercase tracking-wider transition-all cursor-pointer ${
                     setupTab === 'npm'
-                      ? 'bg-[#3a66f5] text-white shadow-sm'
+                      ? 'bg-[#003c33] text-white shadow-sm'
                       : 'text-mid-concrete hover:text-carbon'
                   }`}
                 >
@@ -311,10 +356,10 @@ export default function McpIntegrationPage() {
               {setupTab === 'npm' && (
                 <div className="space-y-6">
                   <div className="space-y-2">
-                    <span className="bg-[#3a66f5] text-white px-3 py-1 text-[10px] font-bold rounded-full uppercase tracking-wider">
+                    <span className="bg-[#003c33] text-white px-3 py-1 text-[10px] font-bold rounded-full uppercase tracking-wider">
                       Published NPM Package
                     </span>
-                    <h4 className="font-gambarino text-[18px] text-carbon">Official NPM Package (`tsot-mcp-server`)</h4>
+                    <h4 className="font-['Plus_Jakarta_Sans'] text-[18px] font-bold text-carbon">Official NPM Package (`tsot-mcp-server`)</h4>
                     <p className="font-sans text-[13.5px] text-mid-concrete leading-relaxed max-w-[900px]">
                       The official published package runs out-of-the-box via <code className="font-mono text-[12px] bg-white px-1.5 py-0.5 rounded border">npx</code> with zero configuration required. It includes all 124 EU AI Act articles and empirical research records directly embedded for offline execution.
                     </p>
@@ -324,15 +369,15 @@ export default function McpIntegrationPage() {
                     <div className="lg:col-span-5 space-y-4">
                       <div className="bg-[#f9f9f9] border border-border p-5 rounded-[16px] space-y-3 font-sans text-[13px]">
                         <div className="flex items-center gap-3">
-                          <div className="w-6 h-6 rounded-full bg-[#3a66f5] text-white flex items-center justify-center font-bold text-[12px]">1</div>
+                          <div className="w-6 h-6 rounded-full bg-[#003c33] text-white flex items-center justify-center font-bold text-[12px]">1</div>
                           <span className="font-semibold text-carbon">Zero local installation required via <code className="font-mono text-[11px] bg-white px-1.5 py-0.5 rounded border">npx</code></span>
                         </div>
                         <div className="flex items-center gap-3">
-                          <div className="w-6 h-6 rounded-full bg-[#3a66f5] text-white flex items-center justify-center font-bold text-[12px]">2</div>
+                          <div className="w-6 h-6 rounded-full bg-[#003c33] text-white flex items-center justify-center font-bold text-[12px]">2</div>
                           <span className="font-semibold text-carbon">Runs standard stdio transport for AI agents</span>
                         </div>
                         <div className="flex items-center gap-3">
-                          <div className="w-6 h-6 rounded-full bg-[#3a66f5] text-white flex items-center justify-center font-bold text-[12px]">3</div>
+                          <div className="w-6 h-6 rounded-full bg-[#003c33] text-white flex items-center justify-center font-bold text-[12px]">3</div>
                           <span className="font-semibold text-carbon">Automatic offline fallback with embedded seeds</span>
                         </div>
                       </div>
@@ -566,10 +611,10 @@ export default function McpIntegrationPage() {
           {/* Controls Column (5 cols) */}
           <div className="lg:col-span-5 border border-border rounded-[24px] bg-white p-6 shadow-sm space-y-6">
             <div>
-              <span className="bg-[#3a66f5]/10 text-[#3a66f5] px-3 py-1 text-[10px] font-bold rounded-full uppercase tracking-wider">
+              <span className="bg-emerald-50 text-[#003c33] border border-emerald-200 px-3 py-1 text-[10px] font-mono font-bold rounded-full uppercase tracking-wider">
                 Live Tool Playground
               </span>
-              <h3 className="font-gambarino text-[20px] text-carbon mt-2">Execute Live MCP Tools</h3>
+              <h3 className="font-['Plus_Jakarta_Sans'] text-[20px] font-bold text-carbon mt-2">Execute Live MCP Tools</h3>
               <p className="font-sans text-[12.5px] text-mid-concrete mt-1 leading-relaxed">
                 Test how the MCP server responds to live JSON-RPC requests via `/api/mcp`.
               </p>
@@ -583,10 +628,11 @@ export default function McpIntegrationPage() {
               <select
                 value={selectedTool}
                 onChange={(e) => setSelectedTool(e.target.value as any)}
-                className="w-full bg-[#f9f9f9] border border-border rounded-[12px] p-3 font-mono text-[12.5px] text-carbon focus:outline-none focus:border-[#3a66f5]"
+                className="w-full bg-[#f9f9f9] border border-border rounded-[12px] p-3 font-mono text-[12.5px] text-carbon focus:outline-none focus:border-[#003c33]"
               >
                 <option value="audit_eu_compliance">audit_eu_compliance (Check EU AI Act)</option>
                 <option value="optimize_hci_design">optimize_hci_design (HCI Optimization)</option>
+                <option value="export_compliance_dossier">export_compliance_dossier (Article 11 Technical Dossier)</option>
                 <option value="query_research_moat">query_research_moat (Dilemma Solver)</option>
                 <option value="search_registry">search_registry (Search HCI Ledger)</option>
                 <option value="search_ai_act">search_ai_act (Search EU AI Act)</option>
@@ -596,6 +642,46 @@ export default function McpIntegrationPage() {
 
             {/* Tool Parameters Dynamic Form */}
             <div className="space-y-4 pt-2 border-t border-border">
+              {selectedTool === 'export_compliance_dossier' && (
+                <>
+                  <div className="space-y-2">
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-carbon">
+                      System Name:
+                    </label>
+                    <input
+                      type="text"
+                      value={systemName}
+                      onChange={(e) => setSystemName(e.target.value)}
+                      placeholder="e.g. Nexus AI Co-pilot"
+                      className="w-full bg-[#f9f9f9] border border-border rounded-[12px] p-3 font-sans text-[13px] text-carbon focus:outline-none focus:border-[#003c33]"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-carbon">
+                      Intended Purpose & Target Audience:
+                    </label>
+                    <input
+                      type="text"
+                      value={intendedPurpose}
+                      onChange={(e) => setIntendedPurpose(e.target.value)}
+                      placeholder="e.g. Enterprise document processing and decision support"
+                      className="w-full bg-[#f9f9f9] border border-border rounded-[12px] p-3 font-sans text-[13px] text-carbon focus:outline-none focus:border-[#003c33]"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block text-[11px] font-bold uppercase tracking-wider text-carbon">
+                      System Architecture & Capabilities:
+                    </label>
+                    <textarea
+                      rows={4}
+                      value={auditPrompt}
+                      onChange={(e) => setAuditPrompt(e.target.value)}
+                      className="w-full bg-[#f9f9f9] border border-border rounded-[12px] p-3 font-sans text-[13px] text-carbon focus:outline-none focus:border-[#003c33] leading-relaxed"
+                    />
+                  </div>
+                </>
+              )}
+
               {(selectedTool === 'audit_eu_compliance' || selectedTool === 'optimize_hci_design') && (
                 <div className="space-y-2">
                   <label className="block text-[11px] font-bold uppercase tracking-wider text-carbon">
@@ -605,7 +691,7 @@ export default function McpIntegrationPage() {
                     rows={4}
                     value={auditPrompt}
                     onChange={(e) => setAuditPrompt(e.target.value)}
-                    className="w-full bg-[#f9f9f9] border border-border rounded-[12px] p-3 font-sans text-[13px] text-carbon focus:outline-none focus:border-[#3a66f5] leading-relaxed"
+                    className="w-full bg-[#f9f9f9] border border-border rounded-[12px] p-3 font-sans text-[13px] text-carbon focus:outline-none focus:border-[#003c33] leading-relaxed"
                   />
                 </div>
               )}
@@ -620,7 +706,7 @@ export default function McpIntegrationPage() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="e.g., Should we add latency to streaming AI responses?"
-                    className="w-full bg-[#f9f9f9] border border-border rounded-[12px] p-3 font-sans text-[13px] text-carbon focus:outline-none focus:border-[#3a66f5]"
+                    className="w-full bg-[#f9f9f9] border border-border rounded-[12px] p-3 font-sans text-[13px] text-carbon focus:outline-none focus:border-[#003c33]"
                   />
                 </div>
               )}
@@ -634,7 +720,7 @@ export default function McpIntegrationPage() {
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       placeholder="e.g., cognitive offloading"
-                      className="w-full bg-[#f9f9f9] border border-border rounded-[12px] p-3 font-sans text-[13px] text-carbon focus:outline-none focus:border-[#3a66f5]"
+                      className="w-full bg-[#f9f9f9] border border-border rounded-[12px] p-3 font-sans text-[13px] text-carbon focus:outline-none focus:border-[#003c33]"
                     />
                   </div>
                   <div className="space-y-2">
@@ -663,7 +749,7 @@ export default function McpIntegrationPage() {
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       placeholder="e.g., facial recognition"
-                      className="w-full bg-[#f9f9f9] border border-border rounded-[12px] p-3 font-sans text-[13px] text-carbon focus:outline-none focus:border-[#3a66f5]"
+                      className="w-full bg-[#f9f9f9] border border-border rounded-[12px] p-3 font-sans text-[13px] text-carbon focus:outline-none focus:border-[#003c33]"
                     />
                   </div>
                   <div className="space-y-2">
@@ -691,7 +777,7 @@ export default function McpIntegrationPage() {
                     value={recordCode}
                     onChange={(e) => setRecordCode(e.target.value)}
                     placeholder="e.g., SOT-COMP-2026 or EU-ACT-ART-5"
-                    className="w-full bg-[#f9f9f9] border border-border rounded-[12px] p-3 font-mono text-[13px] text-carbon focus:outline-none focus:border-[#3a66f5]"
+                    className="w-full bg-[#f9f9f9] border border-border rounded-[12px] p-3 font-mono text-[13px] text-carbon focus:outline-none focus:border-[#003c33]"
                   />
                 </div>
               )}
@@ -701,7 +787,7 @@ export default function McpIntegrationPage() {
             <button
               onClick={handleExecute}
               disabled={executing}
-              className="w-full bg-[#3a66f5] hover:bg-[#254edb] disabled:bg-neutral-400 text-white font-sans text-[13px] font-bold uppercase tracking-wider py-4 rounded-[14px] transition-all flex items-center justify-center gap-2 shadow-sm cursor-pointer"
+              className="w-full bg-[#003c33] hover:bg-black disabled:bg-neutral-400 text-white font-sans text-[13px] font-bold uppercase tracking-wider py-4 rounded-[14px] transition-all flex items-center justify-center gap-2 shadow-sm cursor-pointer"
             >
               {executing ? (
                 <span>Executing RPC Request...</span>
@@ -739,6 +825,7 @@ export default function McpIntegrationPage() {
         </div>
       )}
 
+      </div>
     </main>
   );
 }

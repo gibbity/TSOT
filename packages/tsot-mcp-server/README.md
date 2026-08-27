@@ -43,12 +43,7 @@ Add this block to your `claude_desktop_config.json` (located at `%APPDATA%\Claud
   "mcpServers": {
     "tsot": {
       "command": "npx",
-      "args": ["-y", "tsot-mcp-server"],
-      "env": {
-        "SUPABASE_URL": "optional_your_supabase_url",
-        "SUPABASE_ANON_KEY": "optional_your_supabase_key",
-        "GEMINI_API_KEY": "optional_your_gemini_key"
-      }
+      "args": ["-y", "tsot-mcp-server"]
     }
   }
 }
