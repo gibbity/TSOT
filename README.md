@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🌐 The Sign of Times (TSOT)
+# 🌐 The Source of Truth (TSOT)
 ### *Empirical Human-Computer Interaction (HCI) Research & EU AI Act Compliance Intelligence*
 
 [![Live Demo](https://img.shields.io/badge/Live%20Platform-sourceoftruth--three.vercel.app-006A60?style=for-the-badge&logo=vercel&logoColor=white)](https://sourceoftruth-three.vercel.app/)
@@ -47,7 +47,7 @@
 
 ## 🌟 Overview
 
-**The Sign of Times (TSOT)** is an AI governance and design intelligence system that bridges **peer-reviewed Human-Computer Interaction (HCI) literature** with the statutory mandates of the **European Union Artificial Intelligence Act (Regulation EU 2024/1689)**.
+**The Source of Truth (TSOT)** is an AI governance and design intelligence system that bridges **peer-reviewed Human-Computer Interaction (HCI) literature** with the statutory mandates of the **European Union Artificial Intelligence Act (Regulation EU 2024/1689)**.
 
 Modern AI applications often suffer from **automation bias**, **cognitive offloading**, **epistemic erosion**, and **unintentional regulatory violations**. TSOT provides the foundational empirical backing, automated compliance auditing, and developer tooling necessary to design defensible, human-centered, and fully compliant AI systems.
 

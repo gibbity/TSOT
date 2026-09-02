@@ -15,7 +15,7 @@ export default function Footer() {
       <div className="relative max-w-[1200px] mx-auto px-6 py-10 flex flex-col md:flex-row justify-between items-center gap-6">
         <div className="flex flex-col gap-1">
           <p className="font-mono text-[11px] font-bold uppercase tracking-[0.1em] text-neutral-500">
-            THE SIGN OF TIMES (TSOT)
+            THE SOURCE OF TRUTH (TSOT)
           </p>
           <p className="font-sans text-[11px] text-neutral-700">
             © 2026 Human-AI Interaction Research Registry. All rights reserved.

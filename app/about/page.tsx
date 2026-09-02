@@ -53,7 +53,7 @@ export default function AboutPage() {
         />
         <div className="relative max-w-[780px] mx-auto px-6 pt-20 pb-16 space-y-5">
           <span className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-[11.5px] font-mono tracking-wider text-neutral-400 bg-white/5 border border-white/10">
-            Methodology & Research Pillars
+            Methodology & Research Pillars · <a href="https://sourceoftruth-three.vercel.app/" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:underline">sourceoftruth-three.vercel.app</a>
           </span>
           <h1 className="font-['Plus_Jakarta_Sans'] text-[38px] sm:text-[52px] font-normal leading-[1.05] tracking-[-1.4px] text-white">
             Map how AI alters the human mind.
@@ -68,10 +68,10 @@ export default function AboutPage() {
       <section className="py-16 border-b border-white/8">
         <div className="max-w-[800px] mx-auto px-6 space-y-6">
           <p className="text-[20px] text-neutral-200 leading-relaxed font-sans">
-            The Sign of Times (TSOT) is a research registry designed to map how current AI interface structures alter human cognition, memory recall, planning, and belief calibration.
+            The Source of Truth (TSOT) is a research registry designed to map how current AI interface structures alter human cognition, memory recall, planning, and belief calibration.
           </p>
           <p className="text-[15px] text-neutral-500 leading-relaxed">
-            Unlike typical AI databases focused on model benchmarks or generic developer tooling, TSOT works from the outside in. We track the empirical effects of agentic design systems on the human mind, converting scientific discoveries into structured, actionable guidelines.
+            Live at <a href="https://sourceoftruth-three.vercel.app/" target="_blank" rel="noopener noreferrer" className="text-emerald-400 hover:underline font-mono">https://sourceoftruth-three.vercel.app/</a>. Unlike typical AI databases focused on model benchmarks or generic developer tooling, TSOT works from the outside in. We track the empirical effects of agentic design systems on the human mind, converting scientific discoveries into structured, actionable guidelines.
           </p>
         </div>
       </section>

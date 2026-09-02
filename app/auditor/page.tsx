@@ -684,7 +684,7 @@ export default function AuditorPage() {
   <!-- Header -->
   <div style="border-bottom:2px solid #0B0B0B;padding-bottom:16px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:flex-end;">
     <div>
-      <div style="font-family:'DM Mono',monospace;font-size:9px;font-weight:700;color:#534AB7;text-transform:uppercase;letter-spacing:0.2em;margin-bottom:4px;">THE SIGN OF TIMES (TSOT)</div>
+      <div style="font-family:'DM Mono',monospace;font-size:9px;font-weight:700;color:#534AB7;text-transform:uppercase;letter-spacing:0.2em;margin-bottom:4px;">THE SOURCE OF TRUTH (TSOT)</div>
       <h1 style="font-size:26px;font-weight:700;color:#0B0B0B;margin:0;letter-spacing:-0.02em;line-height:1;">Design Audit Evidence Brief</h1>
     </div>
     <div style="text-align:right;">
